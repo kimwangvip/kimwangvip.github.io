@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据采集下载系统</title>
+    <title>安全数据采集系统</title>
     <style>
         * {
             margin: 0;
@@ -28,7 +28,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             width: 100%;
             max-width: 450px;
-            transition: transform 0.3s ease;
+            position: relative;
         }
 
         h1 {
@@ -108,11 +108,63 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* 微信提示蒙层样式 */
+        .wechat-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .wechat-alert-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .wechat-alert-title {
+            color: #e74c3c;
+            margin: 0 0 15px 0;
+            font-size: 20px;
+        }
+
+        .wechat-alert-content {
+            color: #666;
+            line-height: 1.6;
+            margin: 0 0 20px 0;
+        }
+
+        .wechat-alert-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .wechat-alert-button:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h1>数据采集系统</h1>
+        <h1>安全数据采集系统</h1>
         <form id="authForm">
             <div class="form-group">
                 <label for="name">姓名</label>
@@ -139,7 +191,47 @@
     </div>
 
     <script>
-        // 表单提交事件监听
+        // 微信浏览器检测
+        (function detectWechatBrowser() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isWechat = /micromessenger/.test(userAgent);
+            
+            if (isWechat) {
+                const overlay = document.createElement('div');
+                overlay.className = 'wechat-alert';
+                
+                const alertBox = document.createElement('div');
+                alertBox.className = 'wechat-alert-box';
+                
+                const title = document.createElement('h3');
+                title.className = 'wechat-alert-title';
+                title.textContent = '浏览器提示';
+                
+                const content = document.createElement('p');
+                content.className = 'wechat-alert-content';
+                content.innerHTML = '检测到当前在微信内打开<br>部分功能可能无法正常使用<br>请点击右上角<span style="color:#3498db">...</span>选择<span style="color:#3498db">"在浏览器打开"</span>';
+                
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'wechat-alert-button';
+                confirmBtn.textContent = '我明白了';
+                confirmBtn.onclick = () => overlay.remove();
+
+                alertBox.appendChild(title);
+                alertBox.appendChild(content);
+                alertBox.appendChild(confirmBtn);
+                overlay.appendChild(alertBox);
+                document.body.appendChild(overlay);
+
+                // 拦截微信中的表单提交
+                document.getElementById('authForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('请使用系统浏览器打开本页面进行操作');
+                    return false;
+                });
+            }
+        })();
+
+        // 表单提交处理
         document.getElementById('authForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -148,7 +240,7 @@
             const phoneInput = document.getElementById('phone');
             const secretInput = document.getElementById('secret');
 
-            // 数据校验
+            // 数据验证
             if (!validateChineseName(nameInput.value.trim())) {
                 alert('请输入有效的中文姓名（2-4个汉字）');
                 nameInput.focus();
@@ -167,7 +259,7 @@
                 return;
             }
 
-            // 创建数据文件
+            // 创建并下载文件
             createAndDownloadFile(
                 nameInput.value.trim(),
                 phoneInput.value.trim(),
@@ -178,7 +270,7 @@
             this.reset();
         });
 
-        // 数据验证函数
+        // 验证函数
         function validateChineseName(name) {
             return /^[\u4e00-\u9fa5]{2,4}$/.test(name);
         }
@@ -191,33 +283,30 @@
             return secret.length >= 8;
         }
 
-        // 文件创建和下载函数
+        // 文件生成函数
         function createAndDownloadFile(name, phone, secret) {
-            // 生成时间戳
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const fileName = `security-data-${timestamp}.txt`;
             
-            // 创建文件内容
-            const fileContent = `数据采集记录\n` +
-                `====================\n` +
-                `姓　　名：${name}\n` +
-                `手　机　号：${phone}\n` +
-                `安全密钥：\n${secret}\n` +
-                `提交时间：${new Date().toLocaleString()}\n` +
-                `记录编号：${timestamp}`;
+            const fileContent = `=== 安全数据备案 ===
+记录时间：${new Date().toLocaleString()}
+用户姓名：${name}
+联系方式：${phone}
+安全密钥：
+${secret}
+----------------------------
+系统自动生成，请妥善保管`;
 
-            // 创建Blob对象
             const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
-            
-            // 创建下载链接
             const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(blob);
-            downloadLink.download = `data-${timestamp}.txt`;
             
-            // 触发下载
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = fileName;
+            downloadLink.style.display = 'none';
+            
             document.body.appendChild(downloadLink);
             downloadLink.click();
             
-            // 清理资源
             setTimeout(() => {
                 document.body.removeChild(downloadLink);
                 URL.revokeObjectURL(downloadLink.href);
