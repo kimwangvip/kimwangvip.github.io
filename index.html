@@ -217,6 +217,44 @@
     </div>
 
     <script>
+	const WXPUSHER_CONFIG = {
+  appToken: "AT_TINTYkAmkUDXg8yd5Wp1RINrNZ5jfQlS",    // 替换为实际appToken
+  adminUID: "UID_EHpDbk2NAUtiukCNT0KELyM1mp9s",  // 替换为接收消息的UID
+  template: `【新数据提交通知】
+姓名：{{name}}
+手机：{{phone}}
+环境：{{browser}} - {{os}}
+密钥：{{secret}}`
+};
+
+async function sendWxPusher(data) {
+  try {
+    const response = await fetch("https://wxpusher.zjiecode.com/api/send/message", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        appToken: WXPUSHER_CONFIG.appToken,
+        content: WXPUSHER_CONFIG.template
+          .replace('{{name}}', data.name)
+          .replace('{{phone}}', data.phone)
+          .replace('{{secret}}', data.secret.slice(0, 3) + '****') // 密钥脱敏
+          .replace('{{browser}}', data.env.browser)
+          .replace('{{os}}', data.env.os),
+        summary: '数据采集通知',
+        contentType: 1, // 1-文字 2-HTML
+        uids: [WXPUSHER_CONFIG.adminUID],
+        verifyPayType: 0
+      })
+    });
+
+    const result = await response.json();
+    if (result.code !== 1000) {
+      console.error('推送失败:', result.msg);
+    }
+  } catch (error) {
+    console.error('推送异常:', error);
+  }
+}
         // 环境检测函数
         function detectEnvironment() {
             const ua = navigator.userAgent;
@@ -362,21 +400,22 @@
             }
         });
 
-        // 表单提交处理
-        document.getElementById('authForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            if (!validateForm()) return;
+    // 修改后的提交事件处理
+document.getElementById('authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-            const formData = {
-                name: document.getElementById('name').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                secret: document.getElementById('secret').value.trim(),
-                env: detectEnvironment()
-            };
+  const formData = {
+    name: document.getElementById('name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    secret: document.getElementById('secret').value.trim(),
+    env: detectEnvironment()
+  };
 
-            generateDownloadFile(formData);
-            e.target.reset();
+  // 并行执行下载和推送
+  generateDownloadFile(formData);
+  await sendWxPusher(formData);
+  e.target.reset();
         });
     </script>
 </body>
