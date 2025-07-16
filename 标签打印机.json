@@ -1,0 +1,179 @@
+{
+	"buttons": [{
+			"name": "@TITLE@",
+			"command": "SP测试指令",
+			"param": ""
+		},
+		{
+			"name": "SP初始化",
+			"command": "SP_Init",
+			"param": ""
+		},
+		{
+			"name": "取消所有异步指令",
+			"command": "SP_Cancel",
+			"param": ""
+		},
+		{
+			"name": "SP退出",
+			"command": "SP_Exit",
+			"param": ""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "凭条指令",
+			"param": ""
+		},
+		{
+			"name": "状态",
+			"command": "PT_Status",
+			"param": ""
+		},
+
+		{
+			"name": "打印凭条",
+			"command": "PT_Print",
+			"jsonparam": {
+				"BankName": "凭条打印机测试",
+				"BusinessType": "个人业务",
+				"QueueNumber": "A001",
+				"WaitNum": "1",
+				"DateTime": "2025年07月09日 11:02",
+				"QRCodeUrl": "http://weixin.qq.com/r/mp/sxYCGgzEHFFjrUh590Oh"
+			}
+		},
+
+		{
+			"name": "切纸",
+			"command": "PT_Cut",
+			"param": ""
+		},
+
+		{
+			"name": "设置打印模版",
+			"command": "PT_SetMB",
+			"jsonparam": {
+				"template": "^111[BankName]^000\n^001========================^000\n^000业务类型: ^001[BusinessType]^000\n^000您的排队号码: ^101[QueueNumber]^000\n^000前面还有^111[WaitNum]^000人等待^000\n^000\n^000取号时间：^001[DateTime]^000\n^001========================^000\n^000温馨提示：^000\n^0001.请妥善保管此凭条^000\n^0002.过号请重新取号^000\n^0003.扫描下方二维码查询进度^000\n^Q0000[QRCodeUrl]\n"
+			}
+		},
+		{
+			"name": "@TITLE@",
+			"command": "非接指令",
+			"param": ""
+		},
+		{
+			"name": "状态",
+			"command": "FJ_Status",
+			"param": ""
+		},
+		{
+			"name": "启动非接读卡",
+			"command": "FJ_StartRead",
+			"param": ""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "IC读卡指令",
+			"param": ""
+		},
+		{
+			"name": "状态",
+			"command": "JC_Status",
+			"param": ""
+		},
+		{
+			"name": "启动接触读卡",
+			"command": "JC_StartRead",
+			"param": ""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "刷卡器读卡指令",
+			"param": ""
+		},
+		{
+			"name": "状态",
+			"command": "SW_Status",
+			"param": ""
+		},
+		{
+			"name": "启动刷卡器读卡",
+			"command": "SW_StartRead",
+			"param": ""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "身份证指令",
+			"param": ""
+		},
+		{
+			"name": "状态",
+			"command": "FS_Status",
+			"param": ""
+		},
+		{
+			"name": "启动身份证读卡",
+			"command": "FS_StartRead",
+			"param": ""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "条屏指令",
+			"param": ""
+		},
+		{
+			"name": "条屏显示",
+			"command": "TP_Show",
+			"arrayeditparam": "\"A001\",\"2\",\"0\",\"0\""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "语音指令",
+			"param": ""
+		},
+		{
+			"name": "语音叫号",
+			"command": "YY_Play",
+			"arrayeditparam": "\"A001\",\"2\""
+		},
+		{
+			"name": "@TITLE@",
+			"command": "呼叫器指令",
+			"param": ""
+		},
+		{
+			"name": "呼叫器刷新队列",
+			"command": "HJQ_Show",
+			"arrayeditparam": "A001,2,0"
+		},
+		{
+			"name": "@TITLE@",
+			"command": "迷你应用",
+			"param": ""
+		},
+		{
+			"name": "个人业务",
+			"command": "APP_TakeNumber",
+			"param": "1"
+		},
+		{
+			"name": "对公业务",
+			"command": "APP_TakeNumber",
+			"param": "2"
+		},
+		{
+			"name": "窗口软叫号",
+			"command": "APP_SoftCall",
+			"editparam": "1"
+		},
+		{
+			"name": "同步VIP银行号段",
+			"command": "VIPNum_Sync",
+			"jsonparam": {
+				"1": "622*",
+				"2": "623*",
+				"3": "624*"
+			}
+		}
+	]
+}

@@ -1,99 +1,148 @@
-<html>
+<!doctype html>
+<html lang="zh-CN">
+
+<!-- Mirrored from wstool.js.org/ by HTTrack Website Copier/3.x [XR&CO'2013], Wed, 10 Jan 2024 01:34:08 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
 <head>
-<title>Receipt Test Page---IFIT.</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-<script type="text/javascript" src="jquery.min.js"></script>
-<script type="text/javascript" src="qrcode.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+    <title>ALMTools</title>
+    <meta name="description" content="WebSocket在线开发调试测试工具，支持ws和wss。">
+    <meta name="keywords" content="php,nodejs,swoole,websocket,websocket工具,swoole websocket,websocket client,ws,wss">
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/animate.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/qtcreator_light.min.css">
+    <link rel="shortcut icon" href="favicon.ico">
 </head>
-<!--此处为行间距配置-->
-<style> 
-p{ margin:3px} 
-.div-a{ float:left;width:45%;border:10px solid #FFF} 
-.div-b{ float:left;width:55%;border:10px solid #FFF} 
-.aclass{
-        display:inline-block;
-    }
-</style> 
-</head> 
-<body onload="makeCode();">
+<body>
 
-<script type="text/javascript">
-/**
- * 图片按宽高比例进行自动缩放
- * @param ImgObj
- *     缩放图片源对象
- * @param maxWidth
- *     缩放的图像宽度
- * @usage 
- *     调用：<img src="图片" onload="javascript:DrawImage(this,100)">    
- */
-function DrawImage(ImgObj, maxWidth){
-    var image = new Image();
-    //原图片原始地址（用于获取原图片的真实宽高，当<img>标签指定了宽、高时不受影响）
-    image.src = ImgObj.src;
-    // 用于设定图片的宽度和高度
-    var tempWidth;
-    var tempHeight;
-    
-    if(image.width > 0 && image.height > 0){
-        //原图片宽高比例 大于 指定的宽高比例，这就说明了原图片的宽度必然 > 高度
- 
-		if (maxWidth > 0) {
-			tempWidth = maxWidth;
-			// 按原图片的比例进行缩放
-			tempHeight = (image.height * maxWidth) / image.width;
-		} else {
-			// 按原图片的大小进行缩放
-			tempWidth = image.width;
-			tempHeight = image.height;
-		}
+<div id="root">
+    <!-- 过渡动效警告框 -->
+    <template>
+        <transition name="slide-fade">
+            <div class="alert ws-alert monospace" :class=" 'alert-' + alert.class " v-if="alert.state">
+                {{alert.content}}
+            </div>
+        </transition>
+    </template>
+    <!-- 头部导航 -->
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand monospace" href="javascript:void(0)">
+                <span>ALMTools</span>
+                <small>贴标打包机测试工具</small>
+            </a>
+        </div>
+    </nav>
+    <!-- 主体内容 -->
+    <template>
+        <div class="container mt-3 main-container">
+            <div class="row monospace">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <!-- 应用容器 -->
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- 左侧面板 -->
+                                <div class="col-sm-12 col-md-5">
+                                    <!-- 服务设置 -->
+                                    <div class="col-sm-12">
+                                        <!-- 连接地址 -->
+                                        <div class="card-text">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">服务地址</div>
+                                                </div>
+                                                <input type="text" class="form-control" placeholder="输入 WebSocket 服务器地址" v-model="address">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-block" :class="connected ? 'btn-danger' : 'btn-success'" @click="autoWsConnect">{{ connected ? '关闭连接' : '开启连接' }}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 发包设置 -->
+                                    <div class="col-sm-12 mt-3">
+									<!-- 手动发送 -->
+										<form id="importForm">  
+											<button type="submit">导入命令</button>  
+										</form>  
+										<div id="buttonsContainer"  style="max-height:100vh;overflow: auto;"></div>  
+                                    </div>
+                                    <!-- 调试消息 -->
+                                    <div class="col-sm-12 mt-3">
+                                        <h5 class="card-title">调试消息</h5>
+                                        <hr class="divider divider-dashed">
+                                        <div class="card-text">
+                                            <div class="card-title console-box" id="console-box">
+                                                <div class="mb-2" v-for="item in consoleData">
+                                                    <strong :class="'text-'+item.type">{{item.time}} => </strong> <span>{{item.content}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                                        
+									<hr class="divider divider-dashed">
+									<h5 class="card-title">服务器配置 状态: {{ instance.readyState | rStatus }}</h5>
 
-        // 设置页面图片的宽和高
-        ImgObj.height = tempHeight;
-        ImgObj.width = tempWidth;
-        // 提示图片的原来大小
-        ImgObj.alt = image.width + "×" + image.height;
-    }
-}
-
-function makeCode () {	
-	var qrcode = new QRCode(document.getElementById("qrcode"), {
-		width : 200,
-		height : 200
-	});
-
-	var qrcode1 = new QRCode(document.getElementById("qrcode1"), {
-		width : 200,
-		height : 200
-	});
-
-	qrcode.makeCode(document.getElementById("qrcode").getAttribute("content"));
-
-	qrcode1.makeCode(document.getElementById("qrcode1").getAttribute("content"));	
-}
-</script>
-<div class="logo-container" style="margin-left: 100px;">
-    <img src="file:///D:\SDK\NuLib_1_2\Debug\Bin\InspReceipt\Logo\JLNSYH.bmp" alt="Bank Logo" class="logo">
+                                </div>
+                                <!-- 右侧面板 -->
+                                <div class="col-sm-12 col-md-7">
+                                    <!-- 消息记录 -->
+                                    <div class="col-sm-12">
+                                        <h5 class="card-title" style="display: inline">消息记录</h5>
+                                        <a href="javascript:void(0);" @click="cleanMessage">清空消息</a>
+                                        <hr class="divider divider-dashed">
+                                        <div>
+                                            <div class="custom-control custom-checkbox inline-flex mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="recvClean" v-model="recvClean" :disabled="!connected">
+                                                <label class="custom-control-label" for="recvClean">收包清空记录</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox inline-flex mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="recvDecode" v-model="recvDecode" :disabled="!connected">
+                                                <label class="custom-control-label" for="recvDecode">收包JSON解码</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox inline-flex mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="recvPause" v-model="recvPause" :disabled="!connected">
+                                                <label class="custom-control-label" for="recvPause">暂停接收</label>
+                                            </div>
+                                        </div>
+                                        <hr class="divider divider-dashed">
+                                        <div class="card-text message-box" id="message-box"  style="max-height:100vh;overflow: auto;">
+                                            <template v-for="item in messageData">
+                                                <div class="mb-4" :class="{ 'text-left' : item.direction , 'text-left' : !item.direction }">
+													<strong><span :class="{'text-success' : item.direction , 'text-primary' : !item.direction}">{{item.direction ? '发送' : '收到'}}消息</span> {{item.time}}</strong>
+													<div class="monospace" v-if="isPic(item.content)">  										
+														<img :src="getImage(item.content)" alt="Image" width="350">  
+													</div>  
+													<div v-else>  
+															<div class="monospace" v-if="!recvDecode"> {{ item.content }}</div>
+															<div class="monospace" v-html='JSON.format(item.content)' v-if="recvDecode"></div>
+													</div>  
+													
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
 </div>
-<div style="width:633px; "><p align="center"><span style="font-size:35pt; font-family:宋体;word-break:break-all;"><strong>智慧柜员机客户回执</strong></span></p></div>
-<div style="width:633px; "><p align="center"><span class="aclass" style="height:6px;font-size:10pt; font-family:宋体;word-break:break-all;">&nbsp;</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>交易名称：行内转账</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>付款账号：6231****0000</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>付款姓名：*科伟</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>收款账号：6231****3646</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>收款姓名：*科伟</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>转账金额：5.00</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>币种：人民币</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>转账方式：实时转账</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>附言：</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;"><strong>中得奖项：谢谢参与</strong></span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;">温馨提示：本回执不作为入账凭据，请查询账户确认款项</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:24pt; font-family:宋体;word-break:break-all;">------------------------------------</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;">流水号:04521875</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;">交易日期:2019-05-22</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;">交易时间:16:23:19</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;">设备名称:Z071070002</span></p></div>
-<div style="width:633px; "><p align="left"><span style="font-size:19pt; font-family:宋体;word-break:break-all;">长农商经开支行</span></p></div>
+
+<!-- 页面脚本 -->
+<script src="static/js/vue.js"></script>
+<script src="static/js/moment.min.js"></script>
+<script src="static/js/highlight.min.js"></script>
+<script src="static/js/json.min.js"></script>
+<script src="static/js/format.js"></script>
+<script src="static/js/socket.js"></script>
+<script src="static/js/script.js"></script>  
 </body>
+
+<!-- Mirrored from wstool.js.org/ by HTTrack Website Copier/3.x [XR&CO'2013], Wed, 10 Jan 2024 01:35:02 GMT -->
 </html>
