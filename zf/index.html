@@ -40,18 +40,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
-            color: white;
-            background-size: cover;
-            background-position: center;
+            background: white;
         }
         
-        .wechat { 
-            background: #07c160; 
-        }
-        
-        .alipay { 
-            background: #1677ff; 
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 5px;
         }
         
         .title {
@@ -108,8 +104,8 @@
             <div class="title">支付宝扫码支付</div>
             <div class="subtitle">请使用支付宝扫描下方二维码完成支付</div>
             
-            <div class="qr-code alipay">
-                ￥
+            <div class="qr-code">
+                
             </div>
             
             <div class="tip-box">
@@ -127,8 +123,8 @@
             <div class="title">微信扫码支付</div>
             <div class="subtitle">请使用微信扫描下方二维码完成支付</div>
             
-            <div class="qr-code wechat">
-                ￥
+            <div class="qr-code">
+                
             </div>
             
             <div class="tip-box">
@@ -199,6 +195,20 @@
             document.getElementById('wechat-content').classList.add('hidden');
             document.getElementById('alipay-content').classList.add('hidden');
             document.getElementById('other-content').classList.add('hidden');
+        }
+        
+        // 图片加载失败处理函数
+        function handleImageError(img, platform) {
+            console.log(`${platform}二维码图片加载失败`);
+            
+            // 创建备用二维码显示
+            const container = img.parentElement;
+            container.innerHTML = `
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; 
+                           background: ${platform === 'wechat' ? '#07c160' : '#1677ff'}; color: white; font-size: 24px; border-radius: 5px;">
+                    ${platform === 'wechat' ? '微信' : '支付宝'}
+                </div>
+            `;
         }
         
         // 页面加载时执行环境检测
