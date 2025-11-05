@@ -9,267 +9,201 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             padding: 20px;
         }
         
         .container {
-            background-color: white;
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            padding: 40px 30px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-        
-        .description {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        
-        .qr-container {
-            margin: 30px 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 15px;
-            transition: all 0.5s ease;
-            min-height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            max-width: 500px;
+            width: 100%;
         }
         
         .qr-code {
             width: 200px;
             height: 200px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
+            margin: 20px auto;
+            border: 10px solid #f8f9fa;
+            border-radius: 15px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            background-size: cover;
+            background-position: center;
         }
         
-        .qr-code img {
-            max-width: 90%;
-            max-height: 90%;
+        .wechat { 
+            background: #07c160; 
         }
         
-        .platform-info {
-            margin-top: 20px;
-            padding: 15px;
+        .alipay { 
+            background: #1677ff; 
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .tip-box {
+            background: #f8f9fa;
             border-radius: 10px;
-            font-weight: 500;
-            display: inline-block;
+            padding: 20px;
+            margin: 20px 0;
         }
         
-        .wechat {
-            background-color: rgba(7, 193, 96, 0.1);
-            color: #07c160;
+        .tip-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
         }
         
-        .alipay {
-            background-color: rgba(0, 158, 247, 0.1);
-            color: #009ef7;
-        }
-        
-        .unknown {
-            background-color: rgba(153, 153, 153, 0.1);
-            color: #999;
-        }
-        
-        .platform-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-        }
-        
-        .instructions {
-            margin-top: 25px;
-            padding: 15px;
-            background-color: #f0f7ff;
-            border-radius: 10px;
-            font-size: 14px;
-            color: #0066cc;
+        .tip-content {
+            color: #666;
             line-height: 1.6;
         }
         
-        .fade-in {
-            animation: fadeIn 0.8s ease;
+        .environment-info {
+            font-size: 18px;
+            color: #ff6b6b;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff5f5;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .test-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .test-button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4a6cf7;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        
-        .test-button:hover {
-            background-color: #3a5ce5;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>扫码识别页面</h1>
-        <p class="description">根据您使用的扫码工具，我们将显示相应的二维码</p>
-        
-        <div class="qr-container">
-            <div class="platform-icon">🔍</div>
-            <p>正在检测扫码平台...</p>
+        <!-- 支付宝环境显示的内容 -->
+        <div id="alipay-content" class="hidden">
+            <div class="title">支付宝扫码支付</div>
+            <div class="subtitle">请使用支付宝扫描下方二维码完成支付</div>
+            
+            <div class="qr-code alipay">
+                ￥
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">支付宝支付提示</div>
+                <div class="tip-content">
+                    • 请确保支付宝账户余额充足<br>
+                    • 支付过程中请勿关闭页面<br>
+                    • 支付成功后会自动跳转
+                </div>
+            </div>
         </div>
         
-        <div class="instructions">
-            <p>请使用微信或支付宝扫描此二维码，系统将自动识别并显示相应的内容。</p>
+        <!-- 微信环境显示的内容 -->
+        <div id="wechat-content" class="hidden">
+            <div class="title">微信扫码支付</div>
+            <div class="subtitle">请使用微信扫描下方二维码完成支付</div>
+            
+            <div class="qr-code wechat">
+                ￥
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">微信支付提示</div>
+                <div class="tip-content">
+                    • 请确保微信钱包余额充足<br>
+                    • 支付过程中请勿关闭页面<br>
+                    • 支付成功后会自动跳转
+                </div>
+            </div>
         </div>
         
-        <div class="test-buttons">
-            <button class="test-button" id="test-wechat">模拟微信扫码</button>
-            <button class="test-button" id="test-alipay">模拟支付宝扫码</button>
-            <button class="test-button" id="test-other">模拟其他浏览器</button>
+        <!-- 非支付宝/微信环境显示的内容 -->
+        <div id="other-content" class="hidden">
+            <div class="title">扫码支付</div>
+            <div class="subtitle">请使用微信或支付宝扫描二维码</div>
+            
+            <div class="environment-info">
+                ❓ 未识别到微信或支付宝环境
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">使用说明</div>
+                <div class="tip-content">
+                    请使用微信或支付宝扫描此二维码，系统将自动识别并显示相应的支付页面。
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // 环境检测函数
+        function detectEnvironment() {
+            const ua = navigator.userAgent.toLowerCase();
+            
+            if (ua.match(/micromessenger/i)) {
+                // 微信环境
+                showWechatContent();
+            } else if (ua.match(/alipay/i)) {
+                // 支付宝环境
+                showAlipayContent();
+            } else {
+                // 其他环境
+                showOtherContent();
+            }
+        }
+        
+        // 显示微信内容
+        function showWechatContent() {
+            hideAllContent();
+            document.getElementById('wechat-content').classList.remove('hidden');
+        }
+        
+        // 显示支付宝内容
+        function showAlipayContent() {
+            hideAllContent();
+            document.getElementById('alipay-content').classList.remove('hidden');
+        }
+        
+        // 显示其他环境内容
+        function showOtherContent() {
+            hideAllContent();
+            document.getElementById('other-content').classList.remove('hidden');
+        }
+        
+        // 隐藏所有内容
+        function hideAllContent() {
+            document.getElementById('wechat-content').classList.add('hidden');
+            document.getElementById('alipay-content').classList.add('hidden');
+            document.getElementById('other-content').classList.add('hidden');
+        }
+        
+        // 页面加载时执行环境检测
         document.addEventListener('DOMContentLoaded', function() {
-            const qrContainer = document.querySelector('.qr-container');
-            const platformIcon = document.querySelector('.platform-icon');
-            
-            // 检测扫码平台
-            function detectScanner() {
-                const userAgent = navigator.userAgent.toLowerCase();
-                
-                if (userAgent.includes('micromessenger')) {
-                    // 微信环境
-                    showWechatQR();
-                } else if (userAgent.includes('alipay')) {
-                    // 支付宝环境
-                    showAlipayQR();
-                } else {
-                    // 其他环境
-                    showUnknown();
-                }
-            }
-            
-            // 显示微信二维码
-            function showWechatQR() {
-                qrContainer.innerHTML = `
-                    <div class="platform-icon" style="color: #07c160;">💚</div>
-                    <div class="qr-code pulse">
-                        <img src="/wx.jpg" alt="微信二维码" onerror="handleImageError(this, '微信')">
-                    </div>
-                    <div class="platform-info wechat">检测到您正在使用微信扫码</div>
-                `;
-                qrContainer.classList.add('fade-in');
-            }
-            
-            // 显示支付宝二维码
-            function showAlipayQR() {
-                qrContainer.innerHTML = `
-                    <div class="platform-icon" style="color: #009ef7;">💙</div>
-                    <div class="qr-code pulse">
-                        <img src="/zfb.jpg" alt="支付宝二维码" onerror="handleImageError(this, '支付宝')">
-                    </div>
-                    <div class="platform-info alipay">检测到您正在使用支付宝扫码</div>
-                `;
-                qrContainer.classList.add('fade-in');
-            }
-            
-            // 图片加载失败处理
-            function handleImageError(img, platform) {
-                console.log(`${platform}二维码图片加载失败，使用默认二维码`);
-                // 创建默认二维码
-                const canvas = document.createElement('canvas');
-                canvas.width = 180;
-                canvas.height = 180;
-                const ctx = canvas.getContext('2d');
-                
-                // 绘制背景
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, 180, 180);
-                
-                // 绘制平台标识
-                ctx.fillStyle = platform === '微信' ? '#07c160' : '#009ef7';
-                ctx.font = 'bold 20px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(platform, 90, 100);
-                
-                // 替换图片
-                img.src = canvas.toDataURL();
-            }
-            
-            // 显示未知平台提示
-            function showUnknown() {
-                qrContainer.innerHTML = `
-                    <div class="platform-icon" style="color: #999;">❓</div>
-                    <div class="qr-code">
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div style="width: 150px; height: 150px; background: linear-gradient(45deg, #07c160 50%, #009ef7 50%); border-radius: 10px; display: flex; justify-content: center; align-items: center; color: white; font-size: 50px; margin-bottom: 10px;">
-                                ?
-                            </div>
-                            <p style="font-size: 14px; color: #666;">请使用微信或支付宝扫码</p>
-                        </div>
-                    </div>
-                    <div class="platform-info unknown">未识别到微信或支付宝环境</div>
-                `;
-                qrContainer.classList.add('fade-in');
-            }
-            
-            // 初始化检测
-            detectScanner();
-            
-            // 测试按钮事件
-            document.getElementById('test-wechat').addEventListener('click', showWechatQR);
-            document.getElementById('test-alipay').addEventListener('click', showAlipayQR);
-            document.getElementById('test-other').addEventListener('click', showUnknown);
+            detectEnvironment();
         });
     </script>
 </body>
