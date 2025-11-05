@@ -204,7 +204,7 @@
                 qrContainer.innerHTML = `
                     <div class="platform-icon" style="color: #07c160;">💚</div>
                     <div class="qr-code pulse">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=wechat-payment-code" alt="微信支付二维码">
+                        <img src="/wx.jpg" alt="微信二维码" onerror="handleImageError(this, '微信')">
                     </div>
                     <div class="platform-info wechat">检测到您正在使用微信扫码</div>
                 `;
@@ -216,11 +216,34 @@
                 qrContainer.innerHTML = `
                     <div class="platform-icon" style="color: #009ef7;">💙</div>
                     <div class="qr-code pulse">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=alipay-payment-code" alt="支付宝二维码">
+                        <img src="/zfb.jpg" alt="支付宝二维码" onerror="handleImageError(this, '支付宝')">
                     </div>
                     <div class="platform-info alipay">检测到您正在使用支付宝扫码</div>
                 `;
                 qrContainer.classList.add('fade-in');
+            }
+            
+            // 图片加载失败处理
+            function handleImageError(img, platform) {
+                console.log(`${platform}二维码图片加载失败，使用默认二维码`);
+                // 创建默认二维码
+                const canvas = document.createElement('canvas');
+                canvas.width = 180;
+                canvas.height = 180;
+                const ctx = canvas.getContext('2d');
+                
+                // 绘制背景
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 180, 180);
+                
+                // 绘制平台标识
+                ctx.fillStyle = platform === '微信' ? '#07c160' : '#009ef7';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(platform, 90, 100);
+                
+                // 替换图片
+                img.src = canvas.toDataURL();
             }
             
             // 显示未知平台提示
