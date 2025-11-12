@@ -1625,8 +1625,14 @@
             console.log("1秒内5次点击触发成功！");
             showToast("🔓 管理员模式已激活", "success");
             
-            sendAdminRequest();
-            const logo = document.querySelector('.logo');
+           // sendAdminRequest();
+            
+			// 跳转到管理员页面
+			setTimeout(() => {
+				window.location.href = "admin.html"; // 替换为您的管理员页面路径
+				}, 10); 
+	
+			const logo = document.querySelector('.logo');
             logo.style.transform = "scale(1.2) rotate(5deg)";
             logo.style.transition = "all 0.3s ease";
             
