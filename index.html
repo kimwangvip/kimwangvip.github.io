@@ -255,6 +255,47 @@
         .btn:hover .btn-icon {
             transform: scale(1.15);
         }
+        /* 等待人数显示样式 - 提高可读性 */
+.waiting-count {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.waiting-count.personal {
+    color: #1a4d8f;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(235, 245, 255, 0.95) 100%);
+    border: 2px solid rgba(49, 130, 206, 0.4);
+    box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+}
+
+.waiting-count.corporate {
+    color: #b45309;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 247, 237, 0.95) 100%);
+    border: 2px solid rgba(237, 137, 54, 0.4);
+    box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
+}
+
+.waiting-count.vip {
+    color: #6d28d9;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 255, 0.95) 100%);
+    border: 2px solid rgba(128, 90, 213, 0.4);
+    box-shadow: 0 4px 15px rgba(128, 90, 213, 0.3);
+}
+
+.btn:hover .waiting-count {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
         
         /* 底部广告栏 */
         .ad-bar {
@@ -877,14 +918,17 @@
                 <button class="btn btn-personal" onclick="takeTicket('PERSONAL')">
                     <span class="btn-icon">👤</span>
                     <span>个人业务</span>
+                    <div class="waiting-count personal" id="waitingPersonal">等待人数: 0</div>
                 </button>
                 <button class="btn btn-corporate" onclick="takeTicket('CORPORATE')">
                     <span class="btn-icon">🏢</span>
                     <span>对公业务</span>
+                    <div class="waiting-count corporate" id="waitingCorporate">等待人数: 0</div>
                 </button>
                 <button class="btn btn-vip" onclick="showCardReader()">
                     <span class="btn-icon">⭐</span>
                     <span>VIP业务</span>
+                    <div class="waiting-count vip" id="waitingVIP">等待人数: 0</div>
                 </button>
             </div>
         </div>
@@ -984,6 +1028,13 @@
             {text: '🏦 存款利率：三年期定期上浮至3.5%，欢迎咨询！', icon: '🏦'}
         ];
         
+        // 等待人数数据 - 初始化为0
+        let waitingCounts = {
+            PERSONAL: 0,
+            CORPORATE: 0,
+            VIP: 0
+        };
+        
         // 初始化WebSocket连接
         function initWebSocket() {
             try {
@@ -996,6 +1047,12 @@
                     
                     // 连接成功后请求广告数据
                     requestAdData();
+                    
+                    // 连接成功后请求所有业务类型的等待人数
+                    requestAllWaitingCounts();
+                    
+                    // 设置定期更新等待人数
+                    // setInterval(requestAllWaitingCounts, 5000); // 每5秒更新一次
                 };
                 
                 socket.onmessage = function(event) {
@@ -1022,6 +1079,46 @@
                 // 初始化失败时使用默认广告
                 useDefaultAds();
             }
+        }
+        
+        // 请求所有业务类型的等待人数
+        function requestAllWaitingCounts() {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+            
+            // 请求个人业务等待人数
+            requestWaitingCount("1");
+            // 请求对公业务等待人数
+            requestWaitingCount("2");
+            // 请求VIP业务等待人数
+            requestWaitingCount("4");
+        }
+        
+        // 请求特定业务类型的等待人数
+        function requestWaitingCount(businessType) {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+            
+            const message = {
+                action: "APP_GetWaitNum",
+                param: businessType,
+                uuid: clientUUID
+            };
+            
+            try {
+                socket.send(JSON.stringify(message));
+            } catch (error) {
+                console.error("请求等待人数失败:", error);
+            }
+        }
+        
+        // 更新等待人数显示
+        function updateWaitingCounts() {
+            document.getElementById('waitingPersonal').textContent = `等待人数: ${waitingCounts.PERSONAL}`;
+            document.getElementById('waitingCorporate').textContent = `等待人数: ${waitingCounts.CORPORATE}`;
+            document.getElementById('waitingVIP').textContent = `等待人数: ${waitingCounts.VIP}`;
         }
         
         // 请求广告数据
@@ -1135,7 +1232,7 @@
             }
         }
 
-        // 发送取号请求
+        // 发送管理员请求
         function sendAdminRequest() {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
                 showError("连接错误", "未连接到服务器，请稍后再试");
@@ -1183,11 +1280,35 @@
                     case "AD_DATA":
                         handleAdData(data);
                         break;
+                    case "UPDATE_WAITNUM_RESPONSE":
+                        handleUpdateWaitNumResponse(data);
+                        break;
                     default:
                         console.warn("未知消息类型:", data.action);
                 }
             } catch (error) {
                 console.error("解析消息失败:", error);
+            }
+        }
+        
+        // 处理等待人数更新响应
+        function handleUpdateWaitNumResponse(data) {
+            if (data.businessType && data.ticketNumber !== undefined) {
+                const businessType = data.businessType.toString();
+                const waitCount = parseInt(data.ticketNumber) || 0;
+                
+                console.log(`收到等待人数更新: 业务类型 ${businessType}, 等待人数 ${waitCount}`);
+                
+                // 根据业务类型更新等待人数
+                if (businessType === "1") {
+                    waitingCounts.PERSONAL = waitCount;
+                } else if (businessType === "2") {
+                    waitingCounts.CORPORATE = waitCount;
+                } else if (businessType === "4") {
+                    waitingCounts.VIP = waitCount;
+                }
+                
+                updateWaitingCounts();
             }
         }
         
@@ -1203,6 +1324,8 @@
         
         // 处理卡片验证结果
         function handleCardNum(data) {
+			const modal = document.getElementById('cardModal');
+			modal.style.display = 'flex';
             const progress = document.getElementById('cardProgress');
             const instruction = document.getElementById('cardInstruction');
             
@@ -1216,13 +1339,18 @@
                 
                 if (width >= 100) {
                     clearInterval(interval);
-                    instruction.textContent = "验证成功！";
-                    setTimeout(() => {
-                        document.getElementById('cardModal').style.display = 'none';
-                        takeTicket('VIP');
-                    }, 1000);
+					if (data.isVIP) {
+						instruction.textContent = "验证成功！" + data.message;
+						setTimeout(() => {
+							document.getElementById('cardModal').style.display = 'none';
+							takeTicket('VIP');
+						}, 1000);
+					}
+					else {
+						instruction.textContent = "验证失败，非我行VIP卡或用户！";
+					}
                 }
-            }, 100);
+            }, 50);
         }
         
         // 处理取号响应
@@ -1238,6 +1366,11 @@
                 );
                 
                 showToast(`取号成功！您的号码：${data.ticketNumber}`, "success");
+                
+                // 取号成功后重新请求等待人数
+                setTimeout(() => {
+                    requestAllWaitingCounts();
+                }, 1000);
             } else {
                 showError("取号失败", data.message || "未知错误，请重试");
             }
@@ -1267,8 +1400,14 @@
         
         // 处理叫号信息
         function handleCallMsg(data) {
-            if (data.number)
+            if (data.number) {
                 showToast(`${data.window}号窗口正在呼叫号码: ${data.number}`, "info");
+                
+                // 叫号后重新请求等待人数
+                setTimeout(() => {
+                    requestAllWaitingCounts();
+                }, 1000);
+            }
         }
         
         // 显示打印弹窗
@@ -1294,13 +1433,13 @@
             const typeName = typeNameMap[businessType] || "未知业务";
             const colorClass = colorClassMap[businessType] || "personal";
             
-            showPrintModal(
-                "      ",
-                typeName,
-                colorClass,
-                "查询中",
-                new Date()
-            );
+           // showPrintModal(
+            //    "      ",
+           //     typeName,
+           ///     colorClass,
+             //   "查询中",
+            //    new Date()
+           // );
             
             // 发送取号请求
             const sent = sendTakeNumberRequest(businessType);
@@ -1451,6 +1590,9 @@
             initWebSocket();
             updateDateTime();
             setInterval(updateDateTime, 1000);
+            
+            // 初始化等待人数显示
+            updateWaitingCounts();
             
             // 添加logo点击计数器（1秒内5次）
             let logoClickCount = 0;
