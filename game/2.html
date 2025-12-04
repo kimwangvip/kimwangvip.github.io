@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>超级炫酷烟花秀</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000; /* 纯黑背景 */
+            touch-action: none;
+            cursor: crosshair;
+        }
+        canvas {
+            display: block;
+        }
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            text-align: center;
+            text-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de;
+            opacity: 1;
+            transition: opacity 1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="instructions">手指狂点或滑动<br>绘制你的星空✨</div>
+    <canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const instructions = document.getElementById('instructions');
+
+    let width, height;
+    
+    // 隐藏提示文字
+    setTimeout(() => {
+        instructions.style.opacity = '0';
+    }, 2500);
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 核心变量
+    let particles = [];
+    let hue = 0; // 色相轮
+    let mouse = { x: 0, y: 0 };
+    let isPressed = false;
+
+    // 粒子类 - 升级版
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            // 速度更快，范围更广
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 8 + 2; // 爆发力增强
+            
+            this.speedX = Math.cos(angle) * speed;
+            this.speedY = Math.sin(angle) * speed;
+            
+            // 颜色：基于当前色相，给予一定随机偏移，增加色彩丰富度
+            let colorVar = Math.random() * 60 - 30; 
+            this.color = `hsl(${hue + colorVar}, 100%, 60%)`;
+            
+            this.size = Math.random() * 3 + 1;
+            this.life = 1; // 生命值
+            // 衰减速度变慢，让它飞得更久
+            this.decay = Math.random() * 0.01 + 0.005; 
+        }
+
+        update() {
+            // 物理模拟
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            // 摩擦力（空气阻力）
+            this.speedX *= 0.96;
+            this.speedY *= 0.96;
+            
+            // 重力
+            this.speedY += 0.08;
+
+            // 慢慢变小
+            if (this.size > 0.1) this.size -= 0.03;
+            
+            // 生命流逝
+            this.life -= this.decay;
+        }
+
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function createParticles(x, y, count) {
+        for(let i = 0; i < count; i++) {
+            particles.push(new Particle(x, y));
+        }
+    }
+
+    function animate() {
+        // 关键点：长拖尾效果
+        // 不完全清除画布，而是覆盖一层极高透明度的黑色
+        // alpha 越小（如 0.05），留痕越久
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; 
+        ctx.fillRect(0, 0, width, height);
+
+        // 切换到“发光叠加模式”
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+
+            if (particles[i].life <= 0 || particles[i].size <= 0.1) {
+                particles.splice(i, 1);
+                i--;
+            }
+        }
+        
+        // 如果按住，持续发射
+        if(isPressed) {
+           createParticles(mouse.x, mouse.y, 4); // 滑动时喷射数量
+           hue += 2; // 颜色快速流转
+        }
+
+        hue += 1; // 自然颜色流转
+        requestAnimationFrame(animate);
+    }
+
+    // --- 交互事件监听 ---
+
+    // 鼠标/电脑端
+    window.addEventListener('mousedown', (e) => {
+        isPressed = true;
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        createParticles(mouse.x, mouse.y, 30); // 点击瞬间大爆炸
+    });
+
+    window.addEventListener('mouseup', () => {
+        isPressed = false;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+
+    // 手机/触屏端
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isPressed = true;
+        // 支持多点触控
+        for (let i = 0; i < e.touches.length; i++) {
+            createParticles(e.touches[i].clientX, e.touches[i].clientY, 30);
+        }
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+    }, {passive: false});
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        // 仅仅更新坐标，由animate循环负责发射，避免手机卡顿
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+        
+        // 多指滑动支持
+        for (let i = 0; i < e.touches.length; i++) {
+             createParticles(e.touches[i].clientX, e.touches[i].clientY, 2);
+        }
+    }, {passive: false});
+
+    canvas.addEventListener('touchend', () => {
+        isPressed = false;
+    });
+
+    animate();
+</script>
+</body>
+</html>
