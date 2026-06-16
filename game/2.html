@@ -122,7 +122,7 @@
         // 不完全清除画布，而是覆盖一层极高透明度的黑色
         // alpha 越小（如 0.05），留痕越久
         ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; 
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; 
         ctx.fillRect(0, 0, width, height);
 
         // 切换到“发光叠加模式”
