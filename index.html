@@ -852,21 +852,38 @@
     setTimeout(function(){ document.getElementById('resetPwInput').focus(); }, 100);
   }
 
-  function doResetPoints(){
-    totalPoints = 0;
-    hist = [];
-    milestoneShown = false;
-    saveCloud();
-    document.getElementById('totalPts').textContent = '0';
-    document.getElementById('result').innerHTML = '积分已清零，重新开始攒分吧！';
-    renderHist();
-    updateStatus();
-    updateExchangeBtn();
-    ensureAudio();
-    beep(660,0.1,'triangle',0.2);
-    beep(440,0.15,'triangle',0.2,0.12);
-    document.getElementById('resetPwOv').classList.remove('show');
-  }
+	function doResetPoints(){
+	  totalPoints = 0;
+	  hist = [];
+	  milestoneShown = false;
+
+	  // 立即写入云端，不走 300ms 防抖
+	  if(user){
+		if(saveTimer) clearTimeout(saveTimer);
+		sb.from('scores').upsert({
+		  user_id: user.id,
+		  total_points: 0,
+		  history: [],
+		  today: today,
+		  today_note: todayNote,
+		  rewards: rewards,
+		  opts: opts,
+		  updated_at: new Date().toISOString()
+		}).then(function(res){
+		  if(res.error) console.warn('清零保存失败', res.error);
+		});
+	  }
+
+	  document.getElementById('totalPts').textContent = '0';
+	  document.getElementById('result').innerHTML = '积分已清零，重新开始攒分吧！';
+	  renderHist();
+	  updateStatus();
+	  updateExchangeBtn();
+	  ensureAudio();
+	  beep(660,0.1,'triangle',0.2);
+	  beep(440,0.15,'triangle',0.2,0.12);
+	  document.getElementById('resetPwOv').classList.remove('show');
+	}
 
   document.getElementById('resetPwYes').addEventListener('click', function(){
     var pw = (document.getElementById('resetPwInput').value || '').trim();
