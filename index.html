@@ -56,7 +56,6 @@
   }
   .logoutbtn:active{transform:translateY(2px); box-shadow:0 1px 0 #5a5a5a;}
 
-  /* 积分钱包 */
   .wallet{
     margin:14px auto 0; max-width:430px; border-radius:20px; padding:14px 18px;
     background:linear-gradient(135deg,#fff3cd,#ffe0a3);
@@ -85,7 +84,6 @@
     box-shadow:0 3px 0 #8f7e62;
   }
 
-  /* 状态横幅 */
   .status{
     margin:14px auto 0; max-width:430px; min-height:50px; border-radius:18px;
     display:flex; align-items:center; justify-content:center; gap:8px;
@@ -96,7 +94,6 @@
   .status.done{background:#eef1f6; border:3px solid #d3dae3; color:#6b7684;}
   .status svg{width:22px; height:22px; flex:none;}
 
-  /* 转盘 */
   .stage{position:relative; width:min(80vw, 400px); margin:14px auto 0; aspect-ratio:1/1;}
   canvas.wheel{width:100%; height:100%; display:block; border-radius:50%;
     filter:drop-shadow(0 14px 26px rgba(90,60,40,.22));}
@@ -135,17 +132,36 @@
   .history{margin:20px auto 0; max-width:470px; background:rgba(255,255,255,.85); border-radius:18px; padding:14px 16px; text-align:left;}
   .history h3{margin:0 0 8px; font-size:17px; color:#6b5a47; display:flex; align-items:center; gap:6px;}
   .history h3 svg{width:20px; height:20px;}
+  .hist-tabs{display:flex; gap:8px; margin-bottom:10px;}
+  .hist-tab{
+    font-family:inherit; font-size:14px; color:#8a7a66; cursor:pointer;
+    border:2px solid #e8dcc8; background:#fff; border-radius:20px;
+    padding:5px 14px; transition:all .15s;
+  }
+  .hist-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347;}
   .history .list{display:flex; flex-wrap:wrap; gap:8px; min-height:26px;}
-  .chip{background:#fff2cc; color:#8a5b00; border-radius:30px; padding:5px 13px; font-size:15px; border:2px solid #ffe08a; white-space:nowrap;}
+  .chip{background:#fff2cc; color:#8a5b00; border-radius:16px; padding:6px 13px; font-size:15px; border:2px solid #ffe08a; white-space:nowrap; position:relative; display:inline-flex; flex-direction:column; align-items:flex-start;}
+  .chip.exchange{background:#ffe3e3; color:#c92a2a; border-color:#ffa8a8;}
+  .chip .note{display:block; font-size:11px; color:#a09080; margin-top:2px; font-family:'PingFang SC','Microsoft YaHei',sans-serif;}
+  .chip .undo{
+    font-family:inherit; font-size:11px; color:#fff; background:#ff6b6b; border:none;
+    border-radius:12px; padding:2px 8px; margin-top:4px; cursor:pointer; align-self:flex-start;
+  }
   .empty{color:#b0a08d; font-size:15px; padding:4px 2px;}
 
-  /* 弹层 */
   .overlay{position:fixed; inset:0; background:rgba(60,40,20,.42); display:none; align-items:center; justify-content:center; z-index:30; padding:16px;}
   .overlay.show{display:flex;}
   .panel{background:#fff; border-radius:24px; width:min(92vw, 430px); max-height:86vh; display:flex; flex-direction:column; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
   .panel h2{margin:0 0 4px; font-size:23px; color:#5b4636; text-align:center;}
   .panel p.hint{margin:0 0 14px; text-align:center; color:#9a8a76; font-size:14px;}
-  .opts{flex:1; overflow-y:auto; padding-right:6px;}
+  .set-tabs{display:flex; gap:8px; margin-bottom:12px; justify-content:center;}
+  .set-tab{
+    font-family:inherit; font-size:15px; color:#8a7a66; cursor:pointer;
+    border:2px solid #e8dcc8; background:#fff; border-radius:20px;
+    padding:6px 18px; transition:all .15s;
+  }
+  .set-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347;}
+  .opts{flex:1; overflow-y:auto; padding-right:6px; max-height:48vh;}
   .optrow{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
   .optrow .dot{width:16px; height:16px; border-radius:50%; flex:none;}
   .optrow .val{width:70px; font-family:inherit; font-size:16px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 8px; text-align:center; outline:none;}
@@ -153,20 +169,45 @@
   .optrow .w:focus{border-color:#ffa94d;}
   .optrow .del{width:44px; height:44px; min-width:44px; min-height:44px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:20px; cursor:pointer; line-height:1;}
   .optrow .note{font-size:11px; color:#b0a08d; width:52px; flex:none; text-align:left;}
+
+  .rwrow{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .rwrow .nm{flex:1; font-family:inherit; font-size:15px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 10px; outline:none;}
+  .rwrow .nm:focus{border-color:#ffa94d;}
+  .rwrow .cost{width:80px; font-family:inherit; font-size:15px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 8px; text-align:center; outline:none;}
+  .rwrow .cost:focus{border-color:#ffa94d;}
+  .rwrow .del{width:40px; height:40px; min-width:40px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:18px; cursor:pointer;}
+
   .panel .rowbtns{display:flex; gap:10px; margin-top:14px;}
   .btn-sm{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:30px; padding:12px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.14);}
   .btn-add{background:linear-gradient(180deg,#69db7c,#40c057);}
   .btn-ok{background:linear-gradient(180deg,#ffa94d,#ff922b);}
   .btn-cancel{background:#b9ad9b; box-shadow:none;}
 
-  /* 家长确认 */
   .confirm{text-align:center; padding:6px 4px;}
-  .confirm .q{font-size:21px; color:#5b4636; margin-bottom:18px; line-height:1.5;}
+  .confirm .q{font-size:20px; color:#5b4636; margin-bottom:14px; line-height:1.5;}
+  .confirm textarea{
+    width:100%; font-family:inherit; font-size:15px; color:#5b4636;
+    border:2px solid #e8dcc8; border-radius:12px; padding:10px 12px;
+    outline:none; resize:none; height:60px; margin-bottom:14px;
+  }
+  .confirm textarea:focus{border-color:#ffa94d;}
   .confirm .btns{display:flex; flex-direction:column; gap:12px;}
   .confirm .yes{font-family:inherit; font-size:19px; color:#fff; border:none; border-radius:40px; padding:15px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer;}
   .confirm .no{font-family:inherit; font-size:17px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
 
-  /* 中奖弹层 */
+  .verify-panel .q{font-size:20px; color:#5b4636; margin-bottom:14px; text-align:center; line-height:1.5;}
+  .verify-panel .eq{font-size:32px; color:#e67e22; font-weight:900; text-align:center; margin:6px 0 16px; letter-spacing:2px;}
+  .verify-panel input{
+    width:100%; font-family:inherit; font-size:22px; color:#5b4636;
+    border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
+    text-align:center; outline:none; margin-bottom:12px; letter-spacing:3px;
+  }
+  .verify-panel input:focus{border-color:#ffa94d;}
+  .verify-panel .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
+  .verify-panel .btns{display:flex; gap:10px;}
+  .verify-panel .yes{flex:1; font-family:inherit; font-size:17px; color:#fff; border:none; border-radius:40px; padding:13px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 4px 0 #2f9e44; cursor:pointer;}
+  .verify-panel .no{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:13px; background:#b9ad9b; cursor:pointer;}
+
   .prize-pop{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
   .prize-pop.show{display:flex;}
   .prize-pop .box{background:#fff; border-radius:28px; padding:30px 26px; text-align:center; width:min(86vw, 340px); box-shadow:0 20px 60px rgba(0,0,0,.3); animation:pop .4s cubic-bezier(.22,1,.36,1);}
@@ -178,7 +219,6 @@
   .confetti{position:fixed; top:-20px; z-index:40; pointer-events:none; animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
 
-  /* 满100分祝贺弹层 */
   .milestone-pop{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:60; padding:20px;}
   .milestone-pop.show{display:flex;}
   .milestone-pop .box{
@@ -204,14 +244,27 @@
     background:linear-gradient(180deg,#ffd166,#ff9f1a); box-shadow:0 6px 0 #d97e00; cursor:pointer; letter-spacing:2px;}
   .milestone-pop .again:active{transform:translateY(3px); box-shadow:0 3px 0 #d97e00;}
 
-  /* 兑换确认弹层 */
-  .exchange-panel .q{font-size:20px; line-height:1.6; color:#5b4636; margin-bottom:18px; text-align:center;}
-  .exchange-panel .q strong{color:#e67e22; font-size:26px;}
+  .exchange-panel .q{font-size:18px; line-height:1.5; color:#5b4636; margin-bottom:14px; text-align:center;}
+  .exchange-panel .rwlist{max-height:50vh; overflow-y:auto; margin-bottom:14px;}
+  .exchange-panel .rwitem{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px; border:2px solid #e8dcc8; border-radius:14px;
+    margin-bottom:8px; cursor:pointer; transition:all .15s;
+  }
+  .exchange-panel .rwitem:hover{border-color:#ffb347; background:#fff8e7;}
+  .exchange-panel .rwitem.disabled{opacity:.4; cursor:not-allowed; background:#f5f0e8;}
+  .exchange-panel .rwitem.disabled:hover{border-color:#e8dcc8; background:#f5f0e8;}
+  .exchange-panel .rwitem .nm{font-size:17px; color:#5b4636;}
+  .exchange-panel .rwitem .cost{font-size:15px; color:#e67e22; font-weight:700;}
   .exchange-panel .btns{display:flex; flex-direction:column; gap:12px;}
-  .exchange-panel .yes{font-family:inherit; font-size:18px; color:#fff; border:none; border-radius:40px; padding:14px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer; letter-spacing:1px;}
   .exchange-panel .no{font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
 
-  /* 登录界面 */
+  .ex-confirm .q{font-size:20px; line-height:1.6; color:#5b4636; margin-bottom:18px; text-align:center;}
+  .ex-confirm .q strong{color:#e67e22; font-size:26px;}
+  .ex-confirm .btns{display:flex; flex-direction:column; gap:12px;}
+  .ex-confirm .yes{font-family:inherit; font-size:18px; color:#fff; border:none; border-radius:40px; padding:14px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer; letter-spacing:1px;}
+  .ex-confirm .no{font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
+
   .auth-screen{
     position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
     background:
@@ -250,6 +303,19 @@
   }
   .auth-box .msg.ok{color:#1e7a44;}
 
+  .captcha-row{
+    display:flex; gap:8px; align-items:center; margin-bottom:12px;
+  }
+  .captcha-row input{
+    flex:1; margin-bottom:0 !important;
+  }
+  .captcha-canvas{
+    width:110px; height:46px; border-radius:10px; cursor:pointer;
+    border:2px solid #e8dcc8; flex:none; background:#f8f4ec;
+    display:block;
+  }
+  .captcha-canvas:active{opacity:.8;}
+
   @media (max-width:420px){ .title{font-size:32px;} .spinbtn{width:100px; height:100px; font-size:22px;} .wallet .pts{font-size:36px;} }
   @media (prefers-reduced-motion: reduce){ .star,.confetti{animation:none !important;} }
 </style>
@@ -264,6 +330,10 @@
     <p class="tip" id="authTip">登录后，积分会保存在云端，换设备也不会丢哦</p>
     <input type="email" id="emailInput" placeholder="邮箱" autocomplete="email">
     <input type="password" id="passInput" placeholder="密码（至少6位）" autocomplete="current-password">
+    <div class="captcha-row" id="captchaRow" style="display:none;">
+      <input type="text" id="captchaInput" placeholder="输入验证码" maxlength="4" autocomplete="off">
+      <canvas class="captcha-canvas" id="captchaCanvas" width="220" height="92" title="点击刷新"></canvas>
+    </div>
     <button class="auth-btn" id="authBtn">登 录</button>
     <div class="switch">
       <span id="switchText">还没有账号？</span>
@@ -289,33 +359,28 @@
     </div>
   </header>
 
-  <!-- 积分钱包 -->
   <div class="wallet">
     <div class="lbl">
-      攒到的积分
-      <div style="font-size:12px; color:#b08a3a; margin-top:2px;" id="todayDate">—</div>
+      攒到的积分      <div style="font-size:12px; color:#b08a3a; margin-top:2px;" id="todayDate">—</div>
     </div>
     <div class="pts"><span id="totalPts">0</span><small> 分</small></div>
     <div class="btns">
-      <button class="exchange-btn" id="exchangeBtn" disabled>🎮 兑换玩平板 (100分)</button>
+      <button class="exchange-btn" id="exchangeBtn" disabled>🎁 兑换奖励</button>
       <button class="reset-btn" id="resetBtn" title="积分清零，重新开始">🔄 清零重记</button>
     </div>
   </div>
 
-  <!-- 今日状态 -->
   <div class="status lock" id="statusBox">
     <svg id="stLock" viewBox="0 0 24 24" fill="#a43c3c"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 1 1 6 0v3H9z"/></svg>
     <span id="statusText">今天还没有确认表现，等爸爸妈妈点头才能抽哦</span>
   </div>
 
-  <!-- 转盘 -->
   <div class="stage">
     <div class="pointer" aria-hidden="true"></div>
     <canvas class="wheel" id="wheel"></canvas>
     <button class="spinbtn" id="spinBtn" disabled>抽积分</button>
   </div>
 
-  <!-- 按钮区域 -->
   <div class="actions">
     <button class="btn btn-parent" id="parentBtn">（家长）确认今日表现</button>
     <button class="btn btn-set" id="setBtn">设置积分</button>
@@ -326,18 +391,39 @@
   <div class="history">
     <h3>
       <svg viewBox="0 0 24 24" fill="#ff9f1a"><path d="M12 2l2.4 6.6L21 9.4l-5.2 4.2L17.4 20 12 16.4 6.6 20l1.6-6.4L3 9.4l6.6-.8z"/></svg>
-      每天的积分记录
+      记录
     </h3>
-    <div class="list" id="histList"><span class="empty">还没有抽过积分哦</span></div>
+    <div class="hist-tabs">
+      <button class="hist-tab active" data-tab="earn">攒分记录</button>
+      <button class="hist-tab" data-tab="exchange">兑换记录</button>
+    </div>
+    <div class="list" id="histList"><span class="empty">还没有记录哦</span></div>
   </div>
 </div>
 
-<!-- 家长确认 -->
+<!-- 家长验证（防误点） -->
+<div class="overlay" id="verifyOv">
+  <div class="panel verify-panel">
+    <h2>家长验证</h2>
+    <p class="hint">请回答下面的问题，证明是家长操作～</p>
+    <div class="q" id="verifyQ"></div>
+    <div class="eq" id="verifyEq"></div>
+    <input type="number" id="verifyInput" placeholder="?" inputmode="numeric">
+    <div class="err" id="verifyErr"></div>
+    <div class="btns">
+      <button class="yes" id="verifyYes">确定</button>
+      <button class="no" id="verifyNo">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 家长确认（带备注） -->
 <div class="overlay" id="confirmOv">
   <div class="panel">
     <h2>确认今日表现</h2>
     <div class="confirm">
       <div class="q">今天宝贝表现乖吗？<br>乖的话可以抽一次积分，不乖今天就不抽。</div>
+      <textarea id="noteInput" placeholder="写一句备注（可选），比如：今天主动收拾了玩具"></textarea>
       <div class="btns">
         <button class="yes" id="confirmYes">很乖，今天可以抽积分</button>
         <button class="no" id="confirmNo">今天不乖，不能抽</button>
@@ -346,28 +432,58 @@
   </div>
 </div>
 
-<!-- 设置 -->
+<!-- 设置（两个标签页：积分档位 / 奖励选项） -->
 <div class="overlay" id="setOv">
   <div class="panel">
-    <h2>设置积分档位</h2>
-    <p class="hint">分数越大越想要。数字填"权重"，越小越难抽中。默认 5分和30分最难抽到。</p>
+    <h2>设置</h2>
+    <div class="set-tabs">
+      <button class="set-tab active" data-set="points">积分档位</button>
+      <button class="set-tab" data-set="rewards">奖励选项</button>
+    </div>
+    <p class="hint" id="setHint">分数越大越想要。数字填"权重"，越小越难抽中。</p>
     <div class="opts" id="opts"></div>
     <div class="rowbtns">
       <button class="btn-sm btn-add" id="addBtn">加一档</button>
       <button class="btn-sm btn-cancel" id="cancelBtn">取消</button>
-      <button class="btn-sm btn-ok" id="okBtn">就用这些</button>
+      <button class="btn-sm btn-ok" id="okBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 兑换列表弹层 -->
+<div class="overlay" id="exchangeOv">
+  <div class="panel exchange-panel">
+    <h2>兑换奖励</h2>
+    <div class="q">选一个奖励，用积分兑换吧～</div>
+    <div class="rwlist" id="rwList"></div>
+    <div class="btns">
+      <button class="no" id="exchangeNo">再想想</button>
     </div>
   </div>
 </div>
 
 <!-- 兑换确认弹层 -->
-<div class="overlay" id="exchangeOv">
-  <div class="panel exchange-panel">
-    <h2>兑换奖励</h2>
-    <div class="q">确定要消耗 <strong>100分</strong> 兑换一次<br>「玩平板」奖励吗？</div>
+<div class="overlay" id="exConfirmOv">
+  <div class="panel ex-confirm">
+    <h2>确认兑换</h2>
+    <div class="q" id="exConfirmQ">确定要消耗 <strong>100分</strong> 兑换<br>「玩平板」吗？</div>
     <div class="btns">
-      <button class="yes" id="exchangeYes">✅ 确定兑换</button>
-      <button class="no" id="exchangeNo">❌ 再想想</button>
+      <button class="yes" id="exConfirmYes">✅ 确定兑换</button>
+      <button class="no" id="exConfirmNo">❌ 再想想</button>
+    </div>
+  </div>
+</div>
+
+<!-- 清零密码验证（用账户密码） -->
+<div class="overlay" id="resetPwOv">
+  <div class="panel verify-panel">
+    <h2>家长验证</h2>
+    <p class="hint">清零会删除所有积分记录，请输入你的登录密码确认</p>
+    <input type="password" id="resetPwInput" placeholder="登录密码" autocomplete="current-password">
+    <div class="err" id="resetPwErr"></div>
+    <div class="btns">
+      <button class="yes" id="resetPwYes">确定清零</button>
+      <button class="no" id="resetPwNo">取消</button>
     </div>
   </div>
 </div>
@@ -407,22 +523,24 @@
   // ---------- 常量 ----------
   var PALETTE = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#4dabf7','#f783ac','#38d9a9','#b197fc','#ff922b','#22d3ee'];
   var DEFAULT_OPTS = [{v:5,w:10},{v:10,w:25},{v:15,w:30},{v:20,w:25},{v:30,w:10}];
+  var DEFAULT_REWARDS = [{name:'玩平板',cost:100},{name:'看动画片',cost:50},{name:'买小玩具',cost:300}];
   var MILESTONE = 100;
-  var EXCHANGE_COST = 100;
 
   // ---------- 全局状态 ----------
   var user = null;
   var opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
+  var rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
   var totalPoints = 0;
   var hist = [];
   var soundOn = true;
   var today = null;
+  var todayNote = '';
 
   function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
   function todayDisplay(){ var d=new Date(); var week=['日','一','二','三','四','五','六'][d.getDay()]; return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 星期'+week; }
   function resetTodayIfNeeded(){
     var ts = todayStr();
-    if(!today || today.date !== ts){ today = {date:ts, allowed:false, drawn:false, got:0}; }
+    if(!today || today.date !== ts){ today = {date:ts, allowed:false, drawn:false, got:0}; todayNote=''; }
   }
 
   // ---------- 云端读写 ----------
@@ -436,6 +554,8 @@
         total_points: totalPoints,
         history: hist,
         today: today,
+        today_note: todayNote,
+        rewards: rewards,
         updated_at: new Date().toISOString()
       }).then(function(res){
         if(res.error) console.warn('保存失败', res.error);
@@ -451,9 +571,11 @@
           totalPoints = res.data.total_points || 0;
           hist = res.data.history || [];
           today = res.data.today || null;
+          todayNote = res.data.today_note || '';
+          if(res.data.rewards && res.data.rewards.length) rewards = res.data.rewards;
         } else {
-          // 首次登录，创建一行
-          totalPoints = 0; hist = []; today = null;
+          totalPoints = 0; hist = []; today = null; todayNote='';
+          rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
           saveCloud();
         }
         resetTodayIfNeeded();
@@ -566,7 +688,7 @@
     var v=opts[target].v;
     var prevTotal = totalPoints;
     totalPoints+=v; today.drawn=true; today.got=v;
-    hist.unshift({d:todayStr().slice(5), p:v, full:todayStr()}); if(hist.length>20)hist=hist.slice(0,20);
+    hist.unshift({d:todayStr().slice(5), p:v, full:todayStr(), note:todayNote}); if(hist.length>50)hist=hist.slice(0,50);
     saveCloud();
     document.getElementById('totalPts').textContent=totalPoints;
     document.getElementById('result').innerHTML='今天抽到 <span class="prize">+'+v+' 分</span>，真棒！';
@@ -609,46 +731,125 @@
 
   function updateExchangeBtn(){
     var exBtn = document.getElementById('exchangeBtn');
-    if(totalPoints >= EXCHANGE_COST){
-      exBtn.disabled = false;
-    } else {
-      exBtn.disabled = true;
-    }
+    var canAny = rewards.some(function(r){ return totalPoints >= r.cost; });
+    exBtn.disabled = !canAny;
   }
 
+  // ---------- 兑换列表渲染 ----------
+  function renderRwList(){
+    var box = document.getElementById('rwList');
+    if(!rewards.length){
+      box.innerHTML = '<div class="empty" style="text-align:center;">还没有设置奖励，去「设置积分 → 奖励选项」里添加吧</div>';
+      return;
+    }
+    box.innerHTML = rewards.map(function(r, i){
+      var can = totalPoints >= r.cost;
+      return '<div class="rwitem'+(can?'':' disabled')+'" data-idx="'+i+'">'+
+        '<span class="nm">'+escapeHtml(r.name)+'</span>'+
+        '<span class="cost">'+r.cost+' 分</span>'+
+      '</div>';
+    }).join('');
+    box.querySelectorAll('.rwitem').forEach(function(el){
+      el.addEventListener('click', function(){
+        if(el.classList.contains('disabled')) return;
+        var idx = parseInt(el.dataset.idx);
+        openExConfirm(idx);
+      });
+    });
+  }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  var pendingExIdx = -1;
+  function openExConfirm(idx){
+    var r = rewards[idx];
+    if(!r) return;
+    pendingExIdx = idx;
+    document.getElementById('exConfirmQ').innerHTML = '确定要消耗 <strong>'+r.cost+'分</strong> 兑换<br>「'+escapeHtml(r.name)+'」吗？';
+    document.getElementById('exchangeOv').classList.remove('show');
+    document.getElementById('exConfirmOv').classList.add('show');
+  }
   function doExchange(){
-    if(totalPoints < EXCHANGE_COST) return;
-    totalPoints -= EXCHANGE_COST;
-    hist.unshift({d:todayStr().slice(5), p:-EXCHANGE_COST, full:todayStr() + ' 兑换玩平板'});
-    if(hist.length>20)hist=hist.slice(0,20);
+    var idx = pendingExIdx;
+    var r = rewards[idx];
+    if(!r || totalPoints < r.cost) return;
+    totalPoints -= r.cost;
+    hist.unshift({d:todayStr().slice(5), p:-r.cost, full:todayStr() + ' 兑换' + r.name, name:r.name});
+    if(hist.length>50)hist=hist.slice(0,50);
     saveCloud();
     document.getElementById('totalPts').textContent = totalPoints;
-    document.getElementById('result').innerHTML = '🎉 成功兑换「玩平板」奖励！<span class="prize">-100分</span>';
+    document.getElementById('result').innerHTML = '🎉 成功兑换「'+escapeHtml(r.name)+'」！<span class="prize">-'+r.cost+'分</span>';
     renderHist();
     updateStatus();
     updateExchangeBtn();
     ensureAudio();
     exchangeSound();
-    document.getElementById('exchangeOv').classList.remove('show');
+    document.getElementById('exConfirmOv').classList.remove('show');
+    pendingExIdx = -1;
   }
 
-  // ---------- 历史 ----------
+  function undoExchange(histIdx){
+    var h = hist[histIdx];
+    if(!h || h.p >= 0) return;
+    if(!confirm('确定要撤销这次兑换吗？'+Math.abs(h.p)+'分会加回来。')) return;
+    totalPoints += Math.abs(h.p);
+    hist.splice(histIdx, 1);
+    saveCloud();
+    document.getElementById('totalPts').textContent = totalPoints;
+    document.getElementById('result').innerHTML = '已撤销兑换，'+Math.abs(h.p)+'分已加回。';
+    renderHist();
+    updateStatus();
+    updateExchangeBtn();
+  }
+
+  // ---------- 历史（标签页） ----------
+  var currentTab = 'earn';
   function renderHist(){
     var box=document.getElementById('histList');
-    if(!hist.length){ box.innerHTML='<span class="empty">还没有抽过积分哦</span>'; return; }
-    box.innerHTML=hist.map(function(h){
+    var list = hist.filter(function(h){ return currentTab==='earn' ? h.p>=0 : h.p<0; });
+    if(!list.length){
+      box.innerHTML = '<span class="empty">'+(currentTab==='earn'?'还没有攒分记录哦':'还没有兑换记录哦')+'</span>';
+      return;
+    }
+    box.innerHTML = list.map(function(h){
+      var realIdx = hist.indexOf(h);
       var dateStr = h.full || h.d;
-      if(h.p < 0) {
-        return '<span class="chip" style="background:#ffe3e3; color:#c92a2a; border-color:#ffa8a8;">'+dateStr+' · 玩平板(-'+Math.abs(h.p)+'分)</span>';
+      var noteHtml = h.note ? '<span class="note">📝 '+escapeHtml(h.note)+'</span>' : '';
+      if(h.p < 0){
+        return '<span class="chip exchange">'+dateStr+' · '+escapeHtml(h.name||'兑换')+'(-'+Math.abs(h.p)+'分)'+
+          noteHtml+
+          '<button class="undo" data-idx="'+realIdx+'">撤销</button>'+
+        '</span>';
       } else {
-        return '<span class="chip">'+dateStr+' · +'+h.p+'分</span>';
+        return '<span class="chip">'+dateStr+' · +'+h.p+'分'+noteHtml+'</span>';
       }
     }).join('');
+    box.querySelectorAll('.undo').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        undoExchange(parseInt(btn.dataset.idx));
+      });
+    });
   }
 
-  // ---------- 清零 ----------
+  document.querySelectorAll('.hist-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.hist-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentTab = tab.dataset.tab;
+      renderHist();
+    });
+  });
+
+  // ---------- 清零（用账户密码验证） ----------
   function resetPoints(){
-    if(!confirm('确定要清零积分重新开始吗？\n所有积分记录也会一起清空哦。')) return;
+    document.getElementById('resetPwInput').value = '';
+    document.getElementById('resetPwErr').textContent = '';
+    document.getElementById('resetPwOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('resetPwInput').focus(); }, 100);
+  }
+
+  function doResetPoints(){
     totalPoints = 0;
     hist = [];
     milestoneShown = false;
@@ -661,61 +862,263 @@
     ensureAudio();
     beep(660,0.1,'triangle',0.2);
     beep(440,0.15,'triangle',0.2,0.12);
+    document.getElementById('resetPwOv').classList.remove('show');
   }
 
-  // ---------- 设置 ----------
+  document.getElementById('resetPwYes').addEventListener('click', function(){
+    var pw = (document.getElementById('resetPwInput').value || '').trim();
+    if(!pw){ document.getElementById('resetPwErr').textContent = '请输入密码'; return; }
+    if(!user || !user.email){ document.getElementById('resetPwErr').textContent = '登录状态异常，请刷新页面'; return; }
+
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '验证中…';
+    document.getElementById('resetPwErr').textContent = '';
+
+    sb.auth.signInWithPassword({ email: user.email, password: pw })
+      .then(function(res){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        if(res.error){
+          document.getElementById('resetPwErr').textContent = '密码不对，再试试～';
+          document.getElementById('resetPwInput').value = '';
+          document.getElementById('resetPwInput').focus();
+          return;
+        }
+        doResetPoints();
+      })
+      .catch(function(){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        document.getElementById('resetPwErr').textContent = '网络错误，请重试';
+      });
+  });
+  document.getElementById('resetPwNo').addEventListener('click', function(){
+    document.getElementById('resetPwOv').classList.remove('show');
+  });
+  document.getElementById('resetPwInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('resetPwYes').click();
+  });
+  document.getElementById('resetPwOv').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('show');
+  });
+
+  // ---------- 设置（两个标签页） ----------
+  var setTab = 'points';
   function renderOpts(){
-    var box=document.getElementById('opts'); box.innerHTML='';
-    opts.forEach(function(o,i){
-      var row=document.createElement('div'); row.className='optrow';
-      var dot=document.createElement('span'); dot.className='dot'; dot.style.background=PALETTE[i%PALETTE.length];
-      var val=document.createElement('input'); val.className='val'; val.type='number'; val.min='1'; val.max='100'; val.value=o.v;
-      var w=document.createElement('input'); w.className='w'; w.type='number'; w.min='1'; w.max='100'; w.value=o.w;
-      w.setAttribute('aria-label','权重（越大越容易抽中）');
-      var note=document.createElement('span'); note.className='note'; note.textContent='权重';
-      var del=document.createElement('button'); del.className='del'; del.textContent='x';
-      val.addEventListener('input',function(){ o.v=Math.max(1,Math.min(100,parseInt(val.value)||1)); });
-      w.addEventListener('input',function(){ o.w=Math.max(1,Math.min(100,parseInt(w.value)||1)); });
-      del.addEventListener('click',function(){ if(opts.length<=2)return; opts.splice(i,1); renderOpts(); });
-      row.appendChild(dot); row.appendChild(val); row.appendChild(note); row.appendChild(w); row.appendChild(del);
-      box.appendChild(row);
+    var box=document.getElementById('opts');
+    var hint=document.getElementById('setHint');
+    var addBtn=document.getElementById('addBtn');
+    box.innerHTML='';
+    if(setTab === 'points'){
+      hint.textContent = '分数越大越想要。数字填"权重"，越小越难抽中。';
+      addBtn.style.display = '';
+      opts.forEach(function(o,i){
+        var row=document.createElement('div'); row.className='optrow';
+        var dot=document.createElement('span'); dot.className='dot'; dot.style.background=PALETTE[i%PALETTE.length];
+        var val=document.createElement('input'); val.className='val'; val.type='number'; val.min='1'; val.max='100'; val.value=o.v;
+        var w=document.createElement('input'); w.className='w'; w.type='number'; w.min='1'; w.max='100'; w.value=o.w;
+        w.setAttribute('aria-label','权重（越大越容易抽中）');
+        var note=document.createElement('span'); note.className='note'; note.textContent='权重';
+        var del=document.createElement('button'); del.className='del'; del.textContent='x';
+        val.addEventListener('input',function(){ o.v=Math.max(1,Math.min(100,parseInt(val.value)||1)); });
+        w.addEventListener('input',function(){ o.w=Math.max(1,Math.min(100,parseInt(w.value)||1)); });
+        del.addEventListener('click',function(){ if(opts.length<=2)return; opts.splice(i,1); renderOpts(); });
+        row.appendChild(dot); row.appendChild(val); row.appendChild(note); row.appendChild(w); row.appendChild(del);
+        box.appendChild(row);
+      });
+    } else {
+      hint.textContent = '添加奖励，写清楚名字和需要的积分。积分够时就可以兑换啦。';
+      addBtn.style.display = '';
+      rewards.forEach(function(r,i){
+        var row=document.createElement('div'); row.className='rwrow';
+        var nm=document.createElement('input'); nm.className='nm'; nm.type='text'; nm.value=r.name; nm.placeholder='奖励名称，如：玩平板';
+        var cost=document.createElement('input'); cost.className='cost'; cost.type='number'; cost.min='1'; cost.max='9999'; cost.value=r.cost;
+        var del=document.createElement('button'); del.className='del'; del.textContent='x';
+        nm.addEventListener('input',function(){ r.name = nm.value; });
+        cost.addEventListener('input',function(){ r.cost = Math.max(1, Math.min(9999, parseInt(cost.value)||1)); });
+        del.addEventListener('click',function(){ rewards.splice(i,1); renderOpts(); });
+        row.appendChild(nm); row.appendChild(cost); row.appendChild(del);
+        box.appendChild(row);
+      });
+      if(!rewards.length){
+        box.innerHTML = '<div class="empty" style="text-align:center; padding:20px 0;">还没有奖励，点下面「加一档」添加吧</div>';
+      }
+    }
+  }
+  function openSet(){ setTab='points'; syncSetTabs(); renderOpts(); document.getElementById('setOv').classList.add('show'); }
+  function closeSet(){ document.getElementById('setOv').classList.remove('show'); }
+  function syncSetTabs(){
+    document.querySelectorAll('.set-tab').forEach(function(t){
+      t.classList.toggle('active', t.dataset.set === setTab);
     });
   }
-  function openSet(){ renderOpts(); document.getElementById('setOv').classList.add('show'); }
-  function closeSet(){ document.getElementById('setOv').classList.remove('show'); }
+  document.querySelectorAll('.set-tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      setTab = t.dataset.set;
+      syncSetTabs();
+      renderOpts();
+    });
+  });
   function saveSet(){
-    var clean=[];
-    opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
-    if(clean.length<2){ closeSet(); return; }
-    if(clean.length>10) clean=clean.slice(0,10);
-    opts=clean; saveCloud(); setupCanvas(); buildWheel(-1); draw(angle); closeSet(); updateStatus();
+    if(setTab === 'points'){
+      var clean=[];
+      opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
+      if(clean.length<2){ closeSet(); return; }
+      if(clean.length>10) clean=clean.slice(0,10);
+      opts=clean;
+      setupCanvas(); buildWheel(-1); draw(angle);
+    } else {
+      var cleanR=[];
+      rewards.forEach(function(r){ var name=(r.name||'').trim(); var cost=parseInt(r.cost)||0; if(name && cost>0) cleanR.push({name:name, cost:cost}); });
+      if(cleanR.length>20) cleanR=cleanR.slice(0,20);
+      rewards=cleanR;
+    }
+    saveCloud();
+    closeSet(); updateStatus();
   }
+
+  // ---------- 家长验证（防误点） ----------
+  var verifyAnswer = 0;
+  function openVerify(){
+    var a = 1 + Math.floor(Math.random()*9);
+    var b = 1 + Math.floor(Math.random()*9);
+    verifyAnswer = a + b;
+    document.getElementById('verifyQ').textContent = '请回答下面的问题：';
+    document.getElementById('verifyEq').textContent = a + ' + ' + b + ' = ?';
+    document.getElementById('verifyInput').value = '';
+    document.getElementById('verifyErr').textContent = '';
+    document.getElementById('verifyOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('verifyInput').focus(); }, 100);
+  }
+  function closeVerify(){
+    document.getElementById('verifyOv').classList.remove('show');
+  }
+  function checkVerify(){
+    var val = parseInt(document.getElementById('verifyInput').value);
+    if(val === verifyAnswer){
+      closeVerify();
+      document.getElementById('noteInput').value = '';
+      document.getElementById('confirmOv').classList.add('show');
+    } else {
+      document.getElementById('verifyErr').textContent = '答案不对，再试试～';
+      document.getElementById('verifyInput').value = '';
+      document.getElementById('verifyInput').focus();
+    }
+  }
+
+  // ---------- 图形验证码（注册用） ----------
+  var captchaCode = '';
+  var captchaChars = 'ABCDEFGHJKLMNPQRSTUVWXY23456789';
+
+  function generateCaptcha(){
+    captchaCode = '';
+    for(var i=0;i<4;i++){
+      captchaCode += captchaChars.charAt(Math.floor(Math.random()*captchaChars.length));
+    }
+    drawCaptcha();
+  }
+
+  function drawCaptcha(){
+    var cv = document.getElementById('captchaCanvas');
+    var c = cv.getContext('2d');
+    var W = cv.width, H = cv.height;
+    c.fillStyle = '#f8f4ec';
+    c.fillRect(0,0,W,H);
+    for(var k=0;k<6;k++){
+      c.strokeStyle = 'rgba('+Math.floor(Math.random()*180+60)+','+Math.floor(Math.random()*180+60)+','+Math.floor(Math.random()*180+60)+',0.6)';
+      c.lineWidth = 2;
+      c.beginPath();
+      c.moveTo(Math.random()*W, Math.random()*H);
+      c.lineTo(Math.random()*W, Math.random()*H);
+      c.stroke();
+    }
+    for(var d=0;d<40;d++){
+      c.fillStyle = 'rgba('+Math.floor(Math.random()*180+60)+','+Math.floor(Math.random()*180+60)+','+Math.floor(Math.random()*180+60)+',0.5)';
+      c.beginPath();
+      c.arc(Math.random()*W, Math.random()*H, 1.5, 0, Math.PI*2);
+      c.fill();
+    }
+    for(var i=0;i<captchaCode.length;i++){
+      c.save();
+      var fs = 40 + Math.random()*10;
+      c.font = '900 '+fs+'px "ZCOOL KuaiLe","PingFang SC","Microsoft YaHei",sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      var x = (W/4)*(i+0.5) + (Math.random()-0.5)*8;
+      var y = H/2 + (Math.random()-0.5)*10;
+      c.translate(x,y);
+      c.rotate((Math.random()-0.5)*0.5);
+      c.fillStyle = 'rgb('+Math.floor(Math.random()*120+40)+','+Math.floor(Math.random()*120+40)+','+Math.floor(Math.random()*120+40)+')';
+      c.fillText(captchaCode.charAt(i), 0, 0);
+      c.restore();
+    }
+  }
+
+  document.getElementById('captchaCanvas').addEventListener('click', generateCaptcha);
 
   // ---------- 事件绑定 ----------
   document.getElementById('spinBtn').addEventListener('click',spin);
-  document.getElementById('parentBtn').addEventListener('click',function(){ document.getElementById('confirmOv').classList.add('show'); });
-  document.getElementById('confirmYes').addEventListener('click',function(){ today.allowed=true; today.drawn=false; saveCloud(); document.getElementById('confirmOv').classList.remove('show'); updateStatus(); });
-  document.getElementById('confirmNo').addEventListener('click',function(){ today.allowed=false; today.drawn=false; saveCloud(); document.getElementById('confirmOv').classList.remove('show'); updateStatus(); });
+  document.getElementById('parentBtn').addEventListener('click',openVerify);
+  document.getElementById('verifyYes').addEventListener('click',checkVerify);
+  document.getElementById('verifyNo').addEventListener('click',closeVerify);
+  document.getElementById('verifyInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') checkVerify();
+  });
+  document.getElementById('verifyOv').addEventListener('click', function(e){ if(e.target===this) closeVerify(); });
+
+  document.getElementById('confirmYes').addEventListener('click',function(){
+    today.allowed=true; today.drawn=false;
+    todayNote = (document.getElementById('noteInput').value || '').trim();
+    saveCloud(); document.getElementById('confirmOv').classList.remove('show'); updateStatus();
+  });
+  document.getElementById('confirmNo').addEventListener('click',function(){
+    today.allowed=false; today.drawn=false;
+    todayNote = (document.getElementById('noteInput').value || '').trim();
+    saveCloud(); document.getElementById('confirmOv').classList.remove('show'); updateStatus();
+  });
   document.getElementById('confirmOv').addEventListener('click',function(e){ if(e.target===this)this.classList.remove('show'); });
+
   document.getElementById('setBtn').addEventListener('click',openSet);
-  document.getElementById('addBtn').addEventListener('click',function(){ if(opts.length>=10)return; opts.push({v:5,w:10}); renderOpts(); var b=document.getElementById('opts'); b.scrollTop=b.scrollHeight; });
+  document.getElementById('addBtn').addEventListener('click',function(){
+    if(setTab === 'points'){
+      if(opts.length>=10)return; opts.push({v:5,w:10});
+    } else {
+      if(rewards.length>=20)return; rewards.push({name:'新奖励', cost:50});
+    }
+    renderOpts(); saveCloud();
+    var b=document.getElementById('opts'); b.scrollTop=b.scrollHeight;
+  });
   document.getElementById('okBtn').addEventListener('click',saveSet);
   document.getElementById('cancelBtn').addEventListener('click',closeSet);
   document.getElementById('setOv').addEventListener('click',function(e){ if(e.target===this)closeSet(); });
+
   document.getElementById('againBtn').addEventListener('click',function(){ document.getElementById('prizePop').classList.remove('show'); });
   document.getElementById('milestoneBtn').addEventListener('click',function(){ document.getElementById('milestonePop').classList.remove('show'); });
   document.getElementById('resetBtn').addEventListener('click',resetPoints);
 
   document.getElementById('exchangeBtn').addEventListener('click', function(){
-    if(totalPoints < EXCHANGE_COST) return;
+    if(!rewards.length) { alert('还没有设置奖励，去「设置积分 → 奖励选项」里添加吧'); return; }
+    if(!rewards.some(function(r){ return totalPoints >= r.cost; })) { alert('积分还不够兑换任何奖励哦，继续加油！'); return; }
+    renderRwList();
     document.getElementById('exchangeOv').classList.add('show');
   });
-  document.getElementById('exchangeYes').addEventListener('click', doExchange);
   document.getElementById('exchangeNo').addEventListener('click', function(){
     document.getElementById('exchangeOv').classList.remove('show');
   });
   document.getElementById('exchangeOv').addEventListener('click', function(e){
     if(e.target === this) this.classList.remove('show');
+  });
+
+  document.getElementById('exConfirmYes').addEventListener('click', doExchange);
+  document.getElementById('exConfirmNo').addEventListener('click', function(){
+    document.getElementById('exConfirmOv').classList.remove('show');
+    pendingExIdx = -1;
+    document.getElementById('exchangeOv').classList.add('show');
+  });
+  document.getElementById('exConfirmOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); pendingExIdx = -1; }
   });
 
   var sbBtn=document.getElementById('soundBtn');
@@ -727,6 +1130,8 @@
   var authBtn = document.getElementById('authBtn');
   var emailInput = document.getElementById('emailInput');
   var passInput = document.getElementById('passInput');
+  var captchaRow = document.getElementById('captchaRow');
+  var captchaInput = document.getElementById('captchaInput');
   var authMsg = document.getElementById('authMsg');
   var switchText = document.getElementById('switchText');
   var switchLink = document.getElementById('switchLink');
@@ -740,6 +1145,14 @@
     authTip.textContent = reg ? '注册后积分会保存在云端，换设备也不会丢哦' : '登录后，积分会保存在云端，换设备也不会丢哦';
     authMsg.textContent = '';
     authMsg.className = 'msg';
+    if(reg){
+      captchaRow.style.display = 'flex';
+      captchaInput.value = '';
+      generateCaptcha();
+    } else {
+      captchaRow.style.display = 'none';
+      captchaInput.value = '';
+    }
   }
   switchLink.addEventListener('click', function(){ setAuthMode(!isRegister); });
 
@@ -759,6 +1172,18 @@
     var pass = (passInput.value||'').trim();
     if(!email || !pass){ authMsg.textContent = '请填写邮箱和密码'; return; }
     if(pass.length < 6){ authMsg.textContent = '密码至少 6 位'; return; }
+
+    if(isRegister){
+      var inputCode = (captchaInput.value||'').trim().toUpperCase();
+      if(!inputCode){ authMsg.textContent = '请输入验证码'; return; }
+      if(inputCode !== captchaCode){
+        authMsg.textContent = '验证码不对，换一个再试试';
+        generateCaptcha();
+        captchaInput.value = '';
+        return;
+      }
+    }
+
     authBtn.disabled = true;
     authMsg.className = 'msg';
     authMsg.textContent = isRegister ? '注册中…' : '登录中…';
@@ -771,49 +1196,68 @@
       authBtn.disabled = false;
       if(res.error){
         authMsg.textContent = res.error.message || '操作失败，请重试';
+        if(isRegister) generateCaptcha();
         return;
       }
-      // 注册成功但需要邮箱验证的情况
       if(isRegister && res.data && res.data.user && !res.data.session){
         authMsg.className = 'msg ok';
-        authMsg.textContent = '注册成功！请直接登录。';
+        authMsg.textContent = '注册成功！请用刚才的邮箱密码登录。';
         setAuthMode(false);
+        passInput.value = '';
         return;
       }
-      // 登录/注册成功
       authMsg.className = 'msg ok';
       authMsg.textContent = '成功！正在进入…';
+    }).catch(function(err){
+      authBtn.disabled = false;
+      authMsg.textContent = (err && err.message) || '网络错误，请重试';
+      if(isRegister) generateCaptcha();
     });
   });
 
-  // 支持回车提交
-  [emailInput, passInput].forEach(function(inp){
+  [emailInput, passInput, captchaInput].forEach(function(inp){
     inp.addEventListener('keydown', function(e){
       if(e.key === 'Enter') authBtn.click();
     });
   });
 
-  // 退出登录
   document.getElementById('logoutBtn').addEventListener('click', function(){
     if(!confirm('确定要退出登录吗？')) return;
-    sb.auth.signOut().then(function(){
-      location.reload();
-    });
+    if(saveTimer) clearTimeout(saveTimer);
+
+    function doSignOut(){
+      sb.auth.signOut().then(function(){
+        location.reload();
+      }).catch(function(){
+        location.reload();
+      });
+    }
+
+    if(user){
+      try {
+        sb.from('scores').upsert({
+          user_id: user.id, total_points: totalPoints, history: hist,
+          today: today, today_note: todayNote, rewards: rewards,
+          updated_at: new Date().toISOString()
+        }).then(doSignOut).catch(doSignOut);
+      } catch(e) {
+        doSignOut();
+      }
+    } else {
+      doSignOut();
+    }
   });
 
   // ---------- 启动 ----------
   window.addEventListener('resize',function(){ setupCanvas(); buildWheel(-1); draw(angle); });
 
-  // 监听登录状态
   sb.auth.onAuthStateChange(function(event, session){
     if(session && session.user){
       user = session.user;
       setAuthMode(false);
       authMsg.className = 'msg ok';
       authMsg.textContent = '正在加载数据…';
-      loadCloud().then(function(){
-        showMain();
-      });
+      loadCloud().then(function(){ showMain(); });
     } else {
       user = null;
       document.getElementById('authScreen').style.display = 'flex';
@@ -821,7 +1265,6 @@
     }
   });
 
-  // 初始检查
   sb.auth.getSession().then(function(res){
     if(res.data && res.data.session && res.data.session.user){
       user = res.data.session.user;
