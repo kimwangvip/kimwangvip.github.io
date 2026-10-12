@@ -556,6 +556,7 @@
         today: today,
         today_note: todayNote,
         rewards: rewards,
+        opts: opts,
         updated_at: new Date().toISOString()
       }).then(function(res){
         if(res.error) console.warn('保存失败', res.error);
@@ -573,9 +574,11 @@
           today = res.data.today || null;
           todayNote = res.data.today_note || '';
           if(res.data.rewards && res.data.rewards.length) rewards = res.data.rewards;
+          if(res.data.opts && res.data.opts.length) opts = res.data.opts;
         } else {
           totalPoints = 0; hist = []; today = null; todayNote='';
           rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
+          opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
           saveCloud();
         }
         resetTodayIfNeeded();
@@ -1237,7 +1240,7 @@
       try {
         sb.from('scores').upsert({
           user_id: user.id, total_points: totalPoints, history: hist,
-          today: today, today_note: todayNote, rewards: rewards,
+          today: today, today_note: todayNote, rewards: rewards, opts: opts,
           updated_at: new Date().toISOString()
         }).then(doSignOut).catch(doSignOut);
       } catch(e) {
