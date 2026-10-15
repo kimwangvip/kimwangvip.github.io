@@ -63,6 +63,7 @@
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
   }
   .wallet .lbl{font-size:16px; color:#8a6a1a; text-align:left; line-height:1.3;}
+  .wallet .lbl .bn{color:#e67e22; font-weight:700;}
   .wallet .pts{font-size:42px; font-weight:900; color:#e67e22; line-height:1;}
   .wallet .pts small{font-size:20px;}
   .wallet .btns{display:flex; gap:8px; flex-wrap:wrap;}
@@ -182,6 +183,15 @@
   .rwrow .cost:focus{border-color:#ffa94d;}
   .rwrow .del{width:40px; height:40px; min-width:40px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:18px; cursor:pointer;}
 
+  /* 宝贝名字输入行 */
+  .bnrow{display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed #e8dcc8;}
+  .bnrow label{font-size:14px; color:#8a7a66; flex:none;}
+  .bnrow input{
+    flex:1; font-family:inherit; font-size:16px; color:#5b4636;
+    border:2px solid #e8dcc8; border-radius:10px; padding:8px 12px; outline:none;
+  }
+  .bnrow input:focus{border-color:#ffa94d;}
+
   .panel .rowbtns{display:flex; gap:10px; margin-top:14px;}
   .btn-sm{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:30px; padding:12px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.14);}
   .btn-add{background:linear-gradient(180deg,#69db7c,#40c057);}
@@ -190,6 +200,7 @@
 
   .confirm{text-align:center; padding:6px 4px;}
   .confirm .q{font-size:20px; color:#5b4636; margin-bottom:14px; line-height:1.5;}
+  .confirm .q .bn{color:#e67e22; font-weight:700;}
   .confirm textarea{
     width:100%; font-family:inherit; font-size:15px; color:#5b4636;
     border:2px solid #e8dcc8; border-radius:12px; padding:10px 12px;
@@ -240,6 +251,7 @@
   .prize-pop.show{display:flex;}
   .prize-pop .box{background:#fff; border-radius:28px; padding:30px 26px; text-align:center; width:min(86vw, 340px); box-shadow:0 20px 60px rgba(0,0,0,.3); animation:pop .4s cubic-bezier(.22,1,.36,1);}
   .prize-pop .big{font-size:20px; color:#9a8a76;}
+  .prize-pop .big .bn{color:#e67e22; font-weight:700;}
   .prize-pop .pts{font-size:56px; color:var(--accent); margin:6px 0 4px; font-weight:900;}
   .prize-pop .sub{font-size:16px; color:#9a8a76; margin-bottom:18px;}
   .prize-pop .again{font-family:inherit; font-size:19px; color:#fff; border:none; border-radius:40px; padding:13px 32px; background:linear-gradient(180deg,#ffd166,#ff9f1a); box-shadow:0 5px 0 #d97e00; cursor:pointer;}
@@ -335,6 +347,23 @@
   }
   .captcha-canvas:active{opacity:.8;}
 
+  /* 宝贝名字首次设置弹层：不可点遮罩关闭 */
+  #babyNameOv .panel{max-width:380px;}
+  #babyNameOv .bninput{
+    width:100%; font-family:inherit; font-size:20px; color:#5b4636;
+    border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
+    outline:none; margin-bottom:12px; text-align:center;
+  }
+  #babyNameOv .bninput:focus{border-color:#ffa94d;}
+  #babyNameOv .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
+  #babyNameOv .yes{
+    width:100%; font-family:inherit; font-size:18px; color:#fff; border:none;
+    border-radius:40px; padding:14px; cursor:pointer;
+    background:linear-gradient(180deg,#69db7c,#40c057);
+    box-shadow:0 5px 0 #2f9e44; letter-spacing:1px;
+  }
+  #babyNameOv .yes:active{transform:translateY(3px); box-shadow:0 2px 0 #2f9e44;}
+
   @media (max-width:420px){ .title{font-size:32px;} .spinbtn{width:100px; height:100px; font-size:22px;} .wallet .pts{font-size:36px;} }
   @media (prefers-reduced-motion: reduce){ .star,.confetti{animation:none !important;} }
 </style>
@@ -380,7 +409,8 @@
 
   <div class="wallet">
     <div class="lbl">
-      攒到的积分      <div style="font-size:12px; color:#b08a3a; margin-top:2px;" id="todayDate">—</div>
+      <span class="bn" id="babyNameDisplay">宝贝</span>攒到的积分
+      <div style="font-size:12px; color:#b08a3a; margin-top:2px;" id="todayDate">—</div>
     </div>
     <div class="pts"><span id="totalPts">0</span><small> 分</small></div>
     <div class="btns">
@@ -441,7 +471,7 @@
   <div class="panel">
     <h2>确认今日表现</h2>
     <div class="confirm">
-      <div class="q">今天宝贝表现乖吗？<br>乖的话可以抽一次积分，不乖今天就不抽。</div>
+      <div class="q">今天<span class="bn" id="confirmBn">宝贝</span>表现乖吗？<br>乖的话可以抽一次积分，不乖今天就不抽。</div>
       <textarea id="noteInput" placeholder="写一句备注（可选），比如：今天主动收拾了玩具"></textarea>
 
       <div class="photo-row">
@@ -463,6 +493,10 @@
 <div class="overlay" id="setOv">
   <div class="panel">
     <h2>设置</h2>
+    <div class="bnrow">
+      <label>宝贝名字</label>
+      <input type="text" id="babyNameInput" placeholder="比如：小明" maxlength="12">
+    </div>
     <div class="set-tabs">
       <button class="set-tab active" data-set="points">积分档位</button>
       <button class="set-tab" data-set="rewards">奖励选项</button>
@@ -515,10 +549,21 @@
   </div>
 </div>
 
+<!-- 宝贝名字首次设置弹层（不可点遮罩关闭） -->
+<div class="overlay" id="babyNameOv">
+  <div class="panel">
+    <h2>请设置宝贝的名字</h2>
+    <p class="hint">这个名字会显示在积分旁边和抽奖时～</p>
+    <input type="text" class="bninput" id="babyNameFirstInput" placeholder="比如：小明" maxlength="12">
+    <div class="err" id="babyNameFirstErr"></div>
+    <button class="yes" id="babyNameFirstYes">保存名字</button>
+  </div>
+</div>
+
 <!-- 中奖弹层 -->
 <div class="prize-pop" id="prizePop">
   <div class="box">
-    <div class="big">恭喜宝贝，今天抽到</div>
+    <div class="big">恭喜<span class="bn" id="prizeBn">宝贝</span>，今天抽到</div>
     <div class="pts" id="prizePts">+10</div>
     <div class="sub" id="prizeSub">分，攒进积分罐啦</div>
     <button class="again" id="againBtn">收下啦</button>
@@ -552,6 +597,7 @@
 
   // ---------- 全局状态 ----------
   var user = null;
+  var babyName = '';
   var opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
   var rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
   var totalPoints = 0;
@@ -569,6 +615,20 @@
     if(!today.photos) today.photos = [];
   }
 
+  // 名字的显示文本（没设置时用“宝贝”）
+  function displayName(){ return babyName ? babyName : '宝贝'; }
+
+  // 刷新所有显示名字的地方
+  function refreshNameDisplay(){
+    var n = displayName();
+    var a = document.getElementById('babyNameDisplay');
+    var b = document.getElementById('confirmBn');
+    var c = document.getElementById('prizeBn');
+    if(a) a.textContent = n;
+    if(b) b.textContent = n;
+    if(c) c.textContent = n;
+  }
+
   // ---------- 云端读写 ----------
   var saveTimer = null;
   function saveCloud(){
@@ -577,6 +637,7 @@
     saveTimer = setTimeout(function(){
       sb.from('scores').upsert({
         user_id: user.id,
+        baby_name: babyName,
         total_points: totalPoints,
         history: hist,
         today: today,
@@ -595,6 +656,7 @@
       .then(function(res){
         if(res.error){ console.warn('读取失败', res.error); return; }
         if(res.data){
+          babyName = res.data.baby_name || '';
           totalPoints = res.data.total_points || 0;
           hist = res.data.history || [];
           today = res.data.today || null;
@@ -602,6 +664,7 @@
           if(res.data.rewards && res.data.rewards.length) rewards = res.data.rewards;
           if(res.data.opts && res.data.opts.length) opts = res.data.opts;
         } else {
+          babyName = '';
           totalPoints = 0; hist = []; today = null; todayNote='';
           rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
           opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
@@ -802,6 +865,7 @@
     document.getElementById('result').innerHTML='今天抽到 <span class="prize">+'+v+' 分</span>，真棒！';
     document.getElementById('prizePts').textContent='+'+v;
     document.getElementById('prizeSub').textContent='分，攒进积分罐啦（现有 '+totalPoints+' 分）';
+    refreshNameDisplay();
     document.getElementById('prizePop').classList.add('show');
     renderHist(); updateStatus();
     setTimeout(function(){ buildWheel(-1); draw(angle); },900);
@@ -987,6 +1051,7 @@
         if(saveTimer) clearTimeout(saveTimer);
         sb.from('scores').upsert({
           user_id: user.id,
+          baby_name: babyName,
           total_points: 0,
           history: [],
           today: today,
@@ -1095,7 +1160,11 @@
       }
     }
   }
-  function openSet(){ setTab='points'; syncSetTabs(); renderOpts(); document.getElementById('setOv').classList.add('show'); }
+  function openSet(){
+    setTab='points'; syncSetTabs(); renderOpts();
+    document.getElementById('babyNameInput').value = babyName || '';
+    document.getElementById('setOv').classList.add('show');
+  }
   function closeSet(){ document.getElementById('setOv').classList.remove('show'); }
   function syncSetTabs(){
     document.querySelectorAll('.set-tab').forEach(function(t){
@@ -1110,6 +1179,12 @@
     });
   });
   function saveSet(){
+    // 保存宝贝名字
+    var newName = (document.getElementById('babyNameInput').value || '').trim();
+    if(newName.length > 12) newName = newName.slice(0, 12);
+    babyName = newName;
+    refreshNameDisplay();
+
     if(setTab === 'points'){
       var clean=[];
       opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
@@ -1126,6 +1201,27 @@
     saveCloud();
     closeSet(); updateStatus();
   }
+
+  // ---------- 宝贝名字首次设置 ----------
+  function openBabyNameFirst(){
+    document.getElementById('babyNameFirstInput').value = babyName || '';
+    document.getElementById('babyNameFirstErr').textContent = '';
+    document.getElementById('babyNameOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('babyNameFirstInput').focus(); }, 100);
+  }
+  document.getElementById('babyNameFirstYes').addEventListener('click', function(){
+    var n = (document.getElementById('babyNameFirstInput').value || '').trim();
+    if(!n){ document.getElementById('babyNameFirstErr').textContent = '请输入宝贝的名字'; return; }
+    if(n.length > 12) n = n.slice(0, 12);
+    babyName = n;
+    refreshNameDisplay();
+    saveCloud();
+    document.getElementById('babyNameOv').classList.remove('show');
+  });
+  document.getElementById('babyNameFirstInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('babyNameFirstYes').click();
+  });
+  // 这个弹层不绑定遮罩关闭（强制设置）
 
   // ---------- 家长验证（防误点） ----------
   var verifyAnswer = 0;
@@ -1150,6 +1246,7 @@
       document.getElementById('noteInput').value = '';
       pendingPhotos = (today && today.photos) ? today.photos.slice(0, MAX_PHOTOS) : [];
       renderPhotoPreview();
+      refreshNameDisplay();
       document.getElementById('confirmOv').classList.add('show');
     } else {
       document.getElementById('verifyErr').textContent = '答案不对，再试试～';
@@ -1348,9 +1445,15 @@
     document.getElementById('mainWrap').style.display = 'block';
     document.getElementById('totalPts').textContent = totalPoints;
     document.getElementById('todayDate').textContent = todayDisplay();
+    refreshNameDisplay();
     renderHist(); updateStatus(); syncSound();
     updateExchangeBtn();
     setupCanvas(); buildWheel(-1); draw(0);
+
+    // 如果还没设置名字，弹出输入框
+    if(!babyName){
+      setTimeout(openBabyNameFirst, 300);
+    }
   }
 
   authBtn.addEventListener('click', function(){
@@ -1422,7 +1525,8 @@
     if(user){
       try {
         sb.from('scores').upsert({
-          user_id: user.id, total_points: totalPoints, history: hist,
+          user_id: user.id, baby_name: babyName,
+          total_points: totalPoints, history: hist,
           today: today, today_note: todayNote, rewards: rewards, opts: opts,
           updated_at: new Date().toISOString()
         }).then(doSignOut).catch(doSignOut);
