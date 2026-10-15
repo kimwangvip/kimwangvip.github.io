@@ -183,14 +183,14 @@
   .rwrow .cost:focus{border-color:#ffa94d;}
   .rwrow .del{width:40px; height:40px; min-width:40px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:18px; cursor:pointer;}
 
-  /* 宝贝名字输入行 */
-  .bnrow{display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed #e8dcc8;}
-  .bnrow label{font-size:14px; color:#8a7a66; flex:none;}
+  .bnrow{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .bnrow label{font-size:14px; color:#8a7a66; flex:none; width:64px; text-align:left;}
   .bnrow input{
     flex:1; font-family:inherit; font-size:16px; color:#5b4636;
     border:2px solid #e8dcc8; border-radius:10px; padding:8px 12px; outline:none;
   }
   .bnrow input:focus{border-color:#ffa94d;}
+  .bnrow .ro{color:#a09080; font-size:14px; flex:1; text-align:left; padding:8px 0; word-break:break-all;}
 
   .panel .rowbtns{display:flex; gap:10px; margin-top:14px;}
   .btn-sm{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:30px; padding:12px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.14);}
@@ -347,7 +347,6 @@
   }
   .captcha-canvas:active{opacity:.8;}
 
-  /* 宝贝名字首次设置弹层：不可点遮罩关闭 */
   #babyNameOv .panel{max-width:380px;}
   #babyNameOv .bninput{
     width:100%; font-family:inherit; font-size:20px; color:#5b4636;
@@ -376,7 +375,7 @@
     <div class="emoji">🧸</div>
     <h1>宝贝<span class="tw">攒分啦</span></h1>
     <p class="tip" id="authTip">登录后，积分会保存在云端，换设备也不会丢哦</p>
-    <input type="email" id="emailInput" placeholder="邮箱" autocomplete="email">
+    <input type="text" id="accountInput" placeholder="邮箱 或 唯一号" autocomplete="username">
     <input type="password" id="passInput" placeholder="密码（至少6位）" autocomplete="current-password">
     <div class="captcha-row" id="captchaRow" style="display:none;">
       <input type="text" id="captchaInput" placeholder="输入验证码" maxlength="4" autocomplete="off">
@@ -432,7 +431,7 @@
 
   <div class="actions">
     <button class="btn btn-parent" id="parentBtn">（家长）确认今日表现</button>
-    <button class="btn btn-set" id="setBtn">设置积分</button>
+    <button class="btn btn-set" id="setBtn">设置</button>
   </div>
 
   <div class="result" id="result">先让爸爸妈妈确认今天的表现哦</div>
@@ -489,13 +488,21 @@
   </div>
 </div>
 
-<!-- 设置（两个标签页：积分档位 / 奖励选项） -->
+<!-- 设置（宝贝名字 + 唯一号 + 邮箱 + 积分档位 / 奖励选项） -->
 <div class="overlay" id="setOv">
   <div class="panel">
     <h2>设置</h2>
     <div class="bnrow">
       <label>宝贝名字</label>
       <input type="text" id="babyNameInput" placeholder="比如：小明" maxlength="12">
+    </div>
+    <div class="bnrow">
+      <label>唯一号</label>
+      <input type="text" id="loginIdInput" placeholder="3~20 位字母数字下划线" maxlength="20">
+    </div>
+    <div class="bnrow">
+      <label>邮箱</label>
+      <span class="ro" id="emailDisplay">—</span>
     </div>
     <div class="set-tabs">
       <button class="set-tab active" data-set="points">积分档位</button>
@@ -549,7 +556,7 @@
   </div>
 </div>
 
-<!-- 宝贝名字首次设置弹层（不可点遮罩关闭） -->
+<!-- 宝贝名字首次设置弹层 -->
 <div class="overlay" id="babyNameOv">
   <div class="panel">
     <h2>请设置宝贝的名字</h2>
@@ -594,10 +601,13 @@
   var MAX_PHOTOS = 3;
   var MAX_PHOTO_DIM = 1280;
   var PHOTO_QUALITY = 0.82;
+  var LOGIN_ID_RE = /^[a-zA-Z0-9_]{3,20}$/;
 
   // ---------- 全局状态 ----------
   var user = null;
+  var loginId = '';
   var babyName = '';
+  var accountEmail = '';
   var opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
   var rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
   var totalPoints = 0;
@@ -615,10 +625,7 @@
     if(!today.photos) today.photos = [];
   }
 
-  // 名字的显示文本（没设置时用“宝贝”）
   function displayName(){ return babyName ? babyName : '宝贝'; }
-
-  // 刷新所有显示名字的地方
   function refreshNameDisplay(){
     var n = displayName();
     var a = document.getElementById('babyNameDisplay');
@@ -629,7 +636,48 @@
     if(c) c.textContent = n;
   }
 
-  // ---------- 云端读写 ----------
+  function isEmail(s){ return s.indexOf('@') !== -1; }
+
+  // ---------- profiles 表读写 ----------
+  function loadProfile(){
+    if(!user) return Promise.resolve();
+    return sb.from('profiles').select('*').eq('user_id', user.id).maybeSingle()
+      .then(function(res){
+        if(res.error){ console.warn('读取 profile 失败', res.error); return; }
+        if(res.data){
+          loginId = res.data.login_id || '';
+          babyName = res.data.baby_name || '';
+          accountEmail = res.data.email || user.email || '';
+        } else {
+          // 首次：创建一条档案
+          return sb.from('profiles').insert({
+            user_id: user.id,
+            email: user.email || null,
+            login_id: null,
+            baby_name: ''
+          }).then(function(r){
+            if(r.error) console.warn('创建 profile 失败', r.error);
+            accountEmail = user.email || '';
+          });
+        }
+      });
+  }
+
+  function saveProfile(){
+    if(!user) return Promise.resolve({ error: null });
+    return sb.from('profiles').upsert({
+      user_id: user.id,
+      email: accountEmail || user.email || null,
+      login_id: loginId || null,
+      baby_name: babyName,
+      updated_at: new Date().toISOString()
+    }).then(function(res){
+      if(res.error) console.warn('保存 profile 失败', res.error);
+      return res;
+    });
+  }
+
+  // ---------- 云端读写（scores） ----------
   var saveTimer = null;
   function saveCloud(){
     if(!user) return;
@@ -637,7 +685,6 @@
     saveTimer = setTimeout(function(){
       sb.from('scores').upsert({
         user_id: user.id,
-        baby_name: babyName,
         total_points: totalPoints,
         history: hist,
         today: today,
@@ -656,7 +703,6 @@
       .then(function(res){
         if(res.error){ console.warn('读取失败', res.error); return; }
         if(res.data){
-          babyName = res.data.baby_name || '';
           totalPoints = res.data.total_points || 0;
           hist = res.data.history || [];
           today = res.data.today || null;
@@ -664,7 +710,6 @@
           if(res.data.rewards && res.data.rewards.length) rewards = res.data.rewards;
           if(res.data.opts && res.data.opts.length) opts = res.data.opts;
         } else {
-          babyName = '';
           totalPoints = 0; hist = []; today = null; todayNote='';
           rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
           opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
@@ -898,7 +943,7 @@
   function renderRwList(){
     var box = document.getElementById('rwList');
     if(!rewards.length){
-      box.innerHTML = '<div class="empty" style="text-align:center;">还没有设置奖励，去「设置积分 → 奖励选项」里添加吧</div>';
+      box.innerHTML = '<div class="empty" style="text-align:center;">还没有设置奖励，去「设置 → 奖励选项」里添加吧</div>';
       return;
     }
     box.innerHTML = rewards.map(function(r, i){
@@ -1032,7 +1077,7 @@
     }
   });
 
-  // ---------- 清零（用账户密码验证 + 删照片） ----------
+  // ---------- 清零 ----------
   function resetPoints(){
     document.getElementById('resetPwInput').value = '';
     document.getElementById('resetPwErr').textContent = '';
@@ -1051,7 +1096,6 @@
         if(saveTimer) clearTimeout(saveTimer);
         sb.from('scores').upsert({
           user_id: user.id,
-          baby_name: babyName,
           total_points: 0,
           history: [],
           today: today,
@@ -1163,6 +1207,8 @@
   function openSet(){
     setTab='points'; syncSetTabs(); renderOpts();
     document.getElementById('babyNameInput').value = babyName || '';
+    document.getElementById('loginIdInput').value = loginId || '';
+    document.getElementById('emailDisplay').textContent = accountEmail || (user && user.email) || '—';
     document.getElementById('setOv').classList.add('show');
   }
   function closeSet(){ document.getElementById('setOv').classList.remove('show'); }
@@ -1179,12 +1225,24 @@
     });
   });
   function saveSet(){
-    // 保存宝贝名字
+    // 宝贝名字
     var newName = (document.getElementById('babyNameInput').value || '').trim();
     if(newName.length > 12) newName = newName.slice(0, 12);
     babyName = newName;
     refreshNameDisplay();
 
+    // 唯一号
+    var newId = (document.getElementById('loginIdInput').value || '').trim().toLowerCase();
+    var idChanged = (newId !== (loginId || ''));
+
+    if(idChanged && newId !== ''){
+      if(!LOGIN_ID_RE.test(newId)){
+        alert('唯一号 3~20 位，只能用字母、数字、下划线');
+        return;
+      }
+    }
+
+    // 积分档位/奖励选项
     if(setTab === 'points'){
       var clean=[];
       opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
@@ -1198,8 +1256,38 @@
       if(cleanR.length>20) cleanR=cleanR.slice(0,20);
       rewards=cleanR;
     }
+
     saveCloud();
-    closeSet(); updateStatus();
+
+    if(idChanged && newId !== ''){
+      // 检查唯一号是否被占用
+      sb.from('profiles').select('user_id').eq('login_id', newId).maybeSingle()
+        .then(function(res){
+          if(res.data && res.data.user_id !== user.id){
+            alert('这个唯一号已经被用了，换一个吧');
+            return;
+          }
+          loginId = newId;
+          saveProfile().then(function(){
+            closeSet();
+            updateStatus();
+          });
+        })
+        .catch(function(){
+          alert('网络错误，请重试');
+        });
+    } else if(idChanged && newId === ''){
+      // 清空唯一号
+      loginId = '';
+      saveProfile().then(function(){
+        closeSet();
+        updateStatus();
+      });
+    } else {
+      saveProfile();
+      closeSet();
+      updateStatus();
+    }
   }
 
   // ---------- 宝贝名字首次设置 ----------
@@ -1215,13 +1303,29 @@
     if(n.length > 12) n = n.slice(0, 12);
     babyName = n;
     refreshNameDisplay();
-    saveCloud();
-    document.getElementById('babyNameOv').classList.remove('show');
+
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '保存中…';
+
+    saveProfile().then(function(res){
+      btn.disabled = false;
+      btn.textContent = oldText;
+      if(res && res.error){
+        document.getElementById('babyNameFirstErr').textContent = '保存失败，请重试';
+        return;
+      }
+      document.getElementById('babyNameOv').classList.remove('show');
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = oldText;
+      document.getElementById('babyNameFirstErr').textContent = '网络错误，请重试';
+    });
   });
   document.getElementById('babyNameFirstInput').addEventListener('keydown', function(e){
     if(e.key === 'Enter') document.getElementById('babyNameFirstYes').click();
   });
-  // 这个弹层不绑定遮罩关闭（强制设置）
 
   // ---------- 家长验证（防误点） ----------
   var verifyAnswer = 0;
@@ -1383,7 +1487,7 @@
   document.getElementById('resetBtn').addEventListener('click',resetPoints);
 
   document.getElementById('exchangeBtn').addEventListener('click', function(){
-    if(!rewards.length) { alert('还没有设置奖励，去「设置积分 → 奖励选项」里添加吧'); return; }
+    if(!rewards.length) { alert('还没有设置奖励，去「设置 → 奖励选项」里添加吧'); return; }
     if(!rewards.some(function(r){ return totalPoints >= r.cost; })) { alert('积分还不够兑换任何奖励哦，继续加油！'); return; }
     renderRwList();
     document.getElementById('exchangeOv').classList.add('show');
@@ -1412,7 +1516,7 @@
   // ---------- 登录界面逻辑 ----------
   var isRegister = false;
   var authBtn = document.getElementById('authBtn');
-  var emailInput = document.getElementById('emailInput');
+  var accountInput = document.getElementById('accountInput');
   var passInput = document.getElementById('passInput');
   var captchaRow = document.getElementById('captchaRow');
   var captchaInput = document.getElementById('captchaInput');
@@ -1426,7 +1530,8 @@
     authBtn.textContent = reg ? '注 册' : '登 录';
     switchText.textContent = reg ? '已经有账号了？' : '还没有账号？';
     switchLink.textContent = reg ? '去登录' : '去注册';
-    authTip.textContent = reg ? '注册后积分会保存在云端，换设备也不会丢哦' : '登录后，积分会保存在云端，换设备也不会丢哦';
+    authTip.textContent = reg ? '注册需要邮箱，注册后可在设置里设唯一号' : '登录后，积分会保存在云端，换设备也不会丢哦';
+    accountInput.placeholder = reg ? '邮箱' : '邮箱 或 唯一号';
     authMsg.textContent = '';
     authMsg.className = 'msg';
     if(reg){
@@ -1450,19 +1555,26 @@
     updateExchangeBtn();
     setupCanvas(); buildWheel(-1); draw(0);
 
-    // 如果还没设置名字，弹出输入框
-    if(!babyName){
-      setTimeout(openBabyNameFirst, 300);
-    }
+    // 没设名字就弹
+    setTimeout(function(){
+      if(!babyName){
+        openBabyNameFirst();
+      }
+    }, 300);
   }
 
   authBtn.addEventListener('click', function(){
-    var email = (emailInput.value||'').trim();
+    var acc = (accountInput.value||'').trim();
     var pass = (passInput.value||'').trim();
-    if(!email || !pass){ authMsg.textContent = '请填写邮箱和密码'; return; }
+    if(!acc || !pass){ authMsg.textContent = '请填写账号和密码'; return; }
     if(pass.length < 6){ authMsg.textContent = '密码至少 6 位'; return; }
 
     if(isRegister){
+      // 注册必须邮箱
+      if(!isEmail(acc)){
+        authMsg.textContent = '注册请使用邮箱';
+        return;
+      }
       var inputCode = (captchaInput.value||'').trim().toUpperCase();
       if(!inputCode){ authMsg.textContent = '请输入验证码'; return; }
       if(inputCode !== captchaCode){
@@ -1477,34 +1589,76 @@
     authMsg.className = 'msg';
     authMsg.textContent = isRegister ? '注册中…' : '登录中…';
 
-    var p = isRegister
-      ? sb.auth.signUp({ email: email, password: pass })
-      : sb.auth.signInWithPassword({ email: email, password: pass });
-
-    p.then(function(res){
-      authBtn.disabled = false;
-      if(res.error){
-        authMsg.textContent = res.error.message || '操作失败，请重试';
-        if(isRegister) generateCaptcha();
-        return;
+    if(isRegister){
+      sb.auth.signUp({ email: acc, password: pass })
+        .then(function(res){
+          if(res.error) throw res.error;
+          if(res.data.user){
+            return sb.from('profiles').upsert({
+              user_id: res.data.user.id,
+              email: acc,
+              login_id: null,
+              baby_name: ''
+            });
+          }
+        })
+        .then(function(){
+          authBtn.disabled = false;
+          authMsg.className = 'msg ok';
+          authMsg.textContent = '注册成功！请用邮箱登录。';
+          setAuthMode(false);
+          passInput.value = '';
+        })
+        .catch(function(err){
+          authBtn.disabled = false;
+          authMsg.textContent = (err && err.message) || '注册失败，请重试';
+          generateCaptcha();
+        });
+    } else {
+      if(isEmail(acc)){
+        // 邮箱登录
+        sb.auth.signInWithPassword({ email: acc, password: pass })
+          .then(function(res){
+            authBtn.disabled = false;
+            if(res.error){
+              authMsg.textContent = res.error.message || '邮箱或密码不对';
+              return;
+            }
+            authMsg.className = 'msg ok';
+            authMsg.textContent = '成功！正在进入…';
+          })
+          .catch(function(err){
+            authBtn.disabled = false;
+            authMsg.textContent = (err && err.message) || '网络错误，请重试';
+          });
+      } else {
+        // 唯一号登录：查 profiles 拿 email
+        var id = acc.toLowerCase();
+        sb.from('profiles').select('email').eq('login_id', id).maybeSingle()
+          .then(function(check){
+            if(!check.data || !check.data.email){
+              throw new Error('找不到这个唯一号，请检查后重试');
+            }
+            return sb.auth.signInWithPassword({ email: check.data.email, password: pass });
+          })
+          .then(function(res){
+            authBtn.disabled = false;
+            if(res && res.error){
+              authMsg.textContent = res.error.message || '密码不对';
+              return;
+            }
+            authMsg.className = 'msg ok';
+            authMsg.textContent = '成功！正在进入…';
+          })
+          .catch(function(err){
+            authBtn.disabled = false;
+            authMsg.textContent = (err && err.message) || '网络错误，请重试';
+          });
       }
-      if(isRegister && res.data && res.data.user && !res.data.session){
-        authMsg.className = 'msg ok';
-        authMsg.textContent = '注册成功！请用刚才的邮箱密码登录。';
-        setAuthMode(false);
-        passInput.value = '';
-        return;
-      }
-      authMsg.className = 'msg ok';
-      authMsg.textContent = '成功！正在进入…';
-    }).catch(function(err){
-      authBtn.disabled = false;
-      authMsg.textContent = (err && err.message) || '网络错误，请重试';
-      if(isRegister) generateCaptcha();
-    });
+    }
   });
 
-  [emailInput, passInput, captchaInput].forEach(function(inp){
+  [accountInput, passInput, captchaInput].forEach(function(inp){
     inp.addEventListener('keydown', function(e){
       if(e.key === 'Enter') authBtn.click();
     });
@@ -1525,8 +1679,7 @@
     if(user){
       try {
         sb.from('scores').upsert({
-          user_id: user.id, baby_name: babyName,
-          total_points: totalPoints, history: hist,
+          user_id: user.id, total_points: totalPoints, history: hist,
           today: today, today_note: todayNote, rewards: rewards, opts: opts,
           updated_at: new Date().toISOString()
         }).then(doSignOut).catch(doSignOut);
@@ -1547,9 +1700,12 @@
       setAuthMode(false);
       authMsg.className = 'msg ok';
       authMsg.textContent = '正在加载数据…';
-      loadCloud().then(function(){ showMain(); });
+      Promise.all([loadProfile(), loadCloud()]).then(function(){ showMain(); });
     } else {
       user = null;
+      loginId = '';
+      babyName = '';
+      accountEmail = '';
       document.getElementById('authScreen').style.display = 'flex';
       document.getElementById('mainWrap').style.display = 'none';
     }
@@ -1558,7 +1714,7 @@
   sb.auth.getSession().then(function(res){
     if(res.data && res.data.session && res.data.session.user){
       user = res.data.session.user;
-      loadCloud().then(showMain);
+      Promise.all([loadProfile(), loadCloud()]).then(showMain);
     } else {
       document.getElementById('authScreen').style.display = 'flex';
     }
