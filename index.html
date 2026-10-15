@@ -504,6 +504,10 @@
       <label>邮箱</label>
       <span class="ro" id="emailDisplay">—</span>
     </div>
+    <div class="bnrow" style="border-top:1px dashed #e8dcc8; padding-top:10px; margin-top:4px;">
+      <label></label>
+      <button class="btn-sm btn-ok" id="changePwBtn" style="width:100%;">🔑 修改密码</button>
+    </div>
     <div class="set-tabs">
       <button class="set-tab active" data-set="points">积分档位</button>
       <button class="set-tab" data-set="rewards">奖励选项</button>
@@ -564,6 +568,22 @@
     <input type="text" class="bninput" id="babyNameFirstInput" placeholder="比如：小明" maxlength="12">
     <div class="err" id="babyNameFirstErr"></div>
     <button class="yes" id="babyNameFirstYes">保存名字</button>
+  </div>
+</div>
+
+<!-- 修改密码弹层 -->
+<div class="overlay" id="changePwOv">
+  <div class="panel verify-panel">
+    <h2>修改密码</h2>
+    <p class="hint">请输入旧密码和新密码</p>
+    <input type="password" id="oldPwInput" placeholder="旧密码" autocomplete="current-password">
+    <input type="password" id="newPwInput" placeholder="新密码（至少6位）" autocomplete="new-password">
+    <input type="password" id="newPw2Input" placeholder="再输一次新密码" autocomplete="new-password">
+    <div class="err" id="changePwErr"></div>
+    <div class="btns">
+      <button class="yes" id="changePwYes">确定修改</button>
+      <button class="no" id="changePwNo">取消</button>
+    </div>
   </div>
 </div>
 
@@ -649,7 +669,6 @@
           babyName = res.data.baby_name || '';
           accountEmail = res.data.email || user.email || '';
         } else {
-          // 首次：创建一条档案
           return sb.from('profiles').insert({
             user_id: user.id,
             email: user.email || null,
@@ -667,7 +686,7 @@
     if(!user) return Promise.resolve({ error: null });
     return sb.from('profiles').upsert({
       user_id: user.id,
-      email: accountEmail || user.email || null,
+      email: user.email || accountEmail || null,
       login_id: loginId || null,
       baby_name: babyName,
       updated_at: new Date().toISOString()
@@ -1161,6 +1180,64 @@
     if(e.target === this) this.classList.remove('show');
   });
 
+  // ---------- 修改密码 ----------
+  function openChangePw(){
+    document.getElementById('oldPwInput').value = '';
+    document.getElementById('newPwInput').value = '';
+    document.getElementById('newPw2Input').value = '';
+    document.getElementById('changePwErr').textContent = '';
+    document.getElementById('changePwOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('oldPwInput').focus(); }, 100);
+  }
+  document.getElementById('changePwBtn').addEventListener('click', openChangePw);
+  document.getElementById('changePwNo').addEventListener('click', function(){
+    document.getElementById('changePwOv').classList.remove('show');
+  });
+  document.getElementById('changePwOv').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('show');
+  });
+  document.getElementById('changePwYes').addEventListener('click', function(){
+    var oldPw = (document.getElementById('oldPwInput').value || '').trim();
+    var newPw = (document.getElementById('newPwInput').value || '').trim();
+    var newPw2 = (document.getElementById('newPw2Input').value || '').trim();
+    var errEl = document.getElementById('changePwErr');
+
+    if(!oldPw){ errEl.textContent = '请输入旧密码'; return; }
+    if(newPw.length < 6){ errEl.textContent = '新密码至少 6 位'; return; }
+    if(newPw !== newPw2){ errEl.textContent = '两次新密码不一致'; return; }
+    if(newPw === oldPw){ errEl.textContent = '新密码不能和旧密码一样'; return; }
+    if(!user || !user.email){ errEl.textContent = '登录状态异常，请刷新页面'; return; }
+
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '验证中…';
+    errEl.textContent = '';
+
+    sb.auth.signInWithPassword({ email: user.email, password: oldPw })
+      .then(function(res){
+        if(res.error) throw new Error('旧密码不对');
+        return sb.auth.updateUser({ password: newPw });
+      })
+      .then(function(res){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        if(res.error) throw res.error;
+        document.getElementById('changePwOv').classList.remove('show');
+        alert('✅ 密码修改成功！下次请用新密码登录。');
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        errEl.textContent = (err && err.message) || '修改失败，请重试';
+      });
+  });
+  ['oldPwInput','newPwInput','newPw2Input'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown', function(e){
+      if(e.key === 'Enter') document.getElementById('changePwYes').click();
+    });
+  });
+
   // ---------- 设置（两个标签页） ----------
   var setTab = 'points';
   function renderOpts(){
@@ -1225,13 +1302,11 @@
     });
   });
   function saveSet(){
-    // 宝贝名字
     var newName = (document.getElementById('babyNameInput').value || '').trim();
     if(newName.length > 12) newName = newName.slice(0, 12);
     babyName = newName;
     refreshNameDisplay();
 
-    // 唯一号
     var newId = (document.getElementById('loginIdInput').value || '').trim().toLowerCase();
     var idChanged = (newId !== (loginId || ''));
 
@@ -1242,7 +1317,6 @@
       }
     }
 
-    // 积分档位/奖励选项
     if(setTab === 'points'){
       var clean=[];
       opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
@@ -1260,7 +1334,6 @@
     saveCloud();
 
     if(idChanged && newId !== ''){
-      // 检查唯一号是否被占用
       sb.from('profiles').select('user_id').eq('login_id', newId).maybeSingle()
         .then(function(res){
           if(res.data && res.data.user_id !== user.id){
@@ -1277,7 +1350,6 @@
           alert('网络错误，请重试');
         });
     } else if(idChanged && newId === ''){
-      // 清空唯一号
       loginId = '';
       saveProfile().then(function(){
         closeSet();
@@ -1555,7 +1627,6 @@
     updateExchangeBtn();
     setupCanvas(); buildWheel(-1); draw(0);
 
-    // 没设名字就弹
     setTimeout(function(){
       if(!babyName){
         openBabyNameFirst();
@@ -1570,7 +1641,6 @@
     if(pass.length < 6){ authMsg.textContent = '密码至少 6 位'; return; }
 
     if(isRegister){
-      // 注册必须邮箱
       if(!isEmail(acc)){
         authMsg.textContent = '注册请使用邮箱';
         return;
@@ -1616,7 +1686,6 @@
         });
     } else {
       if(isEmail(acc)){
-        // 邮箱登录
         sb.auth.signInWithPassword({ email: acc, password: pass })
           .then(function(res){
             authBtn.disabled = false;
@@ -1632,7 +1701,6 @@
             authMsg.textContent = (err && err.message) || '网络错误，请重试';
           });
       } else {
-        // 唯一号登录：查 profiles 拿 email
         var id = acc.toLowerCase();
         sb.from('profiles').select('email').eq('login_id', id).maybeSingle()
           .then(function(check){
