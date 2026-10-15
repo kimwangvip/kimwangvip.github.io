@@ -247,31 +247,6 @@
   .confetti{position:fixed; top:-20px; z-index:40; pointer-events:none; animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
 
-  .milestone-pop{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:60; padding:20px;}
-  .milestone-pop.show{display:flex;}
-  .milestone-pop .box{
-    background:linear-gradient(160deg,#fff9e6,#ffe8b8);
-    border-radius:32px; padding:36px 28px; text-align:center;
-    width:min(88vw, 360px); box-shadow:0 24px 70px rgba(200,120,0,.35);
-    border:4px solid #ffd43b; animation:pop .5s cubic-bezier(.22,1,.36,1);
-    position:relative; overflow:hidden;
-  }
-  .milestone-pop .box::before{
-    content:'🎉'; position:absolute; top:-10px; left:10px; font-size:44px;
-    animation:twinkle 1.6s ease-in-out infinite;
-  }
-  .milestone-pop .box::after{
-    content:'🎊'; position:absolute; bottom:-6px; right:8px; font-size:44px;
-    animation:twinkle 1.6s ease-in-out infinite .8s;
-  }
-  .milestone-pop .emoji{font-size:64px; line-height:1; margin-bottom:8px;}
-  .milestone-pop .big{font-size:22px; color:#8a5b00; margin-bottom:6px; font-weight:700;}
-  .milestone-pop .pts{font-size:58px; color:#e67e22; font-weight:900; margin:4px 0 6px; line-height:1;}
-  .milestone-pop .sub{font-size:17px; color:#9a7a3a; margin-bottom:22px; line-height:1.5;}
-  .milestone-pop .again{font-family:inherit; font-size:20px; color:#fff; border:none; border-radius:40px; padding:15px 40px;
-    background:linear-gradient(180deg,#ffd166,#ff9f1a); box-shadow:0 6px 0 #d97e00; cursor:pointer; letter-spacing:2px;}
-  .milestone-pop .again:active{transform:translateY(3px); box-shadow:0 3px 0 #d97e00;}
-
   .exchange-panel .q{font-size:18px; line-height:1.5; color:#5b4636; margin-bottom:14px; text-align:center;}
   .exchange-panel .rwlist{max-height:50vh; overflow-y:auto; margin-bottom:14px;}
   .exchange-panel .rwitem{
@@ -550,17 +525,6 @@
   </div>
 </div>
 
-<!-- 满100分祝贺弹层 -->
-<div class="milestone-pop" id="milestonePop">
-  <div class="box">
-    <div class="emoji">🏆</div>
-    <div class="big">太棒啦！积攒满</div>
-    <div class="pts">100分</div>
-    <div class="sub">宝贝真厉害！<br>可以兑换小奖励啦～</div>
-    <button class="again" id="milestoneBtn">开心收下</button>
-  </div>
-</div>
-
 <!-- 大图查看弹层 -->
 <div class="viewer" id="viewer">
   <button class="close" id="viewerClose">×</button>
@@ -582,7 +546,6 @@
   var PALETTE = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#4dabf7','#f783ac','#38d9a9','#b197fc','#ff922b','#22d3ee'];
   var DEFAULT_OPTS = [{v:5,w:10},{v:10,w:25},{v:15,w:30},{v:20,w:25},{v:30,w:10}];
   var DEFAULT_REWARDS = [{name:'玩平板',cost:100},{name:'看动画片',cost:50},{name:'买小玩具',cost:300}];
-  var MILESTONE = 100;
   var MAX_PHOTOS = 3;
   var MAX_PHOTO_DIM = 1280;
   var PHOTO_QUALITY = 0.82;
@@ -696,7 +659,6 @@
     });
   }
 
-  // 删除当前用户 photos 文件夹下的所有照片
   function deleteAllPhotos(){
     if(!user) return Promise.resolve();
     return sb.storage.from('photos').list(user.id, { limit: 1000 }).then(function(res){
@@ -739,7 +701,6 @@
   function beep(f,dur,type,vol,delay){ if(!soundOn||!ac)return; var t=ac.currentTime+(delay||0); var o=ac.createOscillator(),g=ac.createGain(); o.type=type||'sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.25,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.12)); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+(dur||0.12)+0.02); }
   function tickSound(i){ beep(420+(i%8)*40,0.05,'square',0.12); }
   function winSound(){ [523,659,784,1046].forEach(function(f,i){ beep(f,0.22,'triangle',0.3,i*0.13); }); beep(1318,0.4,'triangle',0.28,0.55); }
-  function milestoneSound(){ [523,659,784,1046,1318,1568].forEach(function(f,i){ beep(f,0.3,'triangle',0.32,i*0.14); }); }
   function exchangeSound(){ [600,800,1000].forEach(function(f,i){ beep(f,0.15,'sine',0.25,i*0.1); }); }
 
   // ---------- 转盘 ----------
@@ -829,15 +790,9 @@
     rafId=requestAnimationFrame(frame);
   }
 
-  var milestoneShown = false;
-  function checkMilestoneOnLoad(){
-    if(totalPoints >= MILESTONE){ milestoneShown = true; }
-  }
-
   function finish(target){
     winSound(); confetti();
     var v=opts[target].v;
-    var prevTotal = totalPoints;
     totalPoints+=v; today.drawn=true; today.got=v;
     var photos = (today.photos || []).slice(0, MAX_PHOTOS);
     hist.unshift({d:todayStr().slice(5), p:v, full:todayStr(), note:todayNote, photos: photos});
@@ -850,25 +805,12 @@
     document.getElementById('prizePop').classList.add('show');
     renderHist(); updateStatus();
     setTimeout(function(){ buildWheel(-1); draw(angle); },900);
-
-    if(!milestoneShown && prevTotal < MILESTONE && totalPoints >= MILESTONE){
-      milestoneShown = true;
-      setTimeout(function(){
-        document.getElementById('milestonePop').classList.add('show');
-        milestoneSound();
-        bigConfetti();
-      }, 1200);
-    }
     updateExchangeBtn();
   }
 
   function confetti(){
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     for(var i=0;i<44;i++){ var c=document.createElement('div'); c.className='confetti'; var s=6+Math.random()*8; c.style.cssText='left:'+(Math.random()*100)+'vw;width:'+s+'px;height:'+(s*(Math.random()>.5?1:1.6))+'px;background:'+PALETTE[i%PALETTE.length]+';border-radius:'+(Math.random()>.5?'50%':'3px')+';animation-duration:'+(2.2+Math.random()*2)+'s;animation-delay:'+(Math.random()*0.5)+'s;opacity:.9;'; document.body.appendChild(c); (function(el){ setTimeout(function(){el.remove();},5200); })(c); }
-  }
-  function bigConfetti(){
-    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    for(var i=0;i<80;i++){ var c=document.createElement('div'); c.className='confetti'; var s=8+Math.random()*12; c.style.cssText='left:'+(Math.random()*100)+'vw;width:'+s+'px;height:'+(s*(Math.random()>.5?1:1.6))+'px;background:'+PALETTE[i%PALETTE.length]+';border-radius:'+(Math.random()>.5?'50%':'3px')+';animation-duration:'+(2.5+Math.random()*2.5)+'s;animation-delay:'+(Math.random()*0.8)+'s;opacity:.95;'; document.body.appendChild(c); (function(el){ setTimeout(function(){el.remove();},6000); })(c); }
   }
 
   // ---------- 状态UI与兑换按钮状态 ----------
@@ -1035,13 +977,11 @@
   }
 
   function doResetPoints(){
-    // 先删掉 Storage 里的所有照片，再清零数据库
     deleteAllPhotos().then(function(){
       totalPoints = 0;
       hist = [];
       today = {date:todayStr(), allowed:false, drawn:false, got:0, photos:[]};
       todayNote = '';
-      milestoneShown = false;
 
       if(user){
         if(saveTimer) clearTimeout(saveTimer);
@@ -1343,7 +1283,6 @@
   document.getElementById('setOv').addEventListener('click',function(e){ if(e.target===this)closeSet(); });
 
   document.getElementById('againBtn').addEventListener('click',function(){ document.getElementById('prizePop').classList.remove('show'); });
-  document.getElementById('milestoneBtn').addEventListener('click',function(){ document.getElementById('milestonePop').classList.remove('show'); });
   document.getElementById('resetBtn').addEventListener('click',resetPoints);
 
   document.getElementById('exchangeBtn').addEventListener('click', function(){
@@ -1409,7 +1348,6 @@
     document.getElementById('mainWrap').style.display = 'block';
     document.getElementById('totalPts').textContent = totalPoints;
     document.getElementById('todayDate').textContent = todayDisplay();
-    checkMilestoneOnLoad();
     renderHist(); updateStatus(); syncSound();
     updateExchangeBtn();
     setupCanvas(); buildWheel(-1); draw(0);
