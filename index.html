@@ -147,6 +147,11 @@
     font-family:inherit; font-size:11px; color:#fff; background:#ff6b6b; border:none;
     border-radius:12px; padding:2px 8px; margin-top:4px; cursor:pointer; align-self:flex-start;
   }
+  .chip .thumbs{display:flex; gap:4px; margin-top:5px;}
+  .chip .thumbs img{
+    width:36px; height:36px; object-fit:cover; border-radius:8px;
+    border:1px solid rgba(255,255,255,.7); cursor:pointer;
+  }
   .empty{color:#b0a08d; font-size:15px; padding:4px 2px;}
 
   .overlay{position:fixed; inset:0; background:rgba(60,40,20,.42); display:none; align-items:center; justify-content:center; z-index:30; padding:16px;}
@@ -188,9 +193,32 @@
   .confirm textarea{
     width:100%; font-family:inherit; font-size:15px; color:#5b4636;
     border:2px solid #e8dcc8; border-radius:12px; padding:10px 12px;
-    outline:none; resize:none; height:60px; margin-bottom:14px;
+    outline:none; resize:none; height:60px; margin-bottom:10px;
   }
   .confirm textarea:focus{border-color:#ffa94d;}
+  .photo-row{
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    margin-bottom:12px; justify-content:flex-start;
+  }
+  .photo-btn{
+    font-family:inherit; font-size:14px; color:#5b4636; cursor:pointer;
+    border:2px dashed #e8dcc8; background:#fff8e7; border-radius:14px;
+    padding:8px 14px; display:flex; align-items:center; gap:6px;
+    transition:all .15s;
+  }
+  .photo-btn:hover{border-color:#ffa94d; background:#fff2cc;}
+  .photo-btn:disabled{opacity:.5; cursor:not-allowed;}
+  .photo-preview{display:flex; gap:6px; flex-wrap:wrap;}
+  .photo-preview .pwrap{position:relative;}
+  .photo-preview img{
+    width:56px; height:56px; object-fit:cover; border-radius:10px;
+    border:2px solid #ffe08a;
+  }
+  .photo-preview .rm{
+    position:absolute; top:-6px; right:-6px; width:20px; height:20px;
+    border-radius:50%; background:#ff6b6b; color:#fff; border:2px solid #fff;
+    font-size:12px; line-height:1; cursor:pointer; padding:0;
+  }
   .confirm .btns{display:flex; flex-direction:column; gap:12px;}
   .confirm .yes{font-family:inherit; font-size:19px; color:#fff; border:none; border-radius:40px; padding:15px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer;}
   .confirm .no{font-family:inherit; font-size:17px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
@@ -264,6 +292,22 @@
   .ex-confirm .btns{display:flex; flex-direction:column; gap:12px;}
   .ex-confirm .yes{font-family:inherit; font-size:18px; color:#fff; border:none; border-radius:40px; padding:14px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer; letter-spacing:1px;}
   .ex-confirm .no{font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
+
+  .viewer{
+    position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.92);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .viewer.show{display:flex;}
+  .viewer img{
+    max-width:100%; max-height:88vh; border-radius:12px;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  .viewer .close{
+    position:absolute; top:16px; right:20px; width:44px; height:44px;
+    border-radius:50%; background:rgba(255,255,255,.2); color:#fff;
+    border:none; font-size:24px; cursor:pointer; line-height:1;
+  }
+  .viewer .close:active{background:rgba(255,255,255,.35);}
 
   .auth-screen{
     position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
@@ -417,14 +461,22 @@
   </div>
 </div>
 
-<!-- 家长确认（带备注） -->
+<!-- 家长确认（带备注 + 照片） -->
 <div class="overlay" id="confirmOv">
   <div class="panel">
     <h2>确认今日表现</h2>
     <div class="confirm">
       <div class="q">今天宝贝表现乖吗？<br>乖的话可以抽一次积分，不乖今天就不抽。</div>
       <textarea id="noteInput" placeholder="写一句备注（可选），比如：今天主动收拾了玩具"></textarea>
-      <div class="btns">
+
+      <div class="photo-row">
+        <button class="photo-btn" id="photoBtn" type="button">📷 添加照片</button>
+        <span style="font-size:12px; color:#b0a08d;" id="photoHint">最多 3 张</span>
+        <input type="file" id="photoInput" accept="image/*" style="display:none;">
+      </div>
+      <div class="photo-preview" id="photoPreview"></div>
+
+      <div class="btns" style="margin-top:14px;">
         <button class="yes" id="confirmYes">很乖，今天可以抽积分</button>
         <button class="no" id="confirmNo">今天不乖，不能抽</button>
       </div>
@@ -478,7 +530,7 @@
 <div class="overlay" id="resetPwOv">
   <div class="panel verify-panel">
     <h2>家长验证</h2>
-    <p class="hint">清零会删除所有积分记录，请输入你的登录密码确认</p>
+    <p class="hint">清零会删除所有积分记录和照片，请输入你的登录密码确认</p>
     <input type="password" id="resetPwInput" placeholder="登录密码" autocomplete="current-password">
     <div class="err" id="resetPwErr"></div>
     <div class="btns">
@@ -509,6 +561,12 @@
   </div>
 </div>
 
+<!-- 大图查看弹层 -->
+<div class="viewer" id="viewer">
+  <button class="close" id="viewerClose">×</button>
+  <img id="viewerImg" src="" alt="照片">
+</div>
+
 <!-- ===== Supabase 客户端 ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -525,6 +583,9 @@
   var DEFAULT_OPTS = [{v:5,w:10},{v:10,w:25},{v:15,w:30},{v:20,w:25},{v:30,w:10}];
   var DEFAULT_REWARDS = [{name:'玩平板',cost:100},{name:'看动画片',cost:50},{name:'买小玩具',cost:300}];
   var MILESTONE = 100;
+  var MAX_PHOTOS = 3;
+  var MAX_PHOTO_DIM = 1280;
+  var PHOTO_QUALITY = 0.82;
 
   // ---------- 全局状态 ----------
   var user = null;
@@ -535,12 +596,14 @@
   var soundOn = true;
   var today = null;
   var todayNote = '';
+  var pendingPhotos = [];
 
   function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
   function todayDisplay(){ var d=new Date(); var week=['日','一','二','三','四','五','六'][d.getDay()]; return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 星期'+week; }
   function resetTodayIfNeeded(){
     var ts = todayStr();
-    if(!today || today.date !== ts){ today = {date:ts, allowed:false, drawn:false, got:0}; todayNote=''; }
+    if(!today || today.date !== ts){ today = {date:ts, allowed:false, drawn:false, got:0, photos:[]}; todayNote=''; }
+    if(!today.photos) today.photos = [];
   }
 
   // ---------- 云端读写 ----------
@@ -583,6 +646,91 @@
         }
         resetTodayIfNeeded();
       });
+  }
+
+  // ---------- 照片上传 ----------
+  function compressImage(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var img = new Image();
+        img.onload = function(){
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var scale = Math.min(1, MAX_PHOTO_DIM / Math.max(w, h));
+          var cw = Math.round(w * scale), ch = Math.round(h * scale);
+          var cv = document.createElement('canvas');
+          cv.width = cw; cv.height = ch;
+          var c = cv.getContext('2d');
+          c.drawImage(img, 0, 0, cw, ch);
+          cv.toBlob(function(blob){
+            if(blob) resolve(blob);
+            else reject(new Error('压缩失败'));
+          }, 'image/jpeg', PHOTO_QUALITY);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function uploadPhoto(file){
+    if(!user) return Promise.reject(new Error('未登录'));
+    return compressImage(file).then(function(blob){
+      var fname = Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.jpg';
+      var path = user.id + '/' + fname;
+      return sb.storage.from('photos').upload(path, blob, {
+        contentType: 'image/jpeg',
+        cacheControl: '31536000',
+        upsert: false
+      });
+    }).then(function(res){
+      if(res.error) throw res.error;
+      var path = res.data.path;
+      return sb.storage.from('photos').createSignedUrl(path, 60 * 60 * 24 * 365 * 10)
+        .then(function(sres){
+          if(sres.error) throw sres.error;
+          return { path: path, url: sres.data.signedUrl };
+        });
+    });
+  }
+
+  // 删除当前用户 photos 文件夹下的所有照片
+  function deleteAllPhotos(){
+    if(!user) return Promise.resolve();
+    return sb.storage.from('photos').list(user.id, { limit: 1000 }).then(function(res){
+      if(res.error || !res.data || !res.data.length) return;
+      var paths = res.data.map(function(f){ return user.id + '/' + f.name; });
+      return sb.storage.from('photos').remove(paths).then(function(rres){
+        if(rres.error) console.warn('照片删除失败', rres.error);
+      });
+    }).catch(function(err){
+      console.warn('照片清理异常', err);
+    });
+  }
+
+  function renderPhotoPreview(){
+    var box = document.getElementById('photoPreview');
+    box.innerHTML = '';
+    pendingPhotos.forEach(function(p, i){
+      var wrap = document.createElement('div');
+      wrap.className = 'pwrap';
+      var img = document.createElement('img');
+      img.src = p.url;
+      wrap.appendChild(img);
+      var rm = document.createElement('button');
+      rm.className = 'rm'; rm.textContent = '×'; rm.title = '删除这张';
+      rm.addEventListener('click', function(){
+        pendingPhotos.splice(i, 1);
+        renderPhotoPreview();
+      });
+      wrap.appendChild(rm);
+      box.appendChild(wrap);
+    });
+    var cnt = pendingPhotos.length;
+    document.getElementById('photoHint').textContent = cnt >= MAX_PHOTOS ? '已达上限' : ('最多 ' + (MAX_PHOTOS - cnt) + ' 张');
+    document.getElementById('photoBtn').disabled = cnt >= MAX_PHOTOS;
   }
 
   // ---------- 音效 ----------
@@ -691,7 +839,9 @@
     var v=opts[target].v;
     var prevTotal = totalPoints;
     totalPoints+=v; today.drawn=true; today.got=v;
-    hist.unshift({d:todayStr().slice(5), p:v, full:todayStr(), note:todayNote}); if(hist.length>50)hist=hist.slice(0,50);
+    var photos = (today.photos || []).slice(0, MAX_PHOTOS);
+    hist.unshift({d:todayStr().slice(5), p:v, full:todayStr(), note:todayNote, photos: photos});
+    if(hist.length>50)hist=hist.slice(0,50);
     saveCloud();
     document.getElementById('totalPts').textContent=totalPoints;
     document.getElementById('result').innerHTML='今天抽到 <span class="prize">+'+v+' 分</span>，真棒！';
@@ -818,19 +968,32 @@
       var realIdx = hist.indexOf(h);
       var dateStr = h.full || h.d;
       var noteHtml = h.note ? '<span class="note">📝 '+escapeHtml(h.note)+'</span>' : '';
+      var photosHtml = '';
+      if(h.photos && h.photos.length){
+        photosHtml = '<span class="thumbs">' + h.photos.map(function(p){
+          var url = (typeof p === 'string') ? p : (p.url || '');
+          return '<img src="'+url+'" data-url="'+url+'" alt="照片">';
+        }).join('') + '</span>';
+      }
       if(h.p < 0){
         return '<span class="chip exchange">'+dateStr+' · '+escapeHtml(h.name||'兑换')+'(-'+Math.abs(h.p)+'分)'+
           noteHtml+
           '<button class="undo" data-idx="'+realIdx+'">撤销</button>'+
         '</span>';
       } else {
-        return '<span class="chip">'+dateStr+' · +'+h.p+'分'+noteHtml+'</span>';
+        return '<span class="chip">'+dateStr+' · +'+h.p+'分'+noteHtml+photosHtml+'</span>';
       }
     }).join('');
     box.querySelectorAll('.undo').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
         undoExchange(parseInt(btn.dataset.idx));
+      });
+    });
+    box.querySelectorAll('.thumbs img').forEach(function(img){
+      img.addEventListener('click', function(e){
+        e.stopPropagation();
+        openViewer(img.dataset.url);
       });
     });
   }
@@ -844,7 +1007,26 @@
     });
   });
 
-  // ---------- 清零（用账户密码验证） ----------
+  // ---------- 大图查看 ----------
+  var viewer = document.getElementById('viewer');
+  var viewerImg = document.getElementById('viewerImg');
+  function openViewer(url){
+    if(!url) return;
+    viewerImg.src = url;
+    viewer.classList.add('show');
+  }
+  document.getElementById('viewerClose').addEventListener('click', function(){
+    viewer.classList.remove('show');
+    viewerImg.src = '';
+  });
+  viewer.addEventListener('click', function(e){
+    if(e.target === this){
+      viewer.classList.remove('show');
+      viewerImg.src = '';
+    }
+  });
+
+  // ---------- 清零（用账户密码验证 + 删照片） ----------
   function resetPoints(){
     document.getElementById('resetPwInput').value = '';
     document.getElementById('resetPwErr').textContent = '';
@@ -852,38 +1034,44 @@
     setTimeout(function(){ document.getElementById('resetPwInput').focus(); }, 100);
   }
 
-	function doResetPoints(){
-	  totalPoints = 0;
-	  hist = [];
-	  milestoneShown = false;
+  function doResetPoints(){
+    // 先删掉 Storage 里的所有照片，再清零数据库
+    deleteAllPhotos().then(function(){
+      totalPoints = 0;
+      hist = [];
+      today = {date:todayStr(), allowed:false, drawn:false, got:0, photos:[]};
+      todayNote = '';
+      milestoneShown = false;
 
-	  // 立即写入云端，不走 300ms 防抖
-	  if(user){
-		if(saveTimer) clearTimeout(saveTimer);
-		sb.from('scores').upsert({
-		  user_id: user.id,
-		  total_points: 0,
-		  history: [],
-		  today: today,
-		  today_note: todayNote,
-		  rewards: rewards,
-		  opts: opts,
-		  updated_at: new Date().toISOString()
-		}).then(function(res){
-		  if(res.error) console.warn('清零保存失败', res.error);
-		});
-	  }
+      if(user){
+        if(saveTimer) clearTimeout(saveTimer);
+        sb.from('scores').upsert({
+          user_id: user.id,
+          total_points: 0,
+          history: [],
+          today: today,
+          today_note: '',
+          rewards: rewards,
+          opts: opts,
+          updated_at: new Date().toISOString()
+        }).then(function(res){
+          if(res.error) console.warn('清零保存失败', res.error);
+        });
+      }
 
-	  document.getElementById('totalPts').textContent = '0';
-	  document.getElementById('result').innerHTML = '积分已清零，重新开始攒分吧！';
-	  renderHist();
-	  updateStatus();
-	  updateExchangeBtn();
-	  ensureAudio();
-	  beep(660,0.1,'triangle',0.2);
-	  beep(440,0.15,'triangle',0.2,0.12);
-	  document.getElementById('resetPwOv').classList.remove('show');
-	}
+      pendingPhotos = [];
+      renderPhotoPreview();
+      document.getElementById('totalPts').textContent = '0';
+      document.getElementById('result').innerHTML = '积分已清零，重新开始攒分吧！';
+      renderHist();
+      updateStatus();
+      updateExchangeBtn();
+      ensureAudio();
+      beep(660,0.1,'triangle',0.2);
+      beep(440,0.15,'triangle',0.2,0.12);
+      document.getElementById('resetPwOv').classList.remove('show');
+    });
+  }
 
   document.getElementById('resetPwYes').addEventListener('click', function(){
     var pw = (document.getElementById('resetPwInput').value || '').trim();
@@ -1020,6 +1208,8 @@
     if(val === verifyAnswer){
       closeVerify();
       document.getElementById('noteInput').value = '';
+      pendingPhotos = (today && today.photos) ? today.photos.slice(0, MAX_PHOTOS) : [];
+      renderPhotoPreview();
       document.getElementById('confirmOv').classList.add('show');
     } else {
       document.getElementById('verifyErr').textContent = '答案不对，再试试～';
@@ -1088,14 +1278,52 @@
   });
   document.getElementById('verifyOv').addEventListener('click', function(e){ if(e.target===this) closeVerify(); });
 
+  document.getElementById('photoBtn').addEventListener('click', function(){
+    document.getElementById('photoInput').click();
+  });
+  document.getElementById('photoInput').addEventListener('change', function(e){
+    var files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if(!files.length) return;
+    var room = MAX_PHOTOS - pendingPhotos.length;
+    if(room <= 0){ alert('最多 '+MAX_PHOTOS+' 张照片'); return; }
+    files = files.slice(0, room);
+
+    var btn = document.getElementById('photoBtn');
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    var uploaded = 0, failed = 0;
+    btn.textContent = '⏳ 上传中… 0/' + files.length;
+
+    Promise.all(files.map(function(f){
+      return uploadPhoto(f).then(function(res){
+        uploaded++;
+        btn.textContent = '⏳ 上传中… ' + uploaded + '/' + files.length;
+        return res;
+      }).catch(function(err){
+        failed++;
+        console.warn('照片上传失败', err);
+        return null;
+      });
+    })).then(function(results){
+      results.forEach(function(r){ if(r) pendingPhotos.push(r); });
+      btn.disabled = false;
+      btn.textContent = oldText;
+      renderPhotoPreview();
+      if(failed) alert('有 '+failed+' 张照片上传失败，请重试');
+    });
+  });
+
   document.getElementById('confirmYes').addEventListener('click',function(){
     today.allowed=true; today.drawn=false;
     todayNote = (document.getElementById('noteInput').value || '').trim();
+    today.photos = pendingPhotos.slice(0, MAX_PHOTOS);
     saveCloud(); document.getElementById('confirmOv').classList.remove('show'); updateStatus();
   });
   document.getElementById('confirmNo').addEventListener('click',function(){
     today.allowed=false; today.drawn=false;
     todayNote = (document.getElementById('noteInput').value || '').trim();
+    today.photos = pendingPhotos.slice(0, MAX_PHOTOS);
     saveCloud(); document.getElementById('confirmOv').classList.remove('show'); updateStatus();
   });
   document.getElementById('confirmOv').addEventListener('click',function(e){ if(e.target===this)this.classList.remove('show'); });
