@@ -160,13 +160,39 @@
   .panel{background:#fff; border-radius:24px; width:min(92vw, 430px); max-height:86vh; display:flex; flex-direction:column; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
   .panel h2{margin:0 0 4px; font-size:23px; color:#5b4636; text-align:center;}
   .panel p.hint{margin:0 0 14px; text-align:center; color:#9a8a76; font-size:14px;}
-  .set-tabs{display:flex; gap:8px; margin-bottom:12px; justify-content:center;}
-  .set-tab{
-    font-family:inherit; font-size:15px; color:#8a7a66; cursor:pointer;
-    border:2px solid #e8dcc8; background:#fff; border-radius:20px;
-    padding:6px 18px; transition:all .15s;
+
+  /* 设置菜单 */
+  .menu{display:flex; flex-direction:column; gap:8px; margin:8px 0 4px;}
+  .mitem{
+    display:flex; align-items:center; gap:10px;
+    background:#fff8e7; border:2px solid #e8dcc8; border-radius:14px;
+    padding:12px 14px; cursor:pointer; font-family:inherit;
+    transition:all .15s; text-align:left; width:100%;
   }
-  .set-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347;}
+  .mitem:hover{border-color:#ffb347; background:#fff2cc;}
+  .mitem .mico{font-size:20px; flex:none;}
+  .mitem .mtxt{flex:1; font-size:16px; color:#5b4636;}
+  .mitem .mval{font-size:14px; color:#a09080; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .mitem .marrow{font-size:20px; color:#c9b89a; flex:none;}
+
+  /* 通用输入行 */
+  .bnrow{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .bnrow label{font-size:14px; color:#8a7a66; flex:none; width:64px; text-align:left;}
+  .bnrow input{
+    flex:1; font-family:inherit; font-size:16px; color:#5b4636;
+    border:2px solid #e8dcc8; border-radius:10px; padding:8px 12px; outline:none;
+  }
+  .bnrow input:focus{border-color:#ffa94d;}
+  .bnrow .ro{color:#a09080; font-size:14px; flex:1; text-align:left; padding:8px 0; word-break:break-all;}
+  .bninput{
+    width:100%; font-family:inherit; font-size:16px; color:#5b4636;
+    border:2px solid #e8dcc8; border-radius:12px; padding:10px 14px; outline:none;
+    margin-bottom:10px;
+  }
+  .bninput:focus{border-color:#ffa94d;}
+  .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
+
+  /* 积分档位 / 奖励选项 */
   .opts{flex:1; overflow-y:auto; padding-right:6px; max-height:48vh;}
   .optrow{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
   .optrow .dot{width:16px; height:16px; border-radius:50%; flex:none;}
@@ -183,21 +209,13 @@
   .rwrow .cost:focus{border-color:#ffa94d;}
   .rwrow .del{width:40px; height:40px; min-width:40px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:18px; cursor:pointer;}
 
-  .bnrow{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
-  .bnrow label{font-size:14px; color:#8a7a66; flex:none; width:64px; text-align:left;}
-  .bnrow input{
-    flex:1; font-family:inherit; font-size:16px; color:#5b4636;
-    border:2px solid #e8dcc8; border-radius:10px; padding:8px 12px; outline:none;
-  }
-  .bnrow input:focus{border-color:#ffa94d;}
-  .bnrow .ro{color:#a09080; font-size:14px; flex:1; text-align:left; padding:8px 0; word-break:break-all;}
-
   .panel .rowbtns{display:flex; gap:10px; margin-top:14px;}
   .btn-sm{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:30px; padding:12px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.14);}
   .btn-add{background:linear-gradient(180deg,#69db7c,#40c057);}
   .btn-ok{background:linear-gradient(180deg,#ffa94d,#ff922b);}
   .btn-cancel{background:#b9ad9b; box-shadow:none;}
 
+  /* 家长确认 */
   .confirm{text-align:center; padding:6px 4px;}
   .confirm .q{font-size:20px; color:#5b4636; margin-bottom:14px; line-height:1.5;}
   .confirm .q .bn{color:#e67e22; font-weight:700;}
@@ -234,12 +252,13 @@
   .confirm .yes{font-family:inherit; font-size:19px; color:#fff; border:none; border-radius:40px; padding:15px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer;}
   .confirm .no{font-family:inherit; font-size:17px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
 
+  /* 家长验证 / 修改密码 */
   .verify-panel .q{font-size:20px; color:#5b4636; margin-bottom:14px; text-align:center; line-height:1.5;}
   .verify-panel .eq{font-size:32px; color:#e67e22; font-weight:900; text-align:center; margin:6px 0 16px; letter-spacing:2px;}
   .verify-panel input{
-    width:100%; font-family:inherit; font-size:22px; color:#5b4636;
+    width:100%; font-family:inherit; font-size:18px; color:#5b4636;
     border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
-    text-align:center; outline:none; margin-bottom:12px; letter-spacing:3px;
+    text-align:center; outline:none; margin-bottom:12px;
   }
   .verify-panel input:focus{border-color:#ffa94d;}
   .verify-panel .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
@@ -347,22 +366,6 @@
   }
   .captcha-canvas:active{opacity:.8;}
 
-  #babyNameOv .panel{max-width:380px;}
-  #babyNameOv .bninput{
-    width:100%; font-family:inherit; font-size:20px; color:#5b4636;
-    border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
-    outline:none; margin-bottom:12px; text-align:center;
-  }
-  #babyNameOv .bninput:focus{border-color:#ffa94d;}
-  #babyNameOv .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
-  #babyNameOv .yes{
-    width:100%; font-family:inherit; font-size:18px; color:#fff; border:none;
-    border-radius:40px; padding:14px; cursor:pointer;
-    background:linear-gradient(180deg,#69db7c,#40c057);
-    box-shadow:0 5px 0 #2f9e44; letter-spacing:1px;
-  }
-  #babyNameOv .yes:active{transform:translateY(3px); box-shadow:0 2px 0 #2f9e44;}
-
   @media (max-width:420px){ .title{font-size:32px;} .spinbtn{width:100px; height:100px; font-size:22px;} .wallet .pts{font-size:36px;} }
   @media (prefers-reduced-motion: reduce){ .star,.confetti{animation:none !important;} }
 </style>
@@ -376,7 +379,7 @@
     <h1>宝贝<span class="tw">攒分啦</span></h1>
     <p class="tip" id="authTip">登录后，积分会保存在云端，换设备也不会丢哦</p>
     <input type="text" id="accountInput" placeholder="邮箱 或 唯一号" autocomplete="username">
-    <input type="password" id="passInput" placeholder="密码（至少6位）" autocomplete="current-password">
+    <input type="password" id="passInput" placeholder="密码" autocomplete="current-password">
     <div class="captcha-row" id="captchaRow" style="display:none;">
       <input type="text" id="captchaInput" placeholder="输入验证码" maxlength="4" autocomplete="off">
       <canvas class="captcha-canvas" id="captchaCanvas" width="220" height="92" title="点击刷新"></canvas>
@@ -488,14 +491,58 @@
   </div>
 </div>
 
-<!-- 设置（宝贝名字 + 唯一号 + 邮箱 + 积分档位 / 奖励选项） -->
+<!-- 设置菜单 -->
 <div class="overlay" id="setOv">
   <div class="panel">
     <h2>设置</h2>
-    <div class="bnrow">
-      <label>宝贝名字</label>
-      <input type="text" id="babyNameInput" placeholder="比如：小明" maxlength="12">
+    <div class="menu">
+      <button class="mitem" id="mBabyName">
+        <span class="mico">🧸</span>
+        <span class="mtxt">宝贝名字</span>
+        <span class="mval" id="mBabyNameVal">—</span>
+        <span class="marrow">›</span>
+      </button>
+      <button class="mitem" id="mAccount">
+        <span class="mico">🔑</span>
+        <span class="mtxt">账号与密码</span>
+        <span class="mval" id="mAccountVal"></span>
+        <span class="marrow">›</span>
+      </button>
+      <button class="mitem" id="mPoints">
+        <span class="mico">⭐</span>
+        <span class="mtxt">积分档位</span>
+        <span class="marrow">›</span>
+      </button>
+      <button class="mitem" id="mRewards">
+        <span class="mico">🎁</span>
+        <span class="mtxt">奖励选项</span>
+        <span class="marrow">›</span>
+      </button>
     </div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="cancelBtn">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 宝贝名字弹层 -->
+<div class="overlay" id="babyNameSetOv">
+  <div class="panel">
+    <h2>宝贝名字</h2>
+    <p class="hint">显示在积分旁边和抽奖时</p>
+    <input type="text" class="bninput" id="babyNameSetInput" placeholder="比如：小明" maxlength="12">
+    <div class="err" id="babyNameSetErr"></div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="babyNameSetBack">返回</button>
+      <button class="btn-sm btn-ok" id="babyNameSetSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 账号与密码弹层 -->
+<div class="overlay" id="accountOv">
+  <div class="panel">
+    <h2>账号与密码</h2>
     <div class="bnrow">
       <label>唯一号</label>
       <input type="text" id="loginIdInput" placeholder="3~20 位字母数字下划线" maxlength="20">
@@ -508,16 +555,38 @@
       <label></label>
       <button class="btn-sm btn-ok" id="changePwBtn" style="width:100%;">🔑 修改密码</button>
     </div>
-    <div class="set-tabs">
-      <button class="set-tab active" data-set="points">积分档位</button>
-      <button class="set-tab" data-set="rewards">奖励选项</button>
+    <div class="err" id="accountErr"></div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="accountBack">返回</button>
+      <button class="btn-sm btn-ok" id="accountSave">保存唯一号</button>
     </div>
-    <p class="hint" id="setHint">分数越大越想要。数字填"权重"，越小越难抽中。</p>
+  </div>
+</div>
+
+<!-- 积分档位弹层 -->
+<div class="overlay" id="pointsOv">
+  <div class="panel">
+    <h2>积分档位</h2>
+    <p class="hint">分数越大越想要。数字填"权重"，越小越难抽中。</p>
     <div class="opts" id="opts"></div>
     <div class="rowbtns">
       <button class="btn-sm btn-add" id="addBtn">加一档</button>
-      <button class="btn-sm btn-cancel" id="cancelBtn">取消</button>
-      <button class="btn-sm btn-ok" id="okBtn">保存</button>
+      <button class="btn-sm btn-cancel" id="pointsBack">返回</button>
+      <button class="btn-sm btn-ok" id="pointsSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 奖励选项弹层 -->
+<div class="overlay" id="rewardsOv">
+  <div class="panel">
+    <h2>奖励选项</h2>
+    <p class="hint">添加奖励，写清楚名字和需要的积分。</p>
+    <div class="opts" id="optsRw"></div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-add" id="addRwBtn">加一个奖励</button>
+      <button class="btn-sm btn-cancel" id="rewardsBack">返回</button>
+      <button class="btn-sm btn-ok" id="rewardsSave">保存</button>
     </div>
   </div>
 </div>
@@ -546,7 +615,7 @@
   </div>
 </div>
 
-<!-- 清零密码验证（用账户密码） -->
+<!-- 清零密码验证 -->
 <div class="overlay" id="resetPwOv">
   <div class="panel verify-panel">
     <h2>家长验证</h2>
@@ -577,7 +646,7 @@
     <h2>修改密码</h2>
     <p class="hint">请输入旧密码和新密码</p>
     <input type="password" id="oldPwInput" placeholder="旧密码" autocomplete="current-password">
-    <input type="password" id="newPwInput" placeholder="新密码（至少6位）" autocomplete="new-password">
+    <input type="password" id="newPwInput" placeholder="新密码" autocomplete="new-password">
     <input type="password" id="newPw2Input" placeholder="再输一次新密码" autocomplete="new-password">
     <div class="err" id="changePwErr"></div>
     <div class="btns">
@@ -654,6 +723,12 @@
     if(a) a.textContent = n;
     if(b) b.textContent = n;
     if(c) c.textContent = n;
+  }
+  function refreshMenuValues(){
+    var a = document.getElementById('mBabyNameVal');
+    var b = document.getElementById('mAccountVal');
+    if(a) a.textContent = babyName || '未设置';
+    if(b) b.textContent = loginId ? ('@' + loginId) : '';
   }
 
   function isEmail(s){ return s.indexOf('@') !== -1; }
@@ -1203,7 +1278,7 @@
     var errEl = document.getElementById('changePwErr');
 
     if(!oldPw){ errEl.textContent = '请输入旧密码'; return; }
-    if(newPw.length < 6){ errEl.textContent = '新密码至少 6 位'; return; }
+    if(!newPw){ errEl.textContent = '请输入新密码'; return; }
     if(newPw !== newPw2){ errEl.textContent = '两次新密码不一致'; return; }
     if(newPw === oldPw){ errEl.textContent = '新密码不能和旧密码一样'; return; }
     if(!user || !user.email){ errEl.textContent = '登录状态异常，请刷新页面'; return; }
@@ -1238,129 +1313,238 @@
     });
   });
 
-  // ---------- 设置（两个标签页） ----------
-  var setTab = 'points';
-  function renderOpts(){
-    var box=document.getElementById('opts');
-    var hint=document.getElementById('setHint');
-    var addBtn=document.getElementById('addBtn');
-    box.innerHTML='';
-    if(setTab === 'points'){
-      hint.textContent = '分数越大越想要。数字填"权重"，越小越难抽中。';
-      addBtn.style.display = '';
-      opts.forEach(function(o,i){
-        var row=document.createElement('div'); row.className='optrow';
-        var dot=document.createElement('span'); dot.className='dot'; dot.style.background=PALETTE[i%PALETTE.length];
-        var val=document.createElement('input'); val.className='val'; val.type='number'; val.min='1'; val.max='100'; val.value=o.v;
-        var w=document.createElement('input'); w.className='w'; w.type='number'; w.min='1'; w.max='100'; w.value=o.w;
-        w.setAttribute('aria-label','权重（越大越容易抽中）');
-        var note=document.createElement('span'); note.className='note'; note.textContent='权重';
-        var del=document.createElement('button'); del.className='del'; del.textContent='x';
-        val.addEventListener('input',function(){ o.v=Math.max(1,Math.min(100,parseInt(val.value)||1)); });
-        w.addEventListener('input',function(){ o.w=Math.max(1,Math.min(100,parseInt(w.value)||1)); });
-        del.addEventListener('click',function(){ if(opts.length<=2)return; opts.splice(i,1); renderOpts(); });
-        row.appendChild(dot); row.appendChild(val); row.appendChild(note); row.appendChild(w); row.appendChild(del);
-        box.appendChild(row);
-      });
-    } else {
-      hint.textContent = '添加奖励，写清楚名字和需要的积分。积分够时就可以兑换啦。';
-      addBtn.style.display = '';
-      rewards.forEach(function(r,i){
-        var row=document.createElement('div'); row.className='rwrow';
-        var nm=document.createElement('input'); nm.className='nm'; nm.type='text'; nm.value=r.name; nm.placeholder='奖励名称，如：玩平板';
-        var cost=document.createElement('input'); cost.className='cost'; cost.type='number'; cost.min='1'; cost.max='9999'; cost.value=r.cost;
-        var del=document.createElement('button'); del.className='del'; del.textContent='x';
-        nm.addEventListener('input',function(){ r.name = nm.value; });
-        cost.addEventListener('input',function(){ r.cost = Math.max(1, Math.min(9999, parseInt(cost.value)||1)); });
-        del.addEventListener('click',function(){ rewards.splice(i,1); renderOpts(); });
-        row.appendChild(nm); row.appendChild(cost); row.appendChild(del);
-        box.appendChild(row);
-      });
-      if(!rewards.length){
-        box.innerHTML = '<div class="empty" style="text-align:center; padding:20px 0;">还没有奖励，点下面「加一档」添加吧</div>';
-      }
-    }
-  }
+  // ---------- 设置菜单 ----------
   function openSet(){
-    setTab='points'; syncSetTabs(); renderOpts();
-    document.getElementById('babyNameInput').value = babyName || '';
-    document.getElementById('loginIdInput').value = loginId || '';
-    document.getElementById('emailDisplay').textContent = accountEmail || (user && user.email) || '—';
+    refreshMenuValues();
     document.getElementById('setOv').classList.add('show');
   }
   function closeSet(){ document.getElementById('setOv').classList.remove('show'); }
-  function syncSetTabs(){
-    document.querySelectorAll('.set-tab').forEach(function(t){
-      t.classList.toggle('active', t.dataset.set === setTab);
-    });
-  }
-  document.querySelectorAll('.set-tab').forEach(function(t){
-    t.addEventListener('click', function(){
-      setTab = t.dataset.set;
-      syncSetTabs();
-      renderOpts();
-    });
+  document.getElementById('setBtn').addEventListener('click', openSet);
+  document.getElementById('cancelBtn').addEventListener('click', closeSet);
+  document.getElementById('setOv').addEventListener('click', function(e){ if(e.target === this) closeSet(); });
+
+  // 菜单项
+  document.getElementById('mBabyName').addEventListener('click', function(){
+    closeSet();
+    document.getElementById('babyNameSetInput').value = babyName || '';
+    document.getElementById('babyNameSetErr').textContent = '';
+    document.getElementById('babyNameSetOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('babyNameSetInput').focus(); }, 100);
   });
-  function saveSet(){
-    var newName = (document.getElementById('babyNameInput').value || '').trim();
-    if(newName.length > 12) newName = newName.slice(0, 12);
-    babyName = newName;
+  document.getElementById('mAccount').addEventListener('click', function(){
+    closeSet();
+    document.getElementById('loginIdInput').value = loginId || '';
+    document.getElementById('emailDisplay').textContent = accountEmail || (user && user.email) || '—';
+    document.getElementById('accountErr').textContent = '';
+    document.getElementById('accountOv').classList.add('show');
+  });
+  document.getElementById('mPoints').addEventListener('click', function(){
+    closeSet();
+    setTab = 'points';
+    renderOpts();
+    document.getElementById('pointsOv').classList.add('show');
+  });
+  document.getElementById('mRewards').addEventListener('click', function(){
+    closeSet();
+    setTab = 'rewards';
+    renderOpts();
+    document.getElementById('rewardsOv').classList.add('show');
+  });
+
+  // 宝贝名字弹层
+  document.getElementById('babyNameSetBack').addEventListener('click', function(){
+    document.getElementById('babyNameSetOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('babyNameSetOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+  document.getElementById('babyNameSetSave').addEventListener('click', function(){
+    var n = (document.getElementById('babyNameSetInput').value || '').trim();
+    if(!n){ document.getElementById('babyNameSetErr').textContent = '请输入宝贝的名字'; return; }
+    if(n.length > 12) n = n.slice(0, 12);
+    babyName = n;
     refreshNameDisplay();
-
-    var newId = (document.getElementById('loginIdInput').value || '').trim().toLowerCase();
-    var idChanged = (newId !== (loginId || ''));
-
-    if(idChanged && newId !== ''){
-      if(!LOGIN_ID_RE.test(newId)){
-        alert('唯一号 3~20 位，只能用字母、数字、下划线');
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '保存中…';
+    saveProfile().then(function(res){
+      btn.disabled = false;
+      btn.textContent = oldText;
+      if(res && res.error){
+        document.getElementById('babyNameSetErr').textContent = '保存失败，请重试';
         return;
       }
+      document.getElementById('babyNameSetOv').classList.remove('show');
+      openSet();
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = oldText;
+      document.getElementById('babyNameSetErr').textContent = '网络错误，请重试';
+    });
+  });
+  document.getElementById('babyNameSetInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('babyNameSetSave').click();
+  });
+
+  // 账号弹层
+  document.getElementById('accountBack').addEventListener('click', function(){
+    document.getElementById('accountOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('accountOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+  document.getElementById('accountSave').addEventListener('click', function(){
+    var newId = (document.getElementById('loginIdInput').value || '').trim().toLowerCase();
+    var errEl = document.getElementById('accountErr');
+    if(newId && !LOGIN_ID_RE.test(newId)){
+      errEl.textContent = '唯一号 3~20 位，只能用字母、数字、下划线';
+      return;
     }
-
-    if(setTab === 'points'){
-      var clean=[];
-      opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
-      if(clean.length<2){ closeSet(); return; }
-      if(clean.length>10) clean=clean.slice(0,10);
-      opts=clean;
-      setupCanvas(); buildWheel(-1); draw(angle);
-    } else {
-      var cleanR=[];
-      rewards.forEach(function(r){ var name=(r.name||'').trim(); var cost=parseInt(r.cost)||0; if(name && cost>0) cleanR.push({name:name, cost:cost}); });
-      if(cleanR.length>20) cleanR=cleanR.slice(0,20);
-      rewards=cleanR;
+    if(newId === (loginId || '')){
+      // 没变
+      document.getElementById('accountOv').classList.remove('show');
+      openSet();
+      return;
     }
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '保存中…';
+    errEl.textContent = '';
 
-    saveCloud();
+    var done = function(){
+      loginId = newId;
+      saveProfile().then(function(res){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        if(res && res.error){
+          errEl.textContent = '保存失败，请重试';
+          return;
+        }
+        document.getElementById('accountOv').classList.remove('show');
+        openSet();
+      }).catch(function(){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        errEl.textContent = '网络错误，请重试';
+      });
+    };
 
-    if(idChanged && newId !== ''){
+    if(newId){
       sb.from('profiles').select('user_id').eq('login_id', newId).maybeSingle()
         .then(function(res){
           if(res.data && res.data.user_id !== user.id){
-            alert('这个唯一号已经被用了，换一个吧');
+            btn.disabled = false;
+            btn.textContent = oldText;
+            errEl.textContent = '这个唯一号已经被用了，换一个吧';
             return;
           }
-          loginId = newId;
-          saveProfile().then(function(){
-            closeSet();
-            updateStatus();
-          });
+          done();
         })
         .catch(function(){
-          alert('网络错误，请重试');
+          btn.disabled = false;
+          btn.textContent = oldText;
+          errEl.textContent = '网络错误，请重试';
         });
-    } else if(idChanged && newId === ''){
-      loginId = '';
-      saveProfile().then(function(){
-        closeSet();
-        updateStatus();
-      });
     } else {
-      saveProfile();
-      closeSet();
-      updateStatus();
+      done();
+    }
+  });
+
+  // 积分档位弹层
+  document.getElementById('pointsBack').addEventListener('click', function(){
+    document.getElementById('pointsOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('pointsOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+  document.getElementById('pointsSave').addEventListener('click', function(){
+    var clean=[];
+    opts.forEach(function(o){ var v=parseInt(o.v)||0, w=parseInt(o.w)||1; if(v>0&&w>0) clean.push({v:v,w:w}); });
+    if(clean.length<2){ alert('至少要有两档'); return; }
+    if(clean.length>10) clean=clean.slice(0,10);
+    opts=clean;
+    setupCanvas(); buildWheel(-1); draw(angle);
+    saveCloud();
+    document.getElementById('pointsOv').classList.remove('show');
+    openSet();
+  });
+
+  // 奖励选项弹层
+  document.getElementById('rewardsBack').addEventListener('click', function(){
+    document.getElementById('rewardsOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('rewardsOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+  document.getElementById('rewardsSave').addEventListener('click', function(){
+    var cleanR=[];
+    rewards.forEach(function(r){ var name=(r.name||'').trim(); var cost=parseInt(r.cost)||0; if(name && cost>0) cleanR.push({name:name, cost:cost}); });
+    if(cleanR.length>20) cleanR=cleanR.slice(0,20);
+    rewards=cleanR;
+    saveCloud();
+    updateExchangeBtn();
+    document.getElementById('rewardsOv').classList.remove('show');
+    openSet();
+  });
+
+  // ---------- 设置内容渲染 ----------
+  var setTab = 'points';
+  function renderOpts(){
+    // 积分档位
+    var box=document.getElementById('opts');
+    box.innerHTML='';
+    opts.forEach(function(o,i){
+      var row=document.createElement('div'); row.className='optrow';
+      var dot=document.createElement('span'); dot.className='dot'; dot.style.background=PALETTE[i%PALETTE.length];
+      var val=document.createElement('input'); val.className='val'; val.type='number'; val.min='1'; val.max='100'; val.value=o.v;
+      var w=document.createElement('input'); w.className='w'; w.type='number'; w.min='1'; w.max='100'; w.value=o.w;
+      w.setAttribute('aria-label','权重（越大越容易抽中）');
+      var note=document.createElement('span'); note.className='note'; note.textContent='权重';
+      var del=document.createElement('button'); del.className='del'; del.textContent='x';
+      val.addEventListener('input',function(){ o.v=Math.max(1,Math.min(100,parseInt(val.value)||1)); });
+      w.addEventListener('input',function(){ o.w=Math.max(1,Math.min(100,parseInt(w.value)||1)); });
+      del.addEventListener('click',function(){ if(opts.length<=2)return; opts.splice(i,1); renderOpts(); });
+      row.appendChild(dot); row.appendChild(val); row.appendChild(note); row.appendChild(w); row.appendChild(del);
+      box.appendChild(row);
+    });
+
+    // 奖励
+    var boxR=document.getElementById('optsRw');
+    boxR.innerHTML='';
+    rewards.forEach(function(r,i){
+      var row=document.createElement('div'); row.className='rwrow';
+      var nm=document.createElement('input'); nm.className='nm'; nm.type='text'; nm.value=r.name; nm.placeholder='奖励名称，如：玩平板';
+      var cost=document.createElement('input'); cost.className='cost'; cost.type='number'; cost.min='1'; cost.max='9999'; cost.value=r.cost;
+      var del=document.createElement('button'); del.className='del'; del.textContent='x';
+      nm.addEventListener('input',function(){ r.name = nm.value; });
+      cost.addEventListener('input',function(){ r.cost = Math.max(1, Math.min(9999, parseInt(cost.value)||1)); });
+      del.addEventListener('click',function(){ rewards.splice(i,1); renderOpts(); });
+      row.appendChild(nm); row.appendChild(cost); row.appendChild(del);
+      boxR.appendChild(row);
+    });
+    if(!rewards.length){
+      boxR.innerHTML = '<div class="empty" style="text-align:center; padding:20px 0;">还没有奖励，点下面「加一个奖励」添加吧</div>';
     }
   }
+
+  document.getElementById('addBtn').addEventListener('click',function(){
+    if(opts.length>=10)return; opts.push({v:5,w:10});
+    renderOpts();
+    saveCloud();
+    var b=document.getElementById('opts'); b.scrollTop=b.scrollHeight;
+  });
+  document.getElementById('addRwBtn').addEventListener('click',function(){
+    if(rewards.length>=20)return; rewards.push({name:'新奖励', cost:50});
+    renderOpts();
+    saveCloud();
+    var b=document.getElementById('optsRw'); b.scrollTop=b.scrollHeight;
+  });
 
   // ---------- 宝贝名字首次设置 ----------
   function openBabyNameFirst(){
@@ -1375,12 +1559,10 @@
     if(n.length > 12) n = n.slice(0, 12);
     babyName = n;
     refreshNameDisplay();
-
     var btn = this;
     btn.disabled = true;
     var oldText = btn.textContent;
     btn.textContent = '保存中…';
-
     saveProfile().then(function(res){
       btn.disabled = false;
       btn.textContent = oldText;
@@ -1541,20 +1723,6 @@
   });
   document.getElementById('confirmOv').addEventListener('click',function(e){ if(e.target===this)this.classList.remove('show'); });
 
-  document.getElementById('setBtn').addEventListener('click',openSet);
-  document.getElementById('addBtn').addEventListener('click',function(){
-    if(setTab === 'points'){
-      if(opts.length>=10)return; opts.push({v:5,w:10});
-    } else {
-      if(rewards.length>=20)return; rewards.push({name:'新奖励', cost:50});
-    }
-    renderOpts(); saveCloud();
-    var b=document.getElementById('opts'); b.scrollTop=b.scrollHeight;
-  });
-  document.getElementById('okBtn').addEventListener('click',saveSet);
-  document.getElementById('cancelBtn').addEventListener('click',closeSet);
-  document.getElementById('setOv').addEventListener('click',function(e){ if(e.target===this)closeSet(); });
-
   document.getElementById('againBtn').addEventListener('click',function(){ document.getElementById('prizePop').classList.remove('show'); });
   document.getElementById('resetBtn').addEventListener('click',resetPoints);
 
@@ -1638,7 +1806,6 @@
     var acc = (accountInput.value||'').trim();
     var pass = (passInput.value||'').trim();
     if(!acc || !pass){ authMsg.textContent = '请填写账号和密码'; return; }
-    if(pass.length < 6){ authMsg.textContent = '密码至少 6 位'; return; }
 
     if(isRegister){
       if(!isEmail(acc)){
