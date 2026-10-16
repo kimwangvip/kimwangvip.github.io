@@ -1507,8 +1507,8 @@
       w.setAttribute('aria-label','权重（越大越容易抽中）');
       var note=document.createElement('span'); note.className='note'; note.textContent='权重';
       var del=document.createElement('button'); del.className='del'; del.textContent='x';
-      val.addEventListener('input',function(){ o.v=Math.max(1,Math.min(100,parseInt(val.value)||1)); });
-      w.addEventListener('input',function(){ o.w=Math.max(1,Math.min(100,parseInt(w.value)||1)); });
+      val.addEventListener('input',function(){ o.v=Math.max(1,Math.min(9999999999,parseInt(val.value)||1)); });
+      w.addEventListener('input',function(){ o.w=Math.max(1,Math.min(9999999999,parseInt(w.value)||1)); });
       del.addEventListener('click',function(){ if(opts.length<=2)return; opts.splice(i,1); renderOpts(); });
       row.appendChild(dot); row.appendChild(val); row.appendChild(note); row.appendChild(w); row.appendChild(del);
       box.appendChild(row);
