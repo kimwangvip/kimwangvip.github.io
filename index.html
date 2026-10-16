@@ -1502,8 +1502,8 @@
     opts.forEach(function(o,i){
       var row=document.createElement('div'); row.className='optrow';
       var dot=document.createElement('span'); dot.className='dot'; dot.style.background=PALETTE[i%PALETTE.length];
-      var val=document.createElement('input'); val.className='val'; val.type='number'; val.min='1'; val.max='100'; val.value=o.v;
-      var w=document.createElement('input'); w.className='w'; w.type='number'; w.min='1'; w.max='100'; w.value=o.w;
+      var val=document.createElement('input'); val.className='val'; val.type='number'; val.min='1'; val.max='9999999999'; val.value=o.v;
+      var w=document.createElement('input'); w.className='w'; w.type='number'; w.min='1'; w.max='9999999999'; w.value=o.w;
       w.setAttribute('aria-label','权重（越大越容易抽中）');
       var note=document.createElement('span'); note.className='note'; note.textContent='权重';
       var del=document.createElement('button'); del.className='del'; del.textContent='x';
@@ -1520,10 +1520,10 @@
     rewards.forEach(function(r,i){
       var row=document.createElement('div'); row.className='rwrow';
       var nm=document.createElement('input'); nm.className='nm'; nm.type='text'; nm.value=r.name; nm.placeholder='奖励名称，如：玩平板';
-      var cost=document.createElement('input'); cost.className='cost'; cost.type='number'; cost.min='1'; cost.max='9999'; cost.value=r.cost;
+      var cost=document.createElement('input'); cost.className='cost'; cost.type='number'; cost.min='1'; cost.max='9999999999'; cost.value=r.cost;
       var del=document.createElement('button'); del.className='del'; del.textContent='x';
       nm.addEventListener('input',function(){ r.name = nm.value; });
-      cost.addEventListener('input',function(){ r.cost = Math.max(1, Math.min(9999, parseInt(cost.value)||1)); });
+      cost.addEventListener('input',function(){ r.cost = Math.max(1, Math.min(9999999999, parseInt(cost.value)||1)); });
       del.addEventListener('click',function(){ rewards.splice(i,1); renderOpts(); });
       row.appendChild(nm); row.appendChild(cost); row.appendChild(del);
       boxR.appendChild(row);
