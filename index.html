@@ -142,6 +142,8 @@
   .hist-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347;}
   .history .list{display:flex; flex-wrap:wrap; gap:8px; min-height:26px;}
   .chip{background:#fff2cc; color:#8a5b00; border-radius:16px; padding:6px 13px; font-size:15px; border:2px solid #ffe08a; white-space:nowrap; position:relative; display:inline-flex; flex-direction:column; align-items:flex-start;}
+  .chip.clickable{cursor:pointer; transition:all .15s;}
+  .chip.clickable:hover{border-color:#ffb347; background:#fff8e7; transform:translateY(-1px);}
   .chip.exchange{background:#ffe3e3; color:#c92a2a; border-color:#ffa8a8;}
   .chip .note{display:block; font-size:11px; color:#a09080; margin-top:2px; font-family:'PingFang SC','Microsoft YaHei',sans-serif;}
   .chip .thumbs{display:flex; gap:4px; margin-top:5px;}
@@ -290,6 +292,40 @@
   .ex-confirm .yes{font-family:inherit; font-size:18px; color:#fff; border:none; border-radius:40px; padding:14px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer; letter-spacing:1px;}
   .ex-confirm .no{font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
 
+  /* 攒分记录详情弹层 */
+  .hd-summary{
+    background:linear-gradient(135deg,#fff3cd,#ffe0a3);
+    border-radius:14px; padding:12px 14px; margin-bottom:14px;
+    font-size:15px; color:#8a6a1a; text-align:center;
+  }
+  .hd-summary b{color:#e67e22; font-size:22px;}
+  .hd-list{
+    display:flex; flex-direction:column; gap:10px;
+    max-height:50vh; overflow-y:auto; padding-right:4px;
+  }
+  .hd-item{
+    background:#fff8e7; border:2px solid #ffe08a; border-radius:14px;
+    padding:10px 14px; text-align:left;
+  }
+  .hd-item .hd-top{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .hd-item .hd-idx{font-size:13px; color:#a09080;}
+  .hd-item .hd-p{font-size:20px; color:#e67e22; font-weight:900;}
+  .hd-item .hd-note{
+    font-size:13px; color:#7a5a3a; background:#fff;
+    border-radius:8px; padding:6px 10px; margin-top:6px;
+    border:1px dashed #ffe08a;
+  }
+  .hd-item .hd-photos{
+    display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;
+  }
+  .hd-item .hd-photos img{
+    width:60px; height:60px; object-fit:cover; border-radius:10px;
+    border:2px solid #ffe08a; cursor:pointer;
+  }
+
   .viewer{
     position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.92);
     display:none; align-items:center; justify-content:center; padding:20px;
@@ -312,6 +348,7 @@
       radial-gradient(120% 90% at 50% -10%, #d9f3ff 0%, transparent 60%),
       linear-gradient(180deg, #c8ecff 0%, #e9f7ff 45%, #fff7e6 100%);
     padding:20px;
+    overflow-y:auto;
   }
   .auth-box{
     background:#fff; border-radius:28px; padding:32px 26px; width:min(92vw, 380px);
@@ -357,7 +394,31 @@
   }
   .captcha-canvas:active{opacity:.8;}
 
-  /* 宝贝名字首次设置弹层 */
+  .recent-box{
+    margin-top:16px; text-align:left;
+  }
+  .recent-box .rtitle{
+    font-size:12px; color:#9a8a76; margin-bottom:6px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .recent-box .rtitle .clear{
+    color:#c9b89a; cursor:pointer; font-size:12px;
+  }
+  .recent-box .rtitle .clear:hover{color:#ff6b6b;}
+  .recent-list{
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .recent-item{
+    display:flex; align-items:center; gap:8px;
+    background:#fff8e7; border:2px solid #e8dcc8; border-radius:12px;
+    padding:8px 12px; cursor:pointer; transition:all .15s;
+    font-family:inherit; text-align:left; width:100%;
+  }
+  .recent-item:hover{border-color:#ffb347; background:#fff2cc;}
+  .recent-item .rico{font-size:16px; flex:none;}
+  .recent-item .rtxt{flex:1; font-size:14px; color:#5b4636; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .recent-item .rarrow{font-size:16px; color:#c9b89a; flex:none;}
+
   #babyNameOv .panel{max-width:380px;}
   #babyNameOv .bninput{
     width:100%; font-family:inherit; font-size:20px; color:#5b4636;
@@ -374,7 +435,7 @@
   }
   #babyNameOv .panel .yes:active{transform:translateY(3px); box-shadow:0 2px 0 #2f9e44;}
 
-  /* ===== VIP 后台（普通无衬线字体） ===== */
+  /* ===== VIP 后台 ===== */
   .vip-wrap{
     position:relative; z-index:2;
     max-width:960px; margin:0 auto;
@@ -536,6 +597,14 @@
       <a id="switchLink">去注册</a>
     </div>
     <div class="msg" id="authMsg"></div>
+
+    <div class="recent-box" id="recentBox" style="display:none;">
+      <div class="rtitle">
+        <span>最近登录过</span>
+        <span class="clear" id="recentClear">清空</span>
+      </div>
+      <div class="recent-list" id="recentList"></div>
+    </div>
   </div>
 </div>
 
@@ -643,6 +712,7 @@
     <div class="dsec">
       <h4>⚙️ 操作</h4>
       <div class="dbtns">
+        <button class="edit" id="vipDEditProfile">编辑名字/唯一号</button>
         <button class="edit" id="vipDEditPoints">修改积分</button>
         <button class="reset" id="vipDReset">清空该用户记录</button>
         <button class="del" id="vipDDelete">删除该用户</button>
@@ -665,6 +735,38 @@
     <div class="btns">
       <button class="yes" id="vipEditYes">确定</button>
       <button class="no" id="vipEditNo">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VIP 编辑用户资料弹层 ===== -->
+<div class="overlay" id="vipProfileOv">
+  <div class="panel">
+    <h2>编辑用户资料</h2>
+    <div class="bnrow">
+      <label>宝贝名字</label>
+      <input type="text" id="vipProfileName" placeholder="比如：小明" maxlength="12">
+    </div>
+    <div class="bnrow">
+      <label>唯一号</label>
+      <input type="text" id="vipProfileLoginId" placeholder="3~20 位字母数字下划线" maxlength="20">
+    </div>
+    <div class="err" id="vipProfileErr"></div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="vipProfileNo">取消</button>
+      <button class="btn-sm btn-ok" id="vipProfileYes">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 攒分记录详情弹层 -->
+<div class="overlay" id="histDetailOv">
+  <div class="panel">
+    <h2 id="hdTitle">当天详情</h2>
+    <div class="hd-summary" id="hdSummary"></div>
+    <div class="hd-list" id="hdList"></div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="hdClose">关闭</button>
     </div>
   </div>
 </div>
@@ -741,15 +843,33 @@
         <span class="mtxt">奖励选项</span>
         <span class="marrow">›</span>
       </button>
+      <button class="mitem" id="mSwitch">
+        <span class="mico">👥</span>
+        <span class="mtxt">切换账号</span>
+        <span class="mval" id="mSwitchVal"></span>
+        <span class="marrow">›</span>
+      </button>
       <button class="mitem" id="mAbout">
         <span class="mico">ℹ️</span>
         <span class="mtxt">关于</span>
-        <span class="mval" id="mAboutVal">v2.0</span>
+        <span class="mval" id="mAboutVal">v2.1</span>
         <span class="marrow">›</span>
       </button>
     </div>
     <div class="rowbtns">
       <button class="btn-sm btn-cancel" id="cancelBtn">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 切换账号弹层 -->
+<div class="overlay" id="switchOv">
+  <div class="panel">
+    <h2>切换账号</h2>
+    <p class="hint">选择要切换到的账号</p>
+    <div class="recent-list" id="switchList"></div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="switchBack">返回</button>
     </div>
   </div>
 </div>
@@ -839,7 +959,7 @@
   <div class="panel">
     <h2>关于</h2>
     <div class="about-info">
-      <div class="ver" id="aboutVer">v2.0</div>
+      <div class="ver" id="aboutVer">v2.1</div>
       <div class="date" id="aboutDate">2026-10-16</div>
       <div class="desc">
         「宝贝攒分啦」是一个家庭用的小工具：<br>
@@ -954,7 +1074,7 @@
 (function(){
   'use strict';
 
-  var APP_VERSION = 'v2.0';
+  var APP_VERSION = 'v2.1';
   var APP_DATE = '2026-10-16';
 
   var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
@@ -969,6 +1089,8 @@
   var MAX_PHOTO_DIM = 1280;
   var PHOTO_QUALITY = 0.82;
   var LOGIN_ID_RE = /^[a-zA-Z0-9_]{3,20}$/;
+  var RECENT_KEY = 'bao_recent_accounts';
+  var RECENT_MAX = 5;
 
   var user = null;
   var isVip = false;
@@ -1018,6 +1140,52 @@
 
   function isEmail(s){ return s.indexOf('@') !== -1; }
 
+  // ---------- 最近登录账号 ----------
+  function loadRecent(){
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e){ return []; }
+  }
+  function saveRecent(list){
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch(e){}
+  }
+  function addRecent(account, label){
+    var list = loadRecent();
+    list = list.filter(function(x){ return x.account !== account; });
+    list.unshift({account: account, label: label, t: Date.now()});
+    if(list.length > RECENT_MAX) list = list.slice(0, RECENT_MAX);
+    saveRecent(list);
+    renderRecent();
+  }
+
+  function renderRecent(){
+    var box = document.getElementById('recentBox');
+    var list = loadRecent();
+    if(!list.length){
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = 'block';
+    var listEl = document.getElementById('recentList');
+    listEl.innerHTML = list.map(function(item, i){
+      return '<button class="recent-item" data-i="'+i+'">'+
+        '<span class="rico">👤</span>'+
+        '<span class="rtxt">'+escapeHtml(item.label || item.account)+'</span>'+
+        '<span class="rarrow">›</span>'+
+      '</button>';
+    }).join('');
+    listEl.querySelectorAll('.recent-item').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var item = list[parseInt(btn.dataset.i)];
+        if(!item) return;
+        accountInput.value = item.account;
+        passInput.value = '';
+        passInput.focus();
+        authMsg.textContent = '';
+        authMsg.className = 'msg';
+      });
+    });
+  }
+
+  // ---------- profiles ----------
   function loadProfile(){
     if(!user) return Promise.resolve();
     return sb.from('profiles').select('*').eq('user_id', user.id).maybeSingle()
@@ -1419,15 +1587,19 @@
     return order.map(function(k){ return map[k]; });
   }
 
+  var currentGroups = [];
+
   function renderHist(){
     var box=document.getElementById('histList');
     var list = hist.filter(function(h){ return currentTab==='earn' ? h.p>=0 : h.p<0; });
     if(!list.length){
+      currentGroups = [];
       box.innerHTML = '<span class="empty">'+(currentTab==='earn'?'还没有攒分记录哦':'还没有兑换记录哦')+'</span>';
       return;
     }
     var groups = groupHistByDay(list);
-    box.innerHTML = groups.map(function(g){
+    currentGroups = groups;
+    box.innerHTML = groups.map(function(g, gi){
       var dateStr = g.date;
       var noteHtml = g.note ? '<span class="note">📝 '+escapeHtml(g.note)+'</span>' : '';
       var photosHtml = '';
@@ -1438,12 +1610,12 @@
         }).join('') + '</span>';
       }
       if(g.isExchange){
-        return '<span class="chip exchange">'+dateStr+' · '+escapeHtml(g.name||'兑换')+'('+g.totalP+'分)'+
+        return '<span class="chip exchange" data-gi="'+gi+'">'+dateStr+' · '+escapeHtml(g.name||'兑换')+'('+g.totalP+'分)'+
           noteHtml+
         '</span>';
       } else {
         var cntTxt = g.count>1 ? ('共'+g.count+'次 ') : '';
-        return '<span class="chip">'+dateStr+' · '+cntTxt+'+'+g.totalP+'分'+
+        return '<span class="chip clickable" data-gi="'+gi+'">'+dateStr+' · '+cntTxt+'+'+g.totalP+'分'+
           noteHtml+photosHtml+
         '</span>';
       }
@@ -1454,7 +1626,60 @@
         openViewer(img.dataset.url);
       });
     });
+    // 点整张卡片，打开当天详情（仅攒分记录）
+    box.querySelectorAll('.chip.clickable').forEach(function(chip){
+      chip.addEventListener('click', function(e){
+        if(e.target.tagName === 'IMG') return;
+        var gi = parseInt(chip.dataset.gi);
+        openHistDetail(currentGroups[gi]);
+      });
+    });
   }
+
+  function openHistDetail(group){
+    if(!group) return;
+    document.getElementById('hdTitle').textContent = group.date + ' 的详情';
+    document.getElementById('hdSummary').innerHTML =
+      '共抽 <b>'+group.count+'</b> 次，合计 <b>+'+group.totalP+'</b> 分';
+
+    var listEl = document.getElementById('hdList');
+    if(!group.items.length){
+      listEl.innerHTML = '<div class="empty">没有记录</div>';
+    } else {
+      listEl.innerHTML = group.items.map(function(h, i){
+        var note = h.note ? ('<div class="hd-note">📝 '+escapeHtml(h.note)+'</div>') : '';
+        var photos = '';
+        if(h.photos && h.photos.length){
+          photos = '<div class="hd-photos">'+h.photos.map(function(p){
+            var url = (typeof p === 'string') ? p : (p.url || '');
+            return '<img src="'+url+'" data-url="'+url+'" alt="照片">';
+          }).join('')+'</div>';
+        }
+        return '<div class="hd-item">'+
+          '<div class="hd-top">'+
+            '<span class="hd-idx">第 '+(group.items.length - i)+' 次</span>'+
+            '<span class="hd-p">+'+h.p+' 分</span>'+
+          '</div>'+
+          note+
+          photos+
+        '</div>';
+      }).join('');
+      listEl.querySelectorAll('.hd-photos img').forEach(function(img){
+        img.addEventListener('click', function(){
+          openViewer(img.dataset.url);
+        });
+      });
+    }
+
+    document.getElementById('histDetailOv').classList.add('show');
+  }
+
+  document.getElementById('hdClose').addEventListener('click', function(){
+    document.getElementById('histDetailOv').classList.remove('show');
+  });
+  document.getElementById('histDetailOv').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('show');
+  });
 
   document.querySelectorAll('.hist-tab').forEach(function(tab){
     tab.addEventListener('click', function(){
@@ -1703,12 +1928,51 @@
     renderOpts();
     document.getElementById('rewardsOv').classList.add('show');
   });
+  document.getElementById('mSwitch').addEventListener('click', function(){
+    closeSet();
+    var list = loadRecent().filter(function(x){ return x.account !== (user && user.email); });
+    var listEl = document.getElementById('switchList');
+    if(!list.length){
+      listEl.innerHTML = '<div class="vip-empty" style="padding:20px 0;">还没有其他登录过的账号<br><span style="font-size:12px;">在其他账号登录过后，会出现在这里</span></div>';
+    } else {
+      listEl.innerHTML = list.map(function(item, i){
+        return '<button class="recent-item" data-i="'+i+'">'+
+          '<span class="rico">👤</span>'+
+          '<span class="rtxt">'+escapeHtml(item.label || item.account)+'</span>'+
+          '<span class="rarrow">›</span>'+
+        '</button>';
+      }).join('');
+      listEl.querySelectorAll('.recent-item').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var item = list[parseInt(btn.dataset.i)];
+          if(!item) return;
+          if(!confirm('确定切换到「'+ (item.label || item.account) +'」吗？')) return;
+          switchAccount(item.account);
+        });
+      });
+    }
+    document.getElementById('switchOv').classList.add('show');
+  });
   document.getElementById('mAbout').addEventListener('click', function(){
     closeSet();
     document.getElementById('aboutVer').textContent = APP_VERSION;
     document.getElementById('aboutDate').textContent = APP_DATE;
     document.getElementById('aboutOv').classList.add('show');
   });
+
+  document.getElementById('switchBack').addEventListener('click', function(){
+    document.getElementById('switchOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('switchOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+
+  function switchAccount(account){
+    try { localStorage.setItem('bao_switch_to', account); } catch(e){}
+    if(saveTimer) clearTimeout(saveTimer);
+    sb.auth.signOut().then(function(){ location.reload(); }).catch(function(){ location.reload(); });
+  }
 
   document.getElementById('babyNameSetBack').addEventListener('click', function(){
     document.getElementById('babyNameSetOv').classList.remove('show');
@@ -2284,6 +2548,89 @@
       });
   });
 
+  document.getElementById('vipDEditProfile').addEventListener('click', function(){
+    if(!vipCurrentUser) return;
+    document.getElementById('vipProfileName').value = vipCurrentUser.baby_name || '';
+    document.getElementById('vipProfileLoginId').value = vipCurrentUser.login_id || '';
+    document.getElementById('vipProfileErr').textContent = '';
+    document.getElementById('vipProfileOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('vipProfileName').focus(); }, 100);
+  });
+
+  document.getElementById('vipProfileNo').addEventListener('click', function(){
+    document.getElementById('vipProfileOv').classList.remove('show');
+  });
+  document.getElementById('vipProfileOv').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('show');
+  });
+
+  document.getElementById('vipProfileYes').addEventListener('click', function(){
+    if(!vipCurrentUser) return;
+    var newName = (document.getElementById('vipProfileName').value || '').trim();
+    if(newName.length > 12) newName = newName.slice(0, 12);
+    var newId = (document.getElementById('vipProfileLoginId').value || '').trim().toLowerCase();
+    var errEl = document.getElementById('vipProfileErr');
+
+    if(!newName){ errEl.textContent = '请输入宝贝名字'; return; }
+    if(newId && !LOGIN_ID_RE.test(newId)){
+      errEl.textContent = '唯一号 3~20 位，只能用字母、数字、下划线';
+      return;
+    }
+
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '保存中…';
+    errEl.textContent = '';
+
+    var doSave = function(){
+      var patch = {
+        baby_name: newName,
+        login_id: newId || null,
+        updated_at: new Date().toISOString()
+      };
+      sb.from('profiles').update(patch).eq('user_id', vipCurrentUser.user_id)
+        .then(function(res){
+          btn.disabled = false;
+          btn.textContent = oldText;
+          if(res.error){
+            errEl.textContent = '保存失败：' + res.error.message;
+            return;
+          }
+          vipCurrentUser.baby_name = newName;
+          vipCurrentUser.login_id = newId;
+          document.getElementById('vipProfileOv').classList.remove('show');
+          openVipDetail(vipCurrentUser);
+          vipLoadUsers();
+        })
+        .catch(function(err){
+          btn.disabled = false;
+          btn.textContent = oldText;
+          errEl.textContent = (err && err.message) || '网络错误，请重试';
+        });
+    };
+
+    if(newId && newId !== (vipCurrentUser.login_id || '')){
+      sb.from('profiles').select('user_id').eq('login_id', newId).maybeSingle()
+        .then(function(res){
+          if(res.data && res.data.user_id !== vipCurrentUser.user_id){
+            btn.disabled = false;
+            btn.textContent = oldText;
+            errEl.textContent = '这个唯一号已经被别的用户用了';
+            return;
+          }
+          doSave();
+        })
+        .catch(function(){
+          btn.disabled = false;
+          btn.textContent = oldText;
+          errEl.textContent = '网络错误，请重试';
+        });
+    } else {
+      doSave();
+    }
+  });
+
   document.getElementById('vipDReset').addEventListener('click', function(){
     if(!vipCurrentUser) return;
     if(!confirm('确定清空「'+(vipCurrentUser.baby_name||'该用户')+'」的积分和历史记录吗？')) return;
@@ -2365,6 +2712,12 @@
     }
   }
   switchLink.addEventListener('click', function(){ setAuthMode(!isRegister); });
+
+  document.getElementById('recentClear').addEventListener('click', function(){
+    if(!confirm('清空最近登录记录吗？')) return;
+    saveRecent([]);
+    renderRecent();
+  });
 
   function enterApp(){
     if(isVip){
@@ -2448,6 +2801,7 @@
           .then(function(res){
             authBtn.disabled = false;
             if(res.error){ authMsg.textContent = res.error.message || '邮箱或密码不对'; return; }
+            addRecent(acc, acc);
             authMsg.className = 'msg ok';
             authMsg.textContent = '成功！正在进入…';
           })
@@ -2465,6 +2819,7 @@
           .then(function(res){
             authBtn.disabled = false;
             if(res && res.error){ authMsg.textContent = res.error.message || '密码不对'; return; }
+            addRecent(id, '@'+id);
             authMsg.className = 'msg ok';
             authMsg.textContent = '成功！正在进入…';
           })
@@ -2524,8 +2879,21 @@
       Promise.all([loadProfile(), loadCloud()]).then(enterApp);
     } else {
       document.getElementById('authScreen').style.display = 'flex';
+      var switchTo = null;
+      try { switchTo = localStorage.getItem('bao_switch_to'); } catch(e){}
+      if(switchTo){
+        try { localStorage.removeItem('bao_switch_to'); } catch(e){}
+        accountInput.value = switchTo;
+        passInput.value = '';
+        passInput.focus();
+        authMsg.textContent = '请输入密码登录';
+        authMsg.className = 'msg';
+      }
+      renderRecent();
     }
   });
+
+  renderRecent();
 
   document.getElementById('aboutVer').textContent = APP_VERSION;
   document.getElementById('aboutDate').textContent = APP_DATE;
