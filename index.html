@@ -6,7 +6,6 @@
 <title>宝贝攒分啦 · 云端版</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffd43b'/%3E%3Ctext x='32' y='42' font-size='30' text-anchor='middle' fill='%23fff' font-family='Arial' font-weight='bold'%3E%E5%88%86%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
-<!-- 加了 display=swap，防止字体加载慢卡死页面 -->
 <link href="https://miaoda.feishu.cn/fonts/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -834,6 +833,14 @@
           <input type="number" id="vipDPointsInput" min="0" placeholder="0">
           <label>每天抽奖次数</label>
           <input type="number" id="vipDMaxDrawsInput" min="1" max="99" placeholder="3">
+          <label>转盘速度</label>
+          <select id="vipDSpinSpeedSel">
+            <option value="fastest">极速 (约1秒)</option>
+            <option value="fast">快速 (约2秒)</option>
+            <option value="normal">标准 (约4.6秒)</option>
+            <option value="slow">慢速 (约7秒)</option>
+            <option value="slowest">超慢 (约10秒)</option>
+          </select>
         </div>
       </div>
 
@@ -1070,6 +1077,10 @@
     <h2>转盘速度</h2>
     <p class="hint">调整抽奖动画的时长</p>
     <div class="menu">
+      <button class="mitem" data-speed="fastest">
+        <span class="mico">⚡</span>
+        <span class="mtxt">极速（约 1 秒）</span>
+      </button>
       <button class="mitem" data-speed="fast">
         <span class="mico">🚀</span>
         <span class="mtxt">快速（约 2 秒）</span>
@@ -1081,6 +1092,10 @@
       <button class="mitem" data-speed="slow">
         <span class="mico">🐢</span>
         <span class="mtxt">慢速（约 7 秒）</span>
+      </button>
+      <button class="mitem" data-speed="slowest">
+        <span class="mico">🐌</span>
+        <span class="mtxt">超慢（约 10 秒）</span>
       </button>
     </div>
     <div class="rowbtns">
@@ -1302,8 +1317,10 @@
     if(b) b.textContent = loginId ? ('@' + loginId) : '';
     if(c) c.textContent = maxDraws + ' 次';
     if(d) {
-      if(spinSpeed === 'fast') d.textContent = '快速';
+      if(spinSpeed === 'fastest') d.textContent = '极速';
+      else if(spinSpeed === 'fast') d.textContent = '快速';
       else if(spinSpeed === 'slow') d.textContent = '慢速';
+      else if(spinSpeed === 'slowest') d.textContent = '超慢';
       else d.textContent = '标准';
     }
   }
@@ -1607,8 +1624,10 @@
     
     // 动态获取动画时长
     var dur = 4600;
+    if(spinSpeed === 'fastest') dur = 1000;
     if(spinSpeed === 'fast') dur = 2000;
     if(spinSpeed === 'slow') dur = 7000;
+    if(spinSpeed === 'slowest') dur = 10000;
     
     var startT=performance.now(), startAngle=angle, lastIndex=-1;
     cancelAnimationFrame(rafId);
@@ -2608,6 +2627,7 @@
               rewards: s.rewards || DEFAULT_REWARDS,
               opts: s.opts || DEFAULT_OPTS,
               max_draws: typeof s.max_draws === 'number' ? s.max_draws : DEFAULT_MAX_DRAWS,
+              spin_speed: s.spin_speed || 'normal',
               updated_at: p.updated_at || s.updated_at || ''
             };
           });
@@ -2756,6 +2776,7 @@
     document.getElementById('vipDLoginIdInput').value = u.login_id || '';
     document.getElementById('vipDPointsInput').value = u.total_points || 0;
     document.getElementById('vipDMaxDrawsInput').value = typeof u.max_draws === 'number' ? u.max_draws : 3;
+    document.getElementById('vipDSpinSpeedSel').value = u.spin_speed || 'normal';
 
     var t = u.today || {};
     document.getElementById('vipDAllowedSel').value = t.allowed ? '1' : '0';
@@ -2833,6 +2854,7 @@
     var newId = (document.getElementById('vipDLoginIdInput').value || '').trim().toLowerCase();
     var newPoints = parseInt(document.getElementById('vipDPointsInput').value);
     var newMaxDraws = parseInt(document.getElementById('vipDMaxDrawsInput').value);
+    var newSpinSpeed = document.getElementById('vipDSpinSpeedSel').value;
     var allowed = document.getElementById('vipDAllowedSel').value === '1';
     var drawCount = parseInt(document.getElementById('vipDDrawCountInput').value);
     var todayNote = (document.getElementById('vipDTodayNoteInput').value || '').trim();
@@ -2926,6 +2948,7 @@
             rewards: newRewards,
             opts: newOpts,
             max_draws: newMaxDraws,
+            spin_speed: newSpinSpeed,
             updated_at: new Date().toISOString()
           });
         })
@@ -2937,6 +2960,7 @@
           vipCurrentUser.login_id = newId;
           vipCurrentUser.total_points = newPoints;
           vipCurrentUser.max_draws = newMaxDraws;
+          vipCurrentUser.spin_speed = newSpinSpeed;
           vipCurrentUser.today = newToday;
           vipCurrentUser.today_note = todayNote;
           vipCurrentUser.history = newHist;
@@ -3165,7 +3189,7 @@
       try {
         sb.from('scores').upsert({
           user_id: user.id, total_points: totalPoints, history: hist,
-          today: today, today_note: todayNote, rewards: rewards, opts: opts, max_draws: maxDraws,
+          today: today, today_note: todayNote, rewards: rewards, opts: opts, max_draws: maxDraws, spin_speed: spinSpeed,
           updated_at: new Date().toISOString()
         }).then(doSignOut).catch(doSignOut);
       } catch(e) { doSignOut(); }
