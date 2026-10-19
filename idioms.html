@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>成语学习 · 每日一成语</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffd43b'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='%235b4636' font-family='serif' font-weight='bold'%3E成%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link href="https://miaoda.feishu.cn/fonts/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#c8ecff; --bg2:#fff7e6;
+    --ink:#5b4636; --ink2:#8a7a66;
+    --accent:#ff9f1a; --accent2:#ffd166;
+    --cream:#fff8e7; --line:#e8dcc8;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #d9f3ff 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg1) 0%, #e9f7ff 45%, var(--bg2) 100%);
+    color:var(--ink);
+    font-family:'ZCOOL KuaiLe','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+    overflow-x:hidden; padding-bottom:40px;
+  }
+  .deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+  .deco .blob{position:absolute; border-radius:50%; filter:blur(40px); opacity:.5;}
+  .deco .b1{width:260px; height:260px; background:#ffe08a; top:-60px; left:-80px;}
+  .deco .b2{width:320px; height:320px; background:#a9e6c0; bottom:-100px; right:-100px;}
+  .deco .b3{width:200px; height:200px; background:#bcdcff; top:40%; right:-60px;}
+
+  .wrap{position:relative; z-index:1; max-width:720px; margin:0 auto; padding:24px 16px 40px; text-align:center;}
+
+  h1.title{
+    font-size:40px; margin:0 0 4px; color:#fff; letter-spacing:2px;
+    text-shadow:0 3px 0 rgba(0,0,0,.10), 0 6px 14px rgba(255,140,80,.30);
+  }
+  h1.title .tw{color:var(--accent2);}
+  .subtitle{font-size:15px; color:var(--ink2); margin-bottom:22px;}
+
+  /* 搜索栏 */
+  .searchbar{
+    display:flex; gap:8px; align-items:center; max-width:520px; margin:0 auto 22px;
+    background:#fff; border-radius:16px; padding:8px 8px 8px 18px;
+    box-shadow:0 8px 22px rgba(90,60,40,.12); border:2px solid #fff;
+  }
+  .searchbar input{
+    flex:1; font-family:inherit; font-size:17px; color:var(--ink);
+    border:none; outline:none; background:transparent; padding:8px 0;
+  }
+  .searchbar input::placeholder{color:#c9b89a;}
+  .searchbar button{
+    font-family:inherit; font-size:15px; color:#fff; cursor:pointer; border:none;
+    border-radius:12px; padding:10px 18px;
+    background:linear-gradient(180deg,#ffd166,#ff9f1a);
+    box-shadow:0 3px 0 #d97e00; transition:transform .1s;
+  }
+  .searchbar button:active{transform:translateY(2px); box-shadow:0 1px 0 #d97e00;}
+
+  /* 快捷筛选 */
+  .filters{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    margin-bottom:24px; max-width:620px; margin-left:auto; margin-right:auto;
+  }
+  .filter-chip{
+    font-family:inherit; font-size:14px; color:var(--ink2); cursor:pointer;
+    background:#fff; border:2px solid var(--line); border-radius:20px;
+    padding:6px 14px; transition:all .15s;
+  }
+  .filter-chip:hover{border-color:var(--accent2); background:#fff8e7;}
+  .filter-chip.active{
+    color:#fff; border-color:#ffb347;
+    background:linear-gradient(180deg,#ffd166,#ff9f1a);
+    box-shadow:0 3px 8px rgba(255,159,26,.3);
+  }
+
+  /* 成语卡片 */
+  .card{
+    background:#fff; border-radius:26px; padding:26px 24px 22px;
+    max-width:560px; margin:0 auto 20px; text-align:center;
+    box-shadow:0 14px 40px rgba(90,60,40,.14);
+    border:2px solid #fff; position:relative; overflow:hidden;
+    transition:transform .18s ease;
+  }
+  .card:hover{transform:translateY(-2px);}
+  .card::before{
+    content:''; position:absolute; top:-50%; right:-20%;
+    width:180px; height:180px;
+    background:radial-gradient(circle, rgba(255,224,138,.5), transparent 70%);
+    border-radius:50%; pointer-events:none;
+  }
+  .card .idx{
+    position:absolute; top:16px; left:20px; font-size:13px; color:#c9b89a;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .card .tag{
+    position:absolute; top:14px; right:20px;
+    font-size:12px; color:#fff; background:linear-gradient(180deg,#ffb347,#ff8c1a);
+    border-radius:14px; padding:3px 10px;
+    box-shadow:0 2px 6px rgba(255,140,26,.3);
+  }
+  .card .word{
+    font-size:52px; color:var(--ink); letter-spacing:4px; line-height:1.1;
+    margin:12px 0 8px; font-weight:900;
+    text-shadow:0 2px 0 rgba(255,220,160,.4);
+  }
+  .card .pinyin{
+    font-size:15px; color:var(--accent); letter-spacing:2px;
+    font-family:'Noto Sans SC','PingFang SC',sans-serif;
+    margin-bottom:16px;
+  }
+  .card .meta{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .meta-badge{
+    font-size:13px; color:var(--ink2); background:#fff8e7;
+    border:1.5px solid var(--line); border-radius:12px; padding:4px 12px;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .meta-badge b{color:var(--accent);}
+
+  .section{
+    text-align:left; background:var(--cream); border-radius:16px;
+    padding:14px 16px; margin-top:12px; border:1.5px solid #ffe9b0;
+  }
+  .section .label{
+    font-size:13px; color:var(--accent); margin-bottom:6px;
+    display:flex; align-items:center; gap:6px;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+    font-weight:600; letter-spacing:1px;
+  }
+  .section .content{
+    font-size:15.5px; color:#5b4636; line-height:1.7;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .section .content.quote{color:#7a5a3a;}
+  .section.hide{display:none;}
+
+  /* 操作按钮 */
+  .card-actions{
+    display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; justify-content:center;
+  }
+  .btn{
+    font-family:inherit; font-size:16px; color:#fff; cursor:pointer; border:none;
+    border-radius:40px; padding:12px 22px; letter-spacing:1px;
+    box-shadow:0 4px 0 rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.08);
+    transition:transform .1s;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.14);}
+  .btn-random{background:linear-gradient(180deg,#4dabf7,#2f8fe0);}
+  .btn-toggle{background:linear-gradient(180deg,#b197fc,#8f6ce8);}
+  .btn-next{background:linear-gradient(180deg,#69db7c,#40c057);}
+  .btn-prev{background:linear-gradient(180deg,#ffb347,#ff8c1a);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  /* 结果列表 */
+  .result-info{
+    font-size:14px; color:var(--ink2); margin-bottom:14px;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .result-list{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:10px; max-width:680px; margin:0 auto;
+  }
+  .result-item{
+    background:#fff; border:2px solid var(--line); border-radius:14px;
+    padding:12px 14px; cursor:pointer; transition:all .15s;
+    text-align:left; font-family:inherit;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .result-item:hover{border-color:var(--accent2); background:#fff8e7; transform:translateY(-2px); box-shadow:0 6px 16px rgba(255,180,80,.2);}
+  .result-item .w{font-size:20px; color:var(--ink); font-weight:700; letter-spacing:1px;}
+  .result-item .p{font-size:12px; color:var(--accent); font-family:'Noto Sans SC',sans-serif;}
+  .result-item .e{
+    font-size:12.5px; color:var(--ink2); margin-top:2px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+
+  /* 加载/空状态 */
+  .loading, .empty{
+    padding:40px 20px; color:#b0a08d; font-size:16px;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .loading::before{
+    content:''; display:inline-block; width:18px; height:18px;
+    border:3px solid #ffd166; border-top-color:transparent; border-radius:50%;
+    animation:spin .8s linear infinite; margin-right:10px; vertical-align:-3px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Toast */
+  .toast{
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:rgba(60,40,20,.92); color:#fff; font-size:15px;
+    border-radius:24px; padding:12px 24px; opacity:0; transition:all .3s;
+    z-index:100; pointer-events:none;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* 键盘提示 */
+  .kbd-hint{
+    font-size:12px; color:#c9b89a; margin-top:18px;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  .kbd-hint kbd{
+    background:#fff; border:1.5px solid var(--line); border-radius:6px;
+    padding:1px 7px; font-size:11px; color:var(--ink2); margin:0 2px;
+  }
+
+  @media (max-width:480px){
+    h1.title{font-size:32px;}
+    .card .word{font-size:42px;}
+    .card{padding:22px 18px 18px;}
+    .searchbar{padding-left:14px;}
+    .searchbar button{padding:10px 14px; font-size:14px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="deco">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
+<div class="wrap">
+  <h1 class="title">成语<span class="tw">学习</span></h1>
+  <div class="subtitle">搜一搜、学一学，每天积累一点点</div>
+
+  <!-- 搜索 -->
+  <div class="searchbar">
+    <input type="text" id="searchInput" placeholder="输入成语、拼音首字母或关键词…" autocomplete="off">
+    <button id="searchBtn">搜索</button>
+  </div>
+
+  <!-- 快捷筛选 -->
+  <div class="filters" id="filters">
+    <button class="filter-chip active" data-mode="random">🎲 随机</button>
+    <button class="filter-chip" data-mode="all">📚 全部</button>
+    <button class="filter-chip" data-mode="a">A</button>
+    <button class="filter-chip" data-mode="b">B</button>
+    <button class="filter-chip" data-mode="c">C</button>
+    <button class="filter-chip" data-mode="d">D</button>
+    <button class="filter-chip" data-mode="e">E</button>
+    <button class="filter-chip" data-mode="f">F</button>
+    <button class="filter-chip" data-mode="g">G</button>
+    <button class="filter-chip" data-mode="h">H</button>
+    <button class="filter-chip" data-mode="j">J</button>
+    <button class="filter-chip" data-mode="k">K</button>
+    <button class="filter-chip" data-mode="l">L</button>
+    <button class="filter-chip" data-mode="m">M</button>
+    <button class="filter-chip" data-mode="n">N</button>
+    <button class="filter-chip" data-mode="p">P</button>
+    <button class="filter-chip" data-mode="q">Q</button>
+    <button class="filter-chip" data-mode="r">R</button>
+    <button class="filter-chip" data-mode="s">S</button>
+    <button class="filter-chip" data-mode="t">T</button>
+    <button class="filter-chip" data-mode="w">W</button>
+    <button class="filter-chip" data-mode="x">X</button>
+    <button class="filter-chip" data-mode="y">Y</button>
+    <button class="filter-chip" data-mode="z">Z</button>
+  </div>
+
+  <!-- 主区域 -->
+  <div id="mainArea">
+    <div class="loading">正在加载成语…</div>
+  </div>
+
+  <!-- 键盘提示 -->
+  <div class="kbd-hint" id="kbdHint">
+    快捷键：<kbd>←</kbd> 上一个 <kbd>→</kbd> 下一个 <kbd>R</kbd> 随机
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  'use strict';
+
+  var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_bwUO6RQBa1qiurFdMbNX3A_nTtHTMEt';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  var PAGE_SIZE = 60;
+
+  var state = {
+    mode: 'random',       // random | all | letter
+    letter: '',
+    keyword: '',
+    list: [],             // 当前列表
+    index: 0,             // 当前卡片索引
+    total: 0,             // 总数（当前筛选）
+    loading: false,
+    currentIdiom: null
+  };
+
+  var els = {
+    input: document.getElementById('searchInput'),
+    searchBtn: document.getElementById('searchBtn'),
+    filters: document.getElementById('filters'),
+    main: document.getElementById('mainArea'),
+    toast: document.getElementById('toast'),
+    kbdHint: document.getElementById('kbdHint')
+  };
+
+  function escapeHtml(s){
+    if(s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function showToast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ els.toast.classList.remove('show'); }, 2000);
+  }
+
+  function setLoading(html){
+    els.main.innerHTML = '<div class="loading">' + html + '</div>';
+  }
+
+  function setEmpty(msg){
+    els.main.innerHTML = '<div class="empty">' + msg + '</div>';
+    els.kbdHint.style.display = 'none';
+  }
+
+  // ---------- 数据查询 ----------
+  async function queryList(){
+    state.loading = true;
+    var q = sb.from('idioms').select('*', { count: 'exact' });
+
+    if(state.keyword){
+      var kw = state.keyword.trim();
+      // 搜索：成语 / 拼音 / 首字母缩写 / 释义
+      q = q.or(
+        'word.ilike.%' + kw + '%,' +
+        'pinyin.ilike.%' + kw + '%,' +
+        'abbreviation.ilike.%' + kw + '%,' +
+        'explanation.ilike.%' + kw + '%'
+      );
+    } else if(state.mode === 'letter' && state.letter){
+      // 用 abbreviation 首字母过滤（abbreviation 是拼音首字母缩写）
+      q = q.ilike('abbreviation', state.letter + '%');
+    }
+    // random 和 all 都用全量
+
+    // 排序：按 word 字典序，保证分页稳定
+    q = q.order('word', { ascending: true });
+
+    if(state.mode === 'random' && !state.keyword){
+      // 随机模式：先拿总数，再随机 offset 拉一页
+      var countRes = await sb.from('idioms').select('*', { count: 'exact', head: true });
+      var total = countRes.count || 0;
+      if(total === 0){ state.loading = false; setEmpty('成语库是空的，先去导入数据吧～'); return; }
+      var randomOffset = Math.floor(Math.random() * Math.max(1, total - PAGE_SIZE));
+      var { data, error } = await sb.from('idioms')
+        .select('*')
+        .order('word', { ascending: true })
+        .range(randomOffset, randomOffset + PAGE_SIZE - 1);
+      state.loading = false;
+      if(error){ setEmpty('加载失败：' + escapeHtml(error.message)); return; }
+      state.list = data || [];
+      state.total = total;
+      state.index = 0;
+      renderCard();
+      return;
+    }
+
+    // 非随机：分页拉第一页
+    var res = await q.range(0, PAGE_SIZE - 1);
+    state.loading = false;
+    if(res.error){ setEmpty('加载失败：' + escapeHtml(res.error.message)); return; }
+    state.list = res.data || [];
+    state.total = res.count || state.list.length;
+    state.index = 0;
+
+    if(state.mode === 'all' || state.mode === 'letter' || state.keyword){
+      renderList();
+    } else {
+      renderCard();
+    }
+  }
+
+  // 随机换一条（从当前列表里挑，不够再从库里补）
+  async function randomOne(){
+    if(state.list.length > 1){
+      var n = Math.floor(Math.random() * state.list.length);
+      if(n === state.index) n = (n + 1) % state.list.length;
+      state.index = n;
+      renderCard();
+      return;
+    }
+    // 列表太短，重新拉
+    await queryList();
+    if(state.list.length){
+      state.index = Math.floor(Math.random() * state.list.length);
+      renderCard();
+    }
+  }
+
+  // ---------- 渲染卡片 ----------
+  function renderCard(){
+    if(!state.list.length){ setEmpty('没有找到成语，换个关键词试试～'); return; }
+    var idiom = state.list[state.index];
+    state.currentIdiom = idiom;
+    els.kbdHint.style.display = 'block';
+
+    var derivation = (idiom.derivation || '').trim();
+    var example = (idiom.example || '').trim();
+    var explanation = (idiom.explanation || '').trim();
+    var hasExample = example && example !== '无';
+
+    var idxLabel = (state.mode === 'random' && !state.keyword)
+      ? '随机推荐'
+      : ('第 ' + (state.index + 1) + ' / ' + state.list.length + ' 条');
+
+    var html =
+      '<div class="card">' +
+        '<div class="idx">' + idxLabel + '</div>' +
+        '<div class="tag">成语</div>' +
+        '<div class="word">' + escapeHtml(idiom.word || '') + '</div>' +
+        '<div class="pinyin">' + escapeHtml(idiom.pinyin || '') + '</div>' +
+        '<div class="meta">' +
+          (idiom.abbreviation ? '<span class="meta-badge">首字母 <b>' + escapeHtml(idiom.abbreviation) + '</b></span>' : '') +
+        '</div>' +
+
+        (explanation ? '<div class="section"><div class="label">📖 释义</div><div class="content">' + escapeHtml(explanation) + '</div></div>' : '') +
+        (derivation ? '<div class="section"><div class="label">📜 出处</div><div class="content quote">' + escapeHtml(derivation) + '</div></div>' : '') +
+        (hasExample ? '<div class="section"><div class="label">✏️ 例句</div><div class="content quote">' + escapeHtml(example) + '</div></div>' : '') +
+
+        '<div class="card-actions">' +
+          '<button class="btn btn-random" id="btnRandom">🎲 换一个</button>' +
+          '<button class="btn btn-toggle" id="btnToggle">👀 收起释义</button>' +
+        '</div>' +
+      '</div>';
+
+    els.main.innerHTML = html;
+
+    var card = els.main.querySelector('.card');
+    var toggleBtn = document.getElementById('btnToggle');
+    var sections = card.querySelectorAll('.section');
+
+    // 默认展开，点击收起
+    var expanded = true;
+    toggleBtn.addEventListener('click', function(){
+      expanded = !expanded;
+      sections.forEach(function(s){ s.classList.toggle('hide', !expanded); });
+      toggleBtn.textContent = expanded ? '👀 收起释义' : '👀 展开释义';
+    });
+
+    document.getElementById('btnRandom').addEventListener('click', function(){
+      if(state.mode === 'random' && !state.keyword){
+        randomOne();
+      } else {
+        // 非随机模式下，从当前列表随机跳一条
+        if(state.list.length > 1){
+          var n = Math.floor(Math.random() * state.list.length);
+          state.index = n;
+          renderCard();
+        } else {
+          showToast('只有这一条啦～');
+        }
+      }
+    });
+  }
+
+  // ---------- 渲染列表 ----------
+  function renderList(){
+    if(!state.list.length){ setEmpty('没有找到成语，换个关键词试试～'); return; }
+    var info = state.total
+      ? ('共 ' + state.total + ' 条，当前显示前 ' + state.list.length + ' 条')
+      : ('共 ' + state.list.length + ' 条');
+    if(state.keyword){
+      info = '「' + escapeHtml(state.keyword) + '」的搜索结果：' + info;
+    }
+
+    var items = state.list.map(function(it, i){
+      return '<button class="result-item" data-i="' + i + '">' +
+        '<span class="w">' + escapeHtml(it.word || '') + '</span>' +
+        '<span class="p">' + escapeHtml(it.pinyin || '') + '</span>' +
+        '<span class="e">' + escapeHtml(it.explanation || '') + '</span>' +
+      '</button>';
+    }).join('');
+
+    els.main.innerHTML =
+      '<div class="result-info">' + info + '</div>' +
+      '<div class="result-list">' + items + '</div>';
+
+    els.main.querySelectorAll('.result-item').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var i = parseInt(btn.dataset.i);
+        state.index = i;
+        renderCard();
+      });
+    });
+    els.kbdHint.style.display = 'none';
+  }
+
+  // ---------- 搜索 ----------
+  function doSearch(){
+    var kw = (els.input.value || '').trim();
+    if(!kw){
+      showToast('请输入要搜索的内容');
+      return;
+    }
+    state.keyword = kw;
+    state.mode = 'all';
+    setFilterActive(null);
+    setLoading('正在搜索…');
+    queryList();
+  }
+
+  // ---------- 筛选按钮 ----------
+  function setFilterActive(el){
+    els.filters.querySelectorAll('.filter-chip').forEach(function(c){
+      c.classList.remove('active');
+    });
+    if(el) el.classList.add('active');
+  }
+
+  els.filters.addEventListener('click', function(e){
+    var btn = e.target.closest('.filter-chip');
+    if(!btn) return;
+    var mode = btn.dataset.mode;
+    els.input.value = '';
+    state.keyword = '';
+
+    if(mode === 'random'){
+      state.mode = 'random';
+      setFilterActive(btn);
+      setLoading('正在随机挑一条…');
+      queryList();
+    } else if(mode === 'all'){
+      state.mode = 'all';
+      setFilterActive(btn);
+      setLoading('正在加载全部成语…');
+      queryList();
+    } else {
+      state.mode = 'letter';
+      state.letter = mode;
+      setFilterActive(btn);
+      setLoading('正在加载「' + mode.toUpperCase() + '」开头的成语…');
+      queryList();
+    }
+  });
+
+  els.searchBtn.addEventListener('click', doSearch);
+  els.input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doSearch();
+  });
+
+  // ---------- 键盘快捷键 ----------
+  document.addEventListener('keydown', function(e){
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    if(e.key === 'ArrowLeft'){
+      if(state.list.length > 1 && state.currentIdiom){
+        state.index = (state.index - 1 + state.list.length) % state.list.length;
+        renderCard();
+      }
+    } else if(e.key === 'ArrowRight'){
+      if(state.list.length > 1 && state.currentIdiom){
+        state.index = (state.index + 1) % state.list.length;
+        renderCard();
+      }
+    } else if(e.key === 'r' || e.key === 'R'){
+      if(state.list.length > 1){
+        var n = Math.floor(Math.random() * state.list.length);
+        state.index = n;
+        renderCard();
+      }
+    }
+  });
+
+  // ---------- 启动 ----------
+  (async function init(){
+    setLoading('正在加载成语…');
+    await queryList();
+  })();
+
+})();
+</script>
+</body>
+</html>

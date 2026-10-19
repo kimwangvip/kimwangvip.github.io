@@ -157,6 +157,12 @@
   .btn-set{background:linear-gradient(180deg,#b197fc,#8f6ce8);}
   .btn:disabled{opacity:.5; cursor:default;}
 
+  /* 成语学习按钮 */
+  .btn-idiom{
+    background:linear-gradient(180deg,#38d9a9,#20c997);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+
   .result{margin:16px auto 0; max-width:450px; min-height:52px; background:var(--cream); border:2px dashed #ffd43b; border-radius:18px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:19px; color:#7a5a3a; padding:10px 16px; box-shadow:0 8px 20px rgba(0,0,0,.06);}
   .result .prize{color:var(--accent); font-size:25px;}
 
@@ -763,6 +769,7 @@
   <div class="actions">
     <button class="btn btn-parent" id="parentBtn">（家长）确认今日表现</button>
     <button class="btn btn-set" id="setBtn">设置</button>
+    <button class="btn btn-idiom" id="idiomBtn">📖 学成语</button>
   </div>
 
   <div class="result" id="result">先让爸爸妈妈确认今天的表现哦</div>
@@ -2487,6 +2494,12 @@
   var sbBtn=document.getElementById('soundBtn');
   function syncSound(){ document.getElementById('soundOn').style.display=soundOn?'block':'none'; document.getElementById('soundOff').style.display=soundOn?'none':'block'; sbBtn.setAttribute('aria-pressed',String(soundOn)); }
   sbBtn.addEventListener('click',function(){ soundOn=!soundOn; syncSound(); if(soundOn)ensureAudio(); });
+
+  // ==================== 成语学习跳转 ====================
+  document.getElementById('idiomBtn').addEventListener('click', function(){
+    // 跳转到 idioms.html，附带当前登录邮箱，方便新页面校验 session
+    window.location.href = 'idioms.html';
+  });
 
   // ==================== VIP 后台 ====================
   var vipAllUsers = [];
