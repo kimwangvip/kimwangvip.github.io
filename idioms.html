@@ -111,13 +111,15 @@
   }
   .filter-chip.len:hover{border-color:#63e6be; background:#e6fcf5;}
 
-  /* 卡片 */
+  /* 详情卡片 */
   .card{
     background:#fff; border-radius:26px; padding:26px 24px 22px;
     max-width:560px; margin:0 auto 20px; text-align:center;
     box-shadow:0 14px 40px rgba(90,60,40,.14);
     border:2px solid #fff; position:relative; overflow:hidden;
     transition:transform .18s ease;
+    /* 防止长内容撑爆 */
+    word-break: break-word;
   }
   .card:hover{transform:translateY(-2px);}
   .card::before{
@@ -141,12 +143,10 @@
     font-size:52px; color:var(--ink); letter-spacing:4px; line-height:1.2;
     margin:12px 0 8px; font-weight:800;
     text-shadow:0 2px 0 rgba(255,220,160,.4);
-    word-break: break-all;
   }
   .card .pinyin{
     font-size:16px; color:var(--accent); letter-spacing:2px;
     margin-bottom:16px; font-weight: 500;
-    word-break: break-all;
   }
   .card .meta{
     display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
@@ -196,7 +196,9 @@
     font-size:14px; color:var(--ink2); margin-bottom:14px;
   }
   .result-list{
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    display:grid; 
+    /* 默认桌面端两列 */
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
     gap:14px; max-width:680px; margin:0 auto;
     align-items: start;
   }
@@ -205,19 +207,28 @@
     padding:14px 16px; cursor:pointer; transition:all .15s;
     text-align:left; font-family:inherit;
     display:flex; flex-direction:column; gap:5px;
-    position:relative; overflow: hidden;
-    /* 强制内容在卡片内换行，不撑破 */
-    word-break: break-all;
+    position:relative; 
+    /* 关键：限制宽度，溢出强制换行 */
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
   }
   .result-item:hover{border-color:var(--accent2); background:#fff8e7; transform:translateY(-2px); box-shadow:0 6px 16px rgba(255,180,80,.2);}
   
-  .result-item .w{font-size:20px; color:var(--ink); font-weight:700; letter-spacing:1px; line-height: 1.3;}
-  .result-item .p{font-size:12px; color:var(--accent); font-weight: 500; line-height: 1.4;}
+  .result-item .w{
+    font-size:20px; color:var(--ink); font-weight:700; letter-spacing:1px; line-height: 1.3;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
+  .result-item .p{
+    font-size:12px; color:var(--accent); font-weight: 500; line-height: 1.4;
+    word-break: break-word; overflow-wrap: anywhere;
+  }
   .result-item .e{
     font-size:13px; color:var(--ink2); margin-top:4px;
     line-height: 1.5;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     overflow: hidden; text-overflow: ellipsis; 
+    word-break: break-word;
   }
 
   /* 加载/空状态 */
@@ -254,26 +265,24 @@
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
-  /* 手机端优化 */
+  /* 手机端专项优化 */
   @media (max-width: 600px){
     h1.title{font-size:32px;}
-    .card .word{font-size:42px;}
-    .card{padding:22px 18px 18px;}
+    .card .word{font-size:36px; letter-spacing: 2px;}
+    .card .pinyin{font-size: 14px;}
+    .card{padding:22px 16px 18px;}
     .searchbar{padding-left:14px;}
     .searchbar button{padding:10px 14px; font-size:14px;}
     .filter-group{padding:10px 10px 8px;}
     .filter-chip{font-size:13px; padding:5px 11px;}
     
-    /* 强制改为单列展示，让长成语显示更舒服 */
+    /* 强制手机端变为单列 */
     .result-list { 
       grid-template-columns: 1fr; 
       gap: 12px; 
     }
     .result-item { 
       padding: 16px; 
-    }
-    .result-item .w { 
-      font-size: 18px; 
     }
   }
 </style>
@@ -410,7 +419,6 @@
     return Array.from(s).length;
   }
 
-  // 从拼音动态提取正确的首字母缩写
   function getCleanAbbr(pinyin) {
     if (!pinyin) return '';
     return pinyin.split(/[\s,，]+/).map(function(word) {
