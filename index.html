@@ -13,6 +13,7 @@
     --ink:#5b4636;
     --accent:#ff6b6b; --accent2:#ffa94d;
     --card:#ffffff; --cream:#fff8e7;
+    --shadow-soft:0 8px 24px rgba(90,60,40,.12);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
@@ -25,17 +26,30 @@
     font-family:'ZCOOL KuaiLe','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
     overflow-x:hidden; padding-bottom:32px;
   }
+  /* 装饰 */
   .deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
-  .deco svg{position:absolute;}
-  .cloud1{top:6%; left:-3%; width:170px; opacity:.9;}
-  .cloud2{top:22%; right:-4%; width:210px; opacity:.85;}
-  .star{width:32px; height:32px; animation:twinkle 3.2s ease-in-out infinite;}
-  .star.s1{top:12%; left:14%;}
-  .star.s2{top:36%; right:9%; animation-delay:.7s;}
-  .star.s3{bottom:22%; right:24%; animation-delay:1.4s;}
+  .deco .blob{position:absolute; border-radius:50%; filter:blur(40px); opacity:.5;}
+  .deco .b1{width:260px; height:260px; background:#ffe08a; top:-60px; left:-80px;}
+  .deco .b2{width:320px; height:320px; background:#a9e6c0; bottom:-100px; right:-100px;}
+  .deco .b3{width:200px; height:200px; background:#bcdcff; top:40%; right:-60px;}
+  .deco .star{position:absolute; width:28px; height:28px; animation:twinkle 3.2s ease-in-out infinite;}
+  .deco .star.s1{top:12%; left:10%;}
+  .deco .star.s2{top:32%; right:8%; animation-delay:.7s;}
+  .deco .star.s3{bottom:20%; left:16%; animation-delay:1.4s;}
+  .deco .cloud{position:absolute; opacity:.7; animation:cloudFloat 8s ease-in-out infinite;}
+  .deco .c1{top:5%; right:12%; width:130px; animation-delay:0s;}
+  .deco .c2{bottom:8%; left:6%; width:100px; animation-delay:-4s;}
   @keyframes twinkle{0%,100%{opacity:.35; transform:scale(.85) rotate(0)}50%{opacity:1; transform:scale(1.05) rotate(18deg)}}
+  @keyframes cloudFloat{
+    0%,100%{ transform:translateX(0) translateY(0); }
+    25%{ transform:translateX(14px) translateY(-8px); }
+    50%{ transform:translateX(0) translateY(-4px); }
+    75%{ transform:translateX(-10px) translateY(-10px); }
+  }
+
   .wrap{position:relative; z-index:1; max-width:620px; margin:0 auto; padding:16px 16px 30px; text-align:center;}
 
+  /* 顶栏 */
   .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
   .title{font-size:38px; color:#fff; text-shadow:0 3px 0 rgba(0,0,0,.12), 0 6px 14px rgba(255,140,80,.35); letter-spacing:2px; line-height:1;}
   .title .tw{color:#ffd43b;}
@@ -56,17 +70,29 @@
   }
   .logoutbtn:active{transform:translateY(2px); box-shadow:0 1px 0 #5a5a5a;}
 
+  /* 钱包卡片 */
   .wallet{
-    margin:14px auto 0; max-width:430px; border-radius:20px; padding:14px 18px;
-    background:linear-gradient(135deg,#fff3cd,#ffe0a3);
-    border:3px solid #ffd43b; box-shadow:0 6px 0 rgba(0,0,0,.06);
+    position:relative; overflow:hidden;
+    margin:16px auto 0; max-width:450px; border-radius:24px; padding:18px 20px;
+    background:linear-gradient(135deg,#fff8e1 0%, #ffe9b0 55%, #ffd97a 100%);
+    border:2px solid rgba(255,255,255,.8);
+    box-shadow:0 12px 30px rgba(230,150,30,.28), inset 0 1px 0 rgba(255,255,255,.9);
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
   }
-  .wallet .lbl{font-size:16px; color:#8a6a1a; text-align:left; line-height:1.3;}
+  .wallet::before{
+    content:''; position:absolute; top:-40%; right:-10%; width:180px; height:180px;
+    background:radial-gradient(circle, rgba(255,255,255,.6), transparent 70%);
+    border-radius:50%; pointer-events:none;
+  }
+  .wallet .lbl{font-size:16px; color:#8a6a1a; text-align:left; line-height:1.3; position:relative;}
   .wallet .lbl .bn{color:#e67e22; font-weight:700;}
-  .wallet .pts{font-size:42px; font-weight:900; color:#e67e22; line-height:1;}
+  .wallet .pts{font-size:46px; font-weight:900; color:#e67e22; line-height:1; position:relative;
+    text-shadow:0 2px 0 rgba(255,255,255,.6);
+  }
   .wallet .pts small{font-size:20px;}
-  .wallet .btns{display:flex; gap:8px; flex-wrap:wrap;}
+  .wallet .pts.pop{animation:ptsPop .5s cubic-bezier(.22,1,.36,1);}
+  @keyframes ptsPop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .wallet .btns{display:flex; gap:8px; flex-wrap:wrap; position:relative;}
   .wallet .reset-btn{
     font-family:inherit; font-size:14px; color:#fff; cursor:pointer; border:none;
     border-radius:30px; padding:8px 16px; background:linear-gradient(180deg,#ff8787,#ff6b6b);
@@ -85,19 +111,23 @@
     box-shadow:0 3px 0 #8f7e62;
   }
 
+  /* 状态 */
   .status{
-    margin:14px auto 0; max-width:430px; min-height:50px; border-radius:18px;
+    margin:14px auto 0; max-width:450px; min-height:52px; border-radius:18px;
     display:flex; align-items:center; justify-content:center; gap:8px;
-    font-size:18px; padding:10px 16px; line-height:1.4;
+    font-size:17px; padding:12px 18px; line-height:1.4;
+    box-shadow:0 6px 16px rgba(0,0,0,.06);
+    transition:background .3s, border-color .3s;
   }
-  .status.lock{background:#fde2e2; border:3px solid #ffb3b3; color:#a43c3c;}
-  .status.ok{background:#e6f7ec; border:3px solid #a9e6c0; color:#1e7a44;}
-  .status.done{background:#eef1f6; border:3px solid #d3dae3; color:#6b7684;}
+  .status.lock{background:#fde8e8; border:2px solid #ffc9c9; color:#a43c3c;}
+  .status.ok{background:#e6f7ec; border:2px solid #b2f2c9; color:#1e7a44;}
+  .status.done{background:#eef1f6; border:2px solid #d3dae3; color:#6b7684;}
   .status svg{width:22px; height:22px; flex:none;}
 
-  .stage{position:relative; width:min(80vw, 400px); margin:14px auto 0; aspect-ratio:1/1;}
+  /* 转盘 */
+  .stage{position:relative; width:min(80vw, 400px); margin:18px auto 0; aspect-ratio:1/1;}
   canvas.wheel{width:100%; height:100%; display:block; border-radius:50%;
-    filter:drop-shadow(0 14px 26px rgba(90,60,40,.22));}
+    filter:drop-shadow(0 16px 30px rgba(90,60,40,.25));}
   .pointer{
     position:absolute; top:-8px; left:50%; transform:translateX(-50%);
     width:0; height:0; z-index:5;
@@ -120,44 +150,48 @@
   .spinbtn:active{transform:translate(-50%,-46%); box-shadow:0 3px 0 #d97e00, 0 10px 18px rgba(200,110,0,.3);}
   .spinbtn:disabled{cursor:not-allowed; opacity:.6; background:radial-gradient(circle at 35% 28%, #d9d3c8, #b8b0a2 70%); box-shadow:0 4px 0 #8f877a, 0 10px 18px rgba(0,0,0,.1);}
 
-  .actions{display:flex; gap:12px; justify-content:center; margin:16px auto 0; flex-wrap:wrap;}
+  .actions{display:flex; gap:12px; justify-content:center; margin:18px auto 0; flex-wrap:wrap;}
   .btn{font-family:inherit; font-size:17px; color:#fff; cursor:pointer; border:none; border-radius:40px; padding:13px 24px; min-height:46px; letter-spacing:1px; box-shadow:0 5px 0 rgba(0,0,0,.16), 0 10px 18px rgba(0,0,0,.10); transition:transform .1s;}
   .btn:active{transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.16);}
   .btn-parent{background:linear-gradient(180deg,#4dabf7,#2f8fe0);}
   .btn-set{background:linear-gradient(180deg,#b197fc,#8f6ce8);}
   .btn:disabled{opacity:.5; cursor:default;}
 
-  .result{margin:16px auto 0; max-width:420px; min-height:48px; background:var(--cream); border:3px dashed #ffd43b; border-radius:18px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:20px; color:#7a5a3a; padding:9px 16px; box-shadow:0 6px 0 rgba(0,0,0,.06);}
-  .result .prize{color:var(--accent); font-size:26px;}
+  .result{margin:16px auto 0; max-width:450px; min-height:52px; background:var(--cream); border:2px dashed #ffd43b; border-radius:18px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:19px; color:#7a5a3a; padding:10px 16px; box-shadow:0 8px 20px rgba(0,0,0,.06);}
+  .result .prize{color:var(--accent); font-size:25px;}
 
-  .history{margin:20px auto 0; max-width:470px; background:rgba(255,255,255,.85); border-radius:18px; padding:14px 16px; text-align:left;}
-  .history h3{margin:0 0 8px; font-size:17px; color:#6b5a47; display:flex; align-items:center; gap:6px;}
+  /* 历史 */
+  .history{margin:22px auto 0; max-width:480px; background:rgba(255,255,255,.9); border-radius:22px; padding:16px 18px; text-align:left; box-shadow:0 10px 26px rgba(90,60,40,.1);}
+  .history h3{margin:0 0 10px; font-size:18px; color:#6b5a47; display:flex; align-items:center; gap:6px;}
   .history h3 svg{width:20px; height:20px;}
-  .hist-tabs{display:flex; gap:8px; margin-bottom:10px;}
+  .hist-tabs{display:flex; gap:8px; margin-bottom:12px;}
   .hist-tab{
     font-family:inherit; font-size:14px; color:#8a7a66; cursor:pointer;
     border:2px solid #e8dcc8; background:#fff; border-radius:20px;
-    padding:5px 14px; transition:all .15s;
+    padding:6px 16px; transition:all .15s;
   }
-  .hist-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347;}
+  .hist-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347; box-shadow:0 3px 8px rgba(255,159,26,.3);}
   .history .list{display:flex; flex-wrap:wrap; gap:8px; min-height:26px;}
-  .chip{background:#fff2cc; color:#8a5b00; border-radius:16px; padding:6px 13px; font-size:15px; border:2px solid #ffe08a; white-space:nowrap; position:relative; display:inline-flex; flex-direction:column; align-items:flex-start;}
-  .chip.clickable{cursor:pointer; transition:all .15s;}
-  .chip.clickable:hover{border-color:#ffb347; background:#fff8e7; transform:translateY(-1px);}
+  .chip{background:#fff2cc; color:#8a5b00; border-radius:16px; padding:8px 14px; font-size:15px; border:2px solid #ffe08a; white-space:nowrap; position:relative; display:inline-flex; flex-direction:column; align-items:flex-start; transition:all .15s;}
+  .chip.clickable{cursor:pointer;}
+  .chip.clickable:hover{border-color:#ffb347; background:#fff8e7; transform:translateY(-2px); box-shadow:0 6px 14px rgba(255,180,80,.25);}
   .chip.exchange{background:#ffe3e3; color:#c92a2a; border-color:#ffa8a8;}
-  .chip .note{display:block; font-size:11px; color:#a09080; margin-top:2px; font-family:'PingFang SC','Microsoft YaHei',sans-serif;}
-  .chip .thumbs{display:flex; gap:4px; margin-top:5px;}
+  .chip .note{display:block; font-size:11px; color:#a09080; margin-top:3px; font-family:'PingFang SC','Microsoft YaHei',sans-serif;}
+  .chip .thumbs{display:flex; gap:5px; margin-top:6px;}
   .chip .thumbs img{
-    width:36px; height:36px; object-fit:cover; border-radius:8px;
+    width:38px; height:38px; object-fit:cover; border-radius:8px;
     border:1px solid rgba(255,255,255,.7); cursor:pointer;
   }
-  .empty{color:#b0a08d; font-size:15px; padding:4px 2px;}
+  .empty{color:#b0a08d; font-size:15px; padding:6px 2px;}
 
-  .overlay{position:fixed; inset:0; background:rgba(60,40,20,.42); display:none; align-items:center; justify-content:center; z-index:30; padding:16px;}
-  .overlay.show{display:flex;}
-  .panel{background:#fff; border-radius:24px; width:min(92vw, 430px); max-height:86vh; display:flex; flex-direction:column; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,.25);}
-  .panel h2{margin:0 0 4px; font-size:23px; color:#5b4636; text-align:center;}
-  .panel p.hint{margin:0 0 14px; text-align:center; color:#9a8a76; font-size:14px;}
+  /* 弹层 */
+  .overlay{position:fixed; inset:0; background:rgba(60,40,20,.45); display:none; align-items:center; justify-content:center; z-index:30; padding:16px; backdrop-filter:blur(4px);}
+  .overlay.show{display:flex; animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .panel{background:#fff; border-radius:26px; width:min(92vw, 440px); max-height:86vh; display:flex; flex-direction:column; padding:22px; box-shadow:0 24px 60px rgba(0,0,0,.3); animation:popIn .25s cubic-bezier(.22,1,.36,1);}
+  @keyframes popIn{from{transform:scale(.92); opacity:0}to{transform:scale(1); opacity:1}}
+  .panel h2{margin:0 0 6px; font-size:23px; color:#5b4636; text-align:center;}
+  .panel p.hint{margin:0 0 16px; text-align:center; color:#9a8a76; font-size:14px; line-height:1.5;}
 
   .menu{display:flex; flex-direction:column; gap:8px; margin:8px 0 4px;}
   .mitem{
@@ -166,7 +200,7 @@
     padding:12px 14px; cursor:pointer; font-family:inherit;
     transition:all .15s; text-align:left; width:100%;
   }
-  .mitem:hover{border-color:#ffb347; background:#fff2cc;}
+  .mitem:hover{border-color:#ffb347; background:#fff2cc; transform:translateX(2px);}
   .mitem .mico{font-size:20px; flex:none;}
   .mitem .mtxt{flex:1; font-size:16px; color:#5b4636;}
   .mitem .mval{font-size:14px; color:#a09080; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -176,14 +210,14 @@
   .bnrow label{font-size:14px; color:#8a7a66; flex:none; width:84px; text-align:left;}
   .bnrow input{
     flex:1; font-family:inherit; font-size:16px; color:#5b4636;
-    border:2px solid #e8dcc8; border-radius:10px; padding:8px 12px; outline:none;
+    border:2px solid #e8dcc8; border-radius:12px; padding:9px 12px; outline:none; transition:border-color .15s;
   }
   .bnrow input:focus{border-color:#ffa94d;}
   .bnrow .ro{color:#a09080; font-size:14px; flex:1; text-align:left; padding:8px 0; word-break:break-all;}
   .bninput{
     width:100%; font-family:inherit; font-size:16px; color:#5b4636;
-    border:2px solid #e8dcc8; border-radius:12px; padding:10px 14px; outline:none;
-    margin-bottom:10px;
+    border:2px solid #e8dcc8; border-radius:12px; padding:11px 14px; outline:none;
+    margin-bottom:10px; transition:border-color .15s;
   }
   .bninput:focus{border-color:#ffa94d;}
   .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
@@ -192,20 +226,22 @@
   .optrow{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
   .optrow .dot{width:16px; height:16px; border-radius:50%; flex:none;}
   .optrow .val{width:80px; font-family:inherit; font-size:16px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 8px; text-align:center; outline:none;}
+  .optrow .val:focus{border-color:#ffa94d;}
   .optrow .w{flex:1; font-family:inherit; font-size:14px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 10px; outline:none;}
   .optrow .w:focus{border-color:#ffa94d;}
   .optrow .del{width:44px; height:44px; min-width:44px; min-height:44px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:20px; cursor:pointer; line-height:1;}
   .optrow .note{font-size:11px; color:#b0a08d; width:52px; flex:none; text-align:left;}
 
   .rwrow{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
-  .rwrow .nm{flex:1; font-family:inherit; font-size:15px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 10px; outline:none;}
+  .rwrow .nm{flex:1; font-family:inherit; font-size:15px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:9px 10px; outline:none;}
   .rwrow .nm:focus{border-color:#ffa94d;}
-  .rwrow .cost{width:80px; font-family:inherit; font-size:15px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:8px 8px; text-align:center; outline:none;}
+  .rwrow .cost{width:80px; font-family:inherit; font-size:15px; color:#5b4636; border:2px solid #e8dcc8; border-radius:10px; padding:9px 8px; text-align:center; outline:none;}
   .rwrow .cost:focus{border-color:#ffa94d;}
   .rwrow .del{width:40px; height:40px; min-width:40px; border:none; border-radius:10px; background:#ffe3e3; color:#ff6b6b; font-size:18px; cursor:pointer;}
 
-  .panel .rowbtns{display:flex; gap:10px; margin-top:14px;}
-  .btn-sm{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:30px; padding:12px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.14);}
+  .panel .rowbtns{display:flex; gap:10px; margin-top:16px;}
+  .btn-sm{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:30px; padding:12px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.14); transition:transform .1s;}
+  .btn-sm:active{transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,.14);}
   .btn-add{background:linear-gradient(180deg,#69db7c,#40c057);}
   .btn-ok{background:linear-gradient(180deg,#ffa94d,#ff922b);}
   .btn-cancel{background:#b9ad9b; box-shadow:none;}
@@ -216,7 +252,7 @@
   .confirm textarea{
     width:100%; font-family:inherit; font-size:15px; color:#5b4636;
     border:2px solid #e8dcc8; border-radius:12px; padding:10px 12px;
-    outline:none; resize:none; height:60px; margin-bottom:10px;
+    outline:none; resize:none; height:60px; margin-bottom:10px; transition:border-color .15s;
   }
   .confirm textarea:focus{border-color:#ffa94d;}
   .photo-row{
@@ -226,7 +262,7 @@
   .photo-btn{
     font-family:inherit; font-size:14px; color:#5b4636; cursor:pointer;
     border:2px dashed #e8dcc8; background:#fff8e7; border-radius:14px;
-    padding:8px 14px; display:flex; align-items:center; gap:6px;
+    padding:9px 15px; display:flex; align-items:center; gap:6px;
     transition:all .15s;
   }
   .photo-btn:hover{border-color:#ffa94d; background:#fff2cc;}
@@ -234,7 +270,7 @@
   .photo-preview{display:flex; gap:6px; flex-wrap:wrap;}
   .photo-preview .pwrap{position:relative;}
   .photo-preview img{
-    width:56px; height:56px; object-fit:cover; border-radius:10px;
+    width:58px; height:58px; object-fit:cover; border-radius:10px;
     border:2px solid #ffe08a;
   }
   .photo-preview .rm{
@@ -247,11 +283,11 @@
   .confirm .no{font-family:inherit; font-size:17px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
 
   .verify-panel .q{font-size:20px; color:#5b4636; margin-bottom:14px; text-align:center; line-height:1.5;}
-  .verify-panel .eq{font-size:32px; color:#e67e22; font-weight:900; text-align:center; margin:6px 0 16px; letter-spacing:2px;}
+  .verify-panel .eq{font-size:34px; color:#e67e22; font-weight:900; text-align:center; margin:8px 0 18px; letter-spacing:2px;}
   .verify-panel input{
     width:100%; font-family:inherit; font-size:18px; color:#5b4636;
     border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
-    text-align:center; outline:none; margin-bottom:12px;
+    text-align:center; outline:none; margin-bottom:12px; transition:border-color .15s;
   }
   .verify-panel input:focus{border-color:#ffa94d;}
   .verify-panel .err{font-size:14px; color:#e03131; min-height:20px; margin-bottom:8px; text-align:center;}
@@ -259,14 +295,14 @@
   .verify-panel .yes{flex:1; font-family:inherit; font-size:17px; color:#fff; border:none; border-radius:40px; padding:13px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 4px 0 #2f9e44; cursor:pointer;}
   .verify-panel .no{flex:1; font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:13px; background:#b9ad9b; cursor:pointer;}
 
-  .prize-pop{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .prize-pop{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:50; padding:20px; background:rgba(60,40,20,.4); backdrop-filter:blur(4px);}
   .prize-pop.show{display:flex;}
-  .prize-pop .box{background:#fff; border-radius:28px; padding:30px 26px; text-align:center; width:min(86vw, 340px); box-shadow:0 20px 60px rgba(0,0,0,.3); animation:pop .4s cubic-bezier(.22,1,.36,1);}
+  .prize-pop .box{background:#fff; border-radius:30px; padding:32px 28px; text-align:center; width:min(86vw, 350px); box-shadow:0 24px 70px rgba(0,0,0,.35); animation:pop .4s cubic-bezier(.22,1,.36,1);}
   .prize-pop .big{font-size:20px; color:#9a8a76;}
   .prize-pop .big .bn{color:#e67e22; font-weight:700;}
-  .prize-pop .pts{font-size:56px; color:var(--accent); margin:6px 0 4px; font-weight:900;}
-  .prize-pop .sub{font-size:16px; color:#9a8a76; margin-bottom:18px;}
-  .prize-pop .again{font-family:inherit; font-size:19px; color:#fff; border:none; border-radius:40px; padding:13px 32px; background:linear-gradient(180deg,#ffd166,#ff9f1a); box-shadow:0 5px 0 #d97e00; cursor:pointer;}
+  .prize-pop .pts{font-size:60px; color:var(--accent); margin:8px 0 6px; font-weight:900; text-shadow:0 3px 0 rgba(255,200,150,.4);}
+  .prize-pop .sub{font-size:16px; color:#9a8a76; margin-bottom:20px;}
+  .prize-pop .again{font-family:inherit; font-size:19px; color:#fff; border:none; border-radius:40px; padding:13px 34px; background:linear-gradient(180deg,#ffd166,#ff9f1a); box-shadow:0 5px 0 #d97e00; cursor:pointer;}
   @keyframes pop{0%{transform:scale(.5); opacity:0}100%{transform:scale(1); opacity:1}}
   .confetti{position:fixed; top:-20px; z-index:40; pointer-events:none; animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(110vh) rotate(720deg);}}
@@ -275,12 +311,12 @@
   .exchange-panel .rwlist{max-height:50vh; overflow-y:auto; margin-bottom:14px;}
   .exchange-panel .rwitem{
     display:flex; align-items:center; justify-content:space-between;
-    padding:12px 14px; border:2px solid #e8dcc8; border-radius:14px;
+    padding:13px 15px; border:2px solid #e8dcc8; border-radius:14px;
     margin-bottom:8px; cursor:pointer; transition:all .15s;
   }
-  .exchange-panel .rwitem:hover{border-color:#ffb347; background:#fff8e7;}
+  .exchange-panel .rwitem:hover{border-color:#ffb347; background:#fff8e7; transform:translateY(-1px);}
   .exchange-panel .rwitem.disabled{opacity:.4; cursor:not-allowed; background:#f5f0e8;}
-  .exchange-panel .rwitem.disabled:hover{border-color:#e8dcc8; background:#f5f0e8;}
+  .exchange-panel .rwitem.disabled:hover{border-color:#e8dcc8; background:#f5f0e8; transform:none;}
   .exchange-panel .rwitem .nm{font-size:17px; color:#5b4636;}
   .exchange-panel .rwitem .cost{font-size:15px; color:#e67e22; font-weight:700;}
   .exchange-panel .btns{display:flex; flex-direction:column; gap:12px;}
@@ -292,10 +328,9 @@
   .ex-confirm .yes{font-family:inherit; font-size:18px; color:#fff; border:none; border-radius:40px; padding:14px; background:linear-gradient(180deg,#69db7c,#40c057); box-shadow:0 5px 0 #2f9e44; cursor:pointer; letter-spacing:1px;}
   .ex-confirm .no{font-family:inherit; font-size:16px; color:#fff; border:none; border-radius:40px; padding:12px; background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131; cursor:pointer;}
 
-  /* 攒分记录详情弹层 */
   .hd-summary{
     background:linear-gradient(135deg,#fff3cd,#ffe0a3);
-    border-radius:14px; padding:12px 14px; margin-bottom:14px;
+    border-radius:14px; padding:13px 16px; margin-bottom:14px;
     font-size:15px; color:#8a6a1a; text-align:center;
   }
   .hd-summary b{color:#e67e22; font-size:22px;}
@@ -305,7 +340,7 @@
   }
   .hd-item{
     background:#fff8e7; border:2px solid #ffe08a; border-radius:14px;
-    padding:10px 14px; text-align:left;
+    padding:12px 15px; text-align:left;
   }
   .hd-item .hd-top{
     display:flex; align-items:center; justify-content:space-between;
@@ -342,25 +377,25 @@
   }
   .viewer .close:active{background:rgba(255,255,255,.35);}
 
+  /* 登录 */
   .auth-screen{
     position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
     background:
       radial-gradient(120% 90% at 50% -10%, #d9f3ff 0%, transparent 60%),
       linear-gradient(180deg, #c8ecff 0%, #e9f7ff 45%, #fff7e6 100%);
-    padding:20px;
-    overflow-y:auto;
+    padding:20px; overflow-y:auto;
   }
   .auth-box{
-    background:#fff; border-radius:28px; padding:32px 26px; width:min(92vw, 380px);
-    box-shadow:0 20px 60px rgba(90,60,40,.22); text-align:center;
+    background:#fff; border-radius:30px; padding:34px 28px; width:min(92vw, 390px);
+    box-shadow:0 24px 70px rgba(90,60,40,.25); text-align:center;
   }
-  .auth-box .emoji{font-size:52px; line-height:1; margin-bottom:6px;}
-  .auth-box h1{font-size:26px; margin:0 0 4px; color:#5b4636;}
+  .auth-box .emoji{font-size:56px; line-height:1; margin-bottom:8px;}
+  .auth-box h1{font-size:27px; margin:0 0 6px; color:#5b4636;}
   .auth-box h1 .tw{color:#ff9f1a;}
-  .auth-box p.tip{font-size:14px; color:#9a8a76; margin:0 0 20px;}
+  .auth-box p.tip{font-size:14px; color:#9a8a76; margin:0 0 22px; line-height:1.5;}
   .auth-box input{
     width:100%; font-family:inherit; font-size:16px; color:#5b4636;
-    border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
+    border:2px solid #e8dcc8; border-radius:14px; padding:13px 15px;
     margin-bottom:12px; outline:none; transition:border-color .15s;
   }
   .auth-box input:focus{border-color:#ffa94d;}
@@ -372,46 +407,31 @@
   }
   .auth-box .auth-btn:active{transform:translateY(3px); box-shadow:0 2px 0 #d97e00;}
   .auth-box .auth-btn:disabled{opacity:.6; cursor:not-allowed;}
-  .auth-box .switch{
-    font-size:14px; color:#9a8a76; margin-top:16px;
-  }
+  .auth-box .switch{font-size:14px; color:#9a8a76; margin-top:18px;}
   .auth-box .switch a{color:#ff9f1a; cursor:pointer; text-decoration:underline;}
-  .auth-box .msg{
-    font-size:14px; min-height:20px; margin-top:10px; color:#e03131; line-height:1.4;
-  }
+  .auth-box .msg{font-size:14px; min-height:20px; margin-top:10px; color:#e03131; line-height:1.4;}
   .auth-box .msg.ok{color:#1e7a44;}
 
-  .captcha-row{
-    display:flex; gap:8px; align-items:center; margin-bottom:12px;
-  }
-  .captcha-row input{
-    flex:1; margin-bottom:0 !important;
-  }
+  .captcha-row{display:flex; gap:8px; align-items:center; margin-bottom:12px;}
+  .captcha-row input{flex:1; margin-bottom:0 !important;}
   .captcha-canvas{
     width:110px; height:46px; border-radius:10px; cursor:pointer;
-    border:2px solid #e8dcc8; flex:none; background:#f8f4ec;
-    display:block;
+    border:2px solid #e8dcc8; flex:none; background:#f8f4ec; display:block;
   }
   .captcha-canvas:active{opacity:.8;}
 
-  .recent-box{
-    margin-top:16px; text-align:left;
-  }
+  .recent-box{margin-top:18px; text-align:left;}
   .recent-box .rtitle{
-    font-size:12px; color:#9a8a76; margin-bottom:6px;
+    font-size:12px; color:#9a8a76; margin-bottom:8px;
     display:flex; align-items:center; justify-content:space-between;
   }
-  .recent-box .rtitle .clear{
-    color:#c9b89a; cursor:pointer; font-size:12px;
-  }
+  .recent-box .rtitle .clear{color:#c9b89a; cursor:pointer; font-size:12px;}
   .recent-box .rtitle .clear:hover{color:#ff6b6b;}
-  .recent-list{
-    display:flex; flex-direction:column; gap:6px;
-  }
+  .recent-list{display:flex; flex-direction:column; gap:6px;}
   .recent-item{
     display:flex; align-items:center; gap:8px;
     background:#fff8e7; border:2px solid #e8dcc8; border-radius:12px;
-    padding:8px 12px; cursor:pointer; transition:all .15s;
+    padding:9px 13px; cursor:pointer; transition:all .15s;
     font-family:inherit; text-align:left; width:100%;
   }
   .recent-item:hover{border-color:#ffb347; background:#fff2cc;}
@@ -419,10 +439,10 @@
   .recent-item .rtxt{flex:1; font-size:14px; color:#5b4636; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .recent-item .rarrow{font-size:16px; color:#c9b89a; flex:none;}
 
-  #babyNameOv .panel{max-width:380px;}
+  #babyNameOv .panel{max-width:390px;}
   #babyNameOv .bninput{
     width:100%; font-family:inherit; font-size:20px; color:#5b4636;
-    border:2px solid #e8dcc8; border-radius:14px; padding:12px 14px;
+    border:2px solid #e8dcc8; border-radius:14px; padding:13px 15px;
     outline:none; margin-bottom:12px; text-align:center;
   }
   #babyNameOv .bninput:focus{border-color:#ffa94d;}
@@ -438,143 +458,224 @@
   /* ===== VIP 后台 ===== */
   .vip-wrap{
     position:relative; z-index:2;
-    max-width:960px; margin:0 auto;
+    max-width:1000px; margin:0 auto;
     padding:16px 16px 40px;
-    font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
   }
   .vip-header{
     display:flex; align-items:center; justify-content:space-between;
-    gap:12px; flex-wrap:wrap; margin-bottom:16px;
+    gap:12px; flex-wrap:wrap; margin-bottom:18px;
+    background:linear-gradient(135deg,#1e293b,#0f172a);
+    border-radius:16px; padding:16px 20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
   }
   .vip-title{
-    font-size:26px; color:#fff;
-    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
-    font-weight:700;
-    text-shadow:0 2px 6px rgba(0,0,0,.25);
+    font-size:24px; color:#fff; font-weight:700;
     letter-spacing:1px; line-height:1.2;
+    display:flex; align-items:center; gap:10px;
   }
   .vip-title .tw{color:#ffd43b;}
   .vip-badge{
-    display:inline-block; font-size:12px; color:#1a2b4d;
+    display:inline-block; font-size:11px; color:#1a2b4d;
     background:linear-gradient(180deg,#ffe066,#ffc107);
-    border-radius:20px; padding:3px 10px; margin-left:8px;
-    vertical-align:middle; font-weight:700;
+    border-radius:20px; padding:3px 10px; font-weight:700;
   }
   .vip-search{
     display:flex; gap:8px; align-items:center; margin-bottom:16px;
-    background:#fff; border-radius:20px; padding:8px 14px;
-    box-shadow:0 4px 0 rgba(0,0,0,.06);
+    background:#fff; border-radius:12px; padding:10px 16px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06); border:1px solid #e2e8f0;
   }
   .vip-search input{
-    flex:1; font-family:inherit; font-size:16px; color:#5b4636;
+    flex:1; font-family:inherit; font-size:15px; color:#0f172a;
     border:none; outline:none; background:transparent;
   }
   .vip-search .sbtn{
     font-family:inherit; font-size:14px; color:#fff; cursor:pointer;
-    border:none; border-radius:20px; padding:8px 16px;
-    background:linear-gradient(180deg,#4dabf7,#2f8fe0);
-    box-shadow:0 3px 0 #1a6bb0;
+    border:none; border-radius:8px; padding:8px 16px;
+    background:#3b82f6; transition:background .15s;
   }
-  .vip-search .sbtn:active{transform:translateY(2px); box-shadow:0 1px 0 #1a6bb0;}
+  .vip-search .sbtn:hover{background:#2563eb;}
+  .vip-search .sbtn:active{transform:translateY(1px);}
   .vip-list{
-    background:#fff; border-radius:20px; padding:8px;
-    box-shadow:0 6px 0 rgba(0,0,0,.06);
+    background:#fff; border-radius:14px; padding:8px;
+    box-shadow:0 4px 16px rgba(0,0,0,.06); border:1px solid #e2e8f0;
   }
   .vip-row{
-    display:flex; align-items:center; gap:10px;
-    padding:12px 14px; border-radius:14px;
-    cursor:pointer; transition:background .15s;
-    border-bottom:1px solid #f0e8d8;
+    display:flex; align-items:center; gap:12px;
+    padding:13px 16px; border-radius:10px;
+    cursor:pointer; transition:all .15s;
+    border-bottom:1px solid #f1f5f9;
   }
   .vip-row:last-child{border-bottom:none;}
-  .vip-row:hover{background:#fff8e7;}
+  .vip-row:hover{background:#f8fafc; transform:translateX(2px);}
   .vip-row .avatar{
-    width:40px; height:40px; border-radius:50%; flex:none;
-    background:linear-gradient(180deg,#ffe066,#ff9f1a);
+    width:44px; height:44px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#1d4ed8;
     display:flex; align-items:center; justify-content:center;
-    font-size:18px; color:#fff;
-    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
-    font-weight:700;
+    font-size:18px; font-weight:700;
   }
   .vip-row .info{flex:1; text-align:left; min-width:0;}
-  .vip-row .nm{font-size:16px; color:#5b4636; font-weight:700;}
-  .vip-row .sub{font-size:12px; color:#a09080; margin-top:2px; word-break:break-all;}
+  .vip-row .nm{font-size:16px; color:#0f172a; font-weight:600;}
+  .vip-row .sub{font-size:12px; color:#64748b; margin-top:3px; word-break:break-all;}
   .vip-row .pts{
-    font-size:20px; color:#e67e22; font-weight:900; flex:none;
+    font-size:18px; color:#0ea5e9; font-weight:700; flex:none;
+    background:#e0f2fe; border-radius:10px; padding:4px 12px;
   }
-  .vip-row .pts small{font-size:12px; color:#a09080;}
-  .vip-empty{
-    padding:40px 20px; text-align:center; color:#b0a08d;
-  }
+  .vip-row .pts small{font-size:12px; color:#0284c7; font-weight:400;}
+  .vip-empty{padding:40px 20px; text-align:center; color:#94a3b8;}
 
-  .vip-detail .panel{width:min(94vw, 560px);}
-  .vip-detail .dhead{
-    display:flex; align-items:center; gap:12px; margin-bottom:14px;
+  /* ===== VIP 详情 ===== */
+  .vip-detail .panel{
+    width:min(96vw, 680px);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    background:#f8fafc; border-radius:18px; padding:0;
+    border:1px solid #e2e8f0; overflow:hidden;
   }
-  .vip-detail .dhead .avatar{
-    width:52px; height:52px; border-radius:50%; flex:none;
-    background:linear-gradient(180deg,#ffe066,#ff9f1a);
+  .vip-panel{display:flex; flex-direction:column; max-height:92vh;}
+  .vp-head{
+    display:flex; align-items:center; gap:14px;
+    padding:18px 22px; background:#fff; border-bottom:1px solid #e2e8f0;
+  }
+  .vp-avatar{
+    width:48px; height:48px; border-radius:12px; flex:none;
+    background:linear-gradient(135deg,#dbeafe,#bfdbfe); color:#1d4ed8;
     display:flex; align-items:center; justify-content:center;
-    font-size:22px; color:#fff;
-    font-family:'PingFang SC','Microsoft YaHei',sans-serif;
-    font-weight:700;
+    font-size:19px; font-weight:700;
   }
-  .vip-detail .dhead .nm{font-size:20px; color:#5b4636; font-weight:700; text-align:left;}
-  .vip-detail .dhead .sub{font-size:13px; color:#a09080; text-align:left; margin-top:2px;}
-  .vip-detail .dsec{
-    background:#fff8e7; border-radius:14px; padding:12px 14px;
-    margin-bottom:12px; text-align:left;
+  .vp-name{font-size:19px; color:#0f172a; font-weight:600; text-align:left; line-height:1.2;}
+  .vp-sub{font-size:12px; color:#64748b; margin-top:4px; text-align:left; word-break:break-all;}
+  .vp-close{
+    margin-left:auto; width:34px; height:34px; border-radius:9px;
+    border:1px solid #e2e8f0; background:#fff; color:#64748b;
+    font-size:20px; cursor:pointer; line-height:1;
   }
-  .vip-detail .dsec h4{
-    margin:0 0 8px; font-size:14px; color:#8a7a66;
-    display:flex; align-items:center; gap:6px;
+  .vp-close:hover{background:#f1f5f9; color:#0f172a;}
+  .vp-body{padding:18px 22px; overflow-y:auto; flex:1;}
+  .vp-sec{margin-bottom:20px;}
+  .vp-sec-title{
+    font-size:13px; font-weight:600; color:#334155; margin-bottom:10px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:8px; border-bottom:1px solid #e2e8f0;
   }
-  .vip-detail .dsec .val{font-size:18px; color:#5b4636; font-weight:700;}
-  .vip-detail .dbtns{
-    display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;
+  .vp-tip{font-size:11px; color:#94a3b8; font-weight:400;}
+  .vp-grid{
+    display:grid; grid-template-columns: 110px 1fr; gap:10px 12px; align-items:center;
   }
-  .vip-detail .dbtns button{
-    font-family:inherit; font-size:14px; color:#fff; cursor:pointer;
-    border:none; border-radius:30px; padding:10px 16px;
-    box-shadow:0 3px 0 rgba(0,0,0,.14);
+  .vp-grid label{font-size:13px; color:#64748b; text-align:left;}
+  .vp-grid input, .vp-grid select{
+    width:100%; font-family:inherit; font-size:14px; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:8px; padding:9px 11px;
+    outline:none; background:#fff; transition:border-color .15s;
   }
-  .vip-detail .dbtns .edit{background:linear-gradient(180deg,#4dabf7,#2f8fe0); box-shadow:0 3px 0 #1a6bb0;}
-  .vip-detail .dbtns .reset{background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 3px 0 #e03131;}
-  .vip-detail .dbtns .del{background:linear-gradient(180deg,#868e96,#495057); box-shadow:0 3px 0 #343a40;}
-  .vip-detail .hist-list{
-    display:flex; flex-direction:column; gap:8px;
-    max-height:240px; overflow-y:auto; margin-top:8px;
+  .vp-grid input:focus, .vp-grid select:focus{border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+
+  /* 积分档位可视化编辑器 */
+  .vp-opt-list{display:flex; flex-direction:column; gap:8px;}
+  .vp-opt-card{
+    background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+    padding:12px 14px; transition:all .15s;
   }
-  .vip-detail .hist-item{
-    background:#fff; border:2px solid #f0e8d8; border-radius:12px;
-    padding:8px 12px; font-size:13px; color:#5b4636;
+  .vp-opt-card:hover{border-color:#cbd5e1; box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .vp-opt-head{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .vp-opt-color{width:14px; height:14px; border-radius:50%; flex:none; border:2px solid rgba(0,0,0,.06);}
+  .vp-opt-fields{display:flex; gap:10px; align-items:center; flex-wrap:wrap; flex:1;}
+  .vp-opt-field{display:flex; align-items:center; gap:6px;}
+  .vp-opt-field label{font-size:12px; color:#64748b; flex:none;}
+  .vp-opt-field input{
+    width:70px; font-family:inherit; font-size:14px; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:7px; padding:6px 8px;
+    outline:none; text-align:center;
+  }
+  .vp-opt-field input:focus{border-color:#3b82f6;}
+  .vp-opt-del{
+    width:32px; height:32px; border-radius:8px; border:none;
+    background:#fee2e2; color:#dc2626; font-size:16px; cursor:pointer;
+    flex:none; line-height:1;
+  }
+  .vp-opt-del:hover{background:#fecaca;}
+  .vp-opt-bar{
+    height:6px; border-radius:3px; background:#f1f5f9; overflow:hidden;
+    display:flex; margin-top:6px;
+  }
+  .vp-opt-bar span{height:100%; transition:width .3s;}
+  .vp-opt-ratio{font-size:11px; color:#94a3b8; margin-top:4px;}
+
+  /* 奖励可视化编辑器 */
+  .vp-rw-list{display:flex; flex-direction:column; gap:8px;}
+  .vp-rw-card{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; border:1px solid #e2e8f0; border-radius:12px;
+    padding:10px 14px; transition:all .15s;
+  }
+  .vp-rw-card:hover{border-color:#cbd5e1; box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .vp-rw-icon{font-size:20px; flex:none;}
+  .vp-rw-fields{display:flex; gap:10px; align-items:center; flex:1; flex-wrap:wrap;}
+  .vp-rw-fields input{
+    font-family:inherit; font-size:14px; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:7px; padding:7px 10px;
+    outline:none;
+  }
+  .vp-rw-fields input:focus{border-color:#3b82f6;}
+  .vp-rw-name{flex:1; min-width:100px;}
+  .vp-rw-cost{width:80px; text-align:center;}
+  .vp-rw-del{
+    width:32px; height:32px; border-radius:8px; border:none;
+    background:#fee2e2; color:#dc2626; font-size:16px; cursor:pointer;
+    flex:none; line-height:1;
+  }
+  .vp-rw-del:hover{background:#fecaca;}
+  .vp-add-btn{
+    width:100%; font-family:inherit; font-size:14px; color:#3b82f6;
+    background:#eff6ff; border:1px dashed #93c5fd; border-radius:10px;
+    padding:10px; cursor:pointer; margin-top:8px; transition:all .15s;
+  }
+  .vp-add-btn:hover{background:#dbeafe; border-color:#3b82f6;}
+  .vp-add-btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  .vp-json-hint{font-size:11px; color:#94a3b8; margin-top:6px; line-height:1.4;}
+
+  .vip-hist{
+    max-height:280px; overflow-y:auto;
+    border:1px solid #e2e8f0; border-radius:10px; background:#fff;
+    padding:8px;
+  }
+  .vip-hist .hist-item{
+    border:none; border-bottom:1px solid #f1f5f9; border-radius:0;
+    padding:9px 8px; background:transparent; font-size:13px;
     display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   }
-  .vip-detail .hist-item .date{color:#a09080; font-size:12px;}
-  .vip-detail .hist-item .p{color:#e67e22; font-weight:700;}
-  .vip-detail .hist-item .imgs{display:flex; gap:4px;}
-  .vip-detail .hist-item .imgs img{
-    width:32px; height:32px; object-fit:cover; border-radius:6px; cursor:pointer;
+  .vip-hist .hist-item:last-child{border-bottom:none;}
+  .vip-hist .hist-item .date{color:#94a3b8; font-size:12px;}
+  .vip-hist .hist-item .p{font-weight:600;}
+  .vip-hist .hist-item .imgs img{width:28px; height:28px; border-radius:5px; cursor:pointer;}
+  .vp-err{font-size:13px; color:#dc2626; min-height:18px; margin-top:6px;}
+  .vp-foot{
+    display:flex; gap:10px; padding:14px 22px; background:#fff; border-top:1px solid #e2e8f0;
+    flex-wrap:wrap;
   }
+  .vp-btn{
+    font-family:inherit; font-size:14px; font-weight:500; cursor:pointer;
+    border-radius:9px; padding:10px 18px; border:none; transition:all .15s;
+  }
+  .vp-btn:hover{filter:brightness(0.95);}
+  .vp-btn:disabled{opacity:.5; cursor:not-allowed;}
+  .vp-btn-primary{background:#3b82f6; color:#fff; margin-left:auto;}
+  .vp-btn-primary:hover{background:#2563eb;}
+  .vp-btn-warn{background:#fef3c7; color:#92400e;}
+  .vp-btn-danger{background:#fee2e2; color:#991b1b;}
 
-  .about-info{
-    text-align:center; padding:10px 0;
+  @media (max-width:420px){
+    .title{font-size:32px;}
+    .spinbtn{width:100px; height:100px; font-size:22px;}
+    .wallet .pts{font-size:38px;}
+    .vp-grid{grid-template-columns:90px 1fr;}
+    .vp-rw-fields{flex-direction:column; align-items:stretch;}
+    .vp-rw-cost{width:100%;}
   }
-  .about-info .ver{
-    font-size:26px; color:#e67e22; font-weight:900;
-    margin-bottom:6px;
+  @media (prefers-reduced-motion: reduce){
+    .star,.confetti{animation:none !important;}
+    .deco .cloud{animation:none !important;}
   }
-  .about-info .date{
-    font-size:14px; color:#9a8a76; margin-bottom:16px;
-  }
-  .about-info .desc{
-    font-size:14px; color:#7a5a3a; line-height:1.7;
-    background:#fff8e7; border-radius:14px; padding:12px 14px;
-    text-align:left;
-  }
-
-  @media (max-width:420px){ .title{font-size:32px;} .spinbtn{width:100px; height:100px; font-size:22px;} .wallet .pts{font-size:36px;} }
-  @media (prefers-reduced-motion: reduce){ .star,.confetti{animation:none !important;} }
 </style>
 </head>
 <body>
@@ -610,6 +711,18 @@
 
 <!-- ===== 普通主界面 ===== -->
 <div class="wrap" id="mainWrap" style="display:none;">
+  <!-- 背景装饰 -->
+  <div class="deco">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <svg class="star s1" viewBox="0 0 24 24" fill="#ffd43b"><path d="M12 2l2.4 6.6L21 9.4l-5.2 4.2L17.4 20 12 16.4 6.6 20l1.6-6.4L3 9.4l6.6-.8z"/></svg>
+    <svg class="star s2" viewBox="0 0 24 24" fill="#ffa94d"><path d="M12 2l2.4 6.6L21 9.4l-5.2 4.2L17.4 20 12 16.4 6.6 20l1.6-6.4L3 9.4l6.6-.8z"/></svg>
+    <svg class="star s3" viewBox="0 0 24 24" fill="#69db7c"><path d="M12 2l2.4 6.6L21 9.4l-5.2 4.2L17.4 20 12 16.4 6.6 20l1.6-6.4L3 9.4l6.6-.8z"/></svg>
+    <svg class="cloud c1" viewBox="0 0 120 60" fill="#fff"><ellipse cx="35" cy="40" rx="30" ry="18"/><ellipse cx="65" cy="32" rx="26" ry="20"/><ellipse cx="90" cy="42" rx="22" ry="15"/></svg>
+    <svg class="cloud c2" viewBox="0 0 120 60" fill="#fff"><ellipse cx="35" cy="40" rx="30" ry="18"/><ellipse cx="65" cy="32" rx="26" ry="20"/><ellipse cx="90" cy="42" rx="22" ry="15"/></svg>
+  </div>
+
   <header class="topbar">
     <div style="flex:1; text-align:left;">
       <div class="title">宝贝<span class="tw">攒分啦</span></div>
@@ -627,9 +740,9 @@
   <div class="wallet">
     <div class="lbl">
       <span class="bn" id="babyNameDisplay">宝贝</span>攒到的积分
-      <div style="font-size:12px; color:#b08a3a; margin-top:2px;" id="todayDate">—</div>
+      <div style="font-size:12px; color:#b08a3a; margin-top:3px;" id="todayDate">—</div>
     </div>
-    <div class="pts"><span id="totalPts">0</span><small> 分</small></div>
+    <div class="pts" id="ptsBox"><span id="totalPts">0</span><small> 分</small></div>
     <div class="btns">
       <button class="exchange-btn" id="exchangeBtn" disabled>🎁 兑换奖励</button>
       <button class="reset-btn" id="resetBtn" title="积分清零，重新开始">🔄 清零重记</button>
@@ -671,8 +784,8 @@
 <div class="vip-wrap" id="vipWrap" style="display:none;">
   <div class="vip-header">
     <div>
-      <div class="vip-title">管理后台<span class="vip-badge">VIP</span></div>
-      <div class="subtitle" id="vipSubtitle" style="color:#8fa8d8;">所有用户数据一览</div>
+      <div class="vip-title">管理后台 <span class="vip-badge">VIP</span></div>
+      <div class="subtitle" id="vipSubtitle" style="color:#94a3b8; margin-top:4px;">所有用户数据一览</div>
     </div>
     <button class="logoutbtn" id="vipLogoutBtn">退出</button>
   </div>
@@ -680,7 +793,7 @@
   <div class="vip-search">
     <input type="text" id="vipSearchInput" placeholder="搜索：宝贝名字 / 唯一号 / 邮箱">
     <button class="sbtn" id="vipSearchBtn">搜索</button>
-    <button class="sbtn" id="vipRefreshBtn" style="background:linear-gradient(180deg,#69db7c,#40c057);box-shadow:0 3px 0 #2f9e44;">刷新</button>
+    <button class="sbtn" id="vipRefreshBtn" style="background:#10b981;">刷新</button>
   </div>
 
   <div class="vip-list" id="vipList">
@@ -690,71 +803,82 @@
 
 <!-- ===== VIP 用户详情弹层 ===== -->
 <div class="overlay vip-detail" id="vipDetailOv">
-  <div class="panel">
-    <div class="dhead">
-      <div class="avatar" id="vipDAvatar">宝</div>
+  <div class="panel vip-panel">
+    <div class="vp-head">
+      <div class="vp-avatar" id="vipDAvatar">宝</div>
       <div style="flex:1; min-width:0;">
-        <div class="nm" id="vipDName">—</div>
-        <div class="sub" id="vipDSub">—</div>
+        <div class="vp-name" id="vipDName">—</div>
+        <div class="vp-sub" id="vipDSub">—</div>
       </div>
+      <button class="vp-close" id="vipDClose">×</button>
     </div>
 
-    <div class="dsec">
-      <h4>📊 积分</h4>
-      <div class="val" id="vipDPoints">0 分</div>
-    </div>
-
-    <div class="dsec">
-      <h4>📜 最近记录（最多显示 20 条）</h4>
-      <div class="hist-list" id="vipDHist"></div>
-    </div>
-
-    <div class="dsec">
-      <h4>⚙️ 操作</h4>
-      <div class="dbtns">
-        <button class="edit" id="vipDEditProfile">编辑名字/唯一号</button>
-        <button class="edit" id="vipDEditPoints">修改积分</button>
-        <button class="reset" id="vipDReset">清空该用户记录</button>
-        <button class="del" id="vipDDelete">删除该用户</button>
+    <div class="vp-body">
+      <!-- 基础信息 -->
+      <div class="vp-sec">
+        <div class="vp-sec-title">基础信息</div>
+        <div class="vp-grid">
+          <label>宝贝名字</label>
+          <input type="text" id="vipDNameInput" maxlength="12" placeholder="比如：小明">
+          <label>唯一号</label>
+          <input type="text" id="vipDLoginIdInput" maxlength="20" placeholder="3~20 位字母数字下划线">
+          <label>当前积分</label>
+          <input type="number" id="vipDPointsInput" min="0" placeholder="0">
+          <label>每天抽奖次数</label>
+          <input type="number" id="vipDMaxDrawsInput" min="1" max="99" placeholder="3">
+        </div>
       </div>
+
+      <!-- 今日状态 -->
+      <div class="vp-sec">
+        <div class="vp-sec-title">今日状态</div>
+        <div class="vp-grid">
+          <label>今天允许抽奖</label>
+          <select id="vipDAllowedSel">
+            <option value="0">否</option>
+            <option value="1">是</option>
+          </select>
+          <label>今天已抽次数</label>
+          <input type="number" id="vipDDrawCountInput" min="0" max="99" placeholder="0">
+          <label>今日备注</label>
+          <input type="text" id="vipDTodayNoteInput" maxlength="50" placeholder="（可选）">
+        </div>
+      </div>
+
+      <!-- 积分档位（可视化编辑器） -->
+      <div class="vp-sec">
+        <div class="vp-sec-title">
+          <span>积分档位</span>
+          <span class="vp-tip">拖动排序 · 实时预览</span>
+        </div>
+        <div class="vp-opt-list" id="vipOptList"></div>
+        <button class="vp-add-btn" id="vipOptAdd">＋ 添加一档</button>
+        <div class="vp-json-hint">权重越大越容易抽中；所有档位的权重之和决定了占比</div>
+      </div>
+
+      <!-- 奖励选项（可视化编辑器） -->
+      <div class="vp-sec">
+        <div class="vp-sec-title">
+          <span>奖励选项</span>
+          <span class="vp-tip">可排序 · 最多 20 个</span>
+        </div>
+        <div class="vp-rw-list" id="vipRwList"></div>
+        <button class="vp-add-btn" id="vipRwAdd">＋ 添加一个奖励</button>
+      </div>
+
+      <!-- 最近记录（只读） -->
+      <div class="vp-sec">
+        <div class="vp-sec-title">最近记录 <span class="vp-tip">只读，最多 50 条</span></div>
+        <div class="hist-list vip-hist" id="vipDHist"></div>
+      </div>
+
+      <div class="vp-err" id="vipDErr"></div>
     </div>
 
-    <div class="rowbtns">
-      <button class="btn-sm btn-cancel" id="vipDClose">关闭</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== VIP 修改积分弹层 ===== -->
-<div class="overlay" id="vipEditOv">
-  <div class="panel verify-panel">
-    <h2>修改积分</h2>
-    <p class="hint" id="vipEditHint">把积分改成：</p>
-    <input type="number" id="vipEditInput" placeholder="新的积分" style="font-size:22px;">
-    <div class="err" id="vipEditErr"></div>
-    <div class="btns">
-      <button class="yes" id="vipEditYes">确定</button>
-      <button class="no" id="vipEditNo">取消</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== VIP 编辑用户资料弹层 ===== -->
-<div class="overlay" id="vipProfileOv">
-  <div class="panel">
-    <h2>编辑用户资料</h2>
-    <div class="bnrow">
-      <label>宝贝名字</label>
-      <input type="text" id="vipProfileName" placeholder="比如：小明" maxlength="12">
-    </div>
-    <div class="bnrow">
-      <label>唯一号</label>
-      <input type="text" id="vipProfileLoginId" placeholder="3~20 位字母数字下划线" maxlength="20">
-    </div>
-    <div class="err" id="vipProfileErr"></div>
-    <div class="rowbtns">
-      <button class="btn-sm btn-cancel" id="vipProfileNo">取消</button>
-      <button class="btn-sm btn-ok" id="vipProfileYes">保存</button>
+    <div class="vp-foot">
+      <button class="vp-btn vp-btn-danger" id="vipDDelete">删除该用户</button>
+      <button class="vp-btn vp-btn-warn" id="vipDReset">清空记录</button>
+      <button class="vp-btn vp-btn-primary" id="vipDSave">保存修改</button>
     </div>
   </div>
 </div>
@@ -1140,7 +1264,6 @@
 
   function isEmail(s){ return s.indexOf('@') !== -1; }
 
-  // ---------- 最近登录账号 ----------
   function loadRecent(){
     try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e){ return []; }
   }
@@ -1185,7 +1308,6 @@
     });
   }
 
-  // ---------- profiles ----------
   function loadProfile(){
     if(!user) return Promise.resolve();
     return sb.from('profiles').select('*').eq('user_id', user.id).maybeSingle()
@@ -1467,7 +1589,9 @@
     pendingPhotos = [];
 
     saveCloud();
+    var ptsBox = document.getElementById('ptsBox');
     document.getElementById('totalPts').textContent=totalPoints;
+    ptsBox.classList.remove('pop'); void ptsBox.offsetWidth; ptsBox.classList.add('pop');
     document.getElementById('result').innerHTML='今天抽到 <span class="prize">+'+v+' 分</span>，真棒！';
     document.getElementById('prizePts').textContent='+'+v;
     document.getElementById('prizeSub').textContent='分，攒进积分罐啦（现有 '+totalPoints+' 分）';
@@ -1626,7 +1750,6 @@
         openViewer(img.dataset.url);
       });
     });
-    // 点整张卡片，打开当天详情（仅攒分记录）
     box.querySelectorAll('.chip.clickable').forEach(function(chip){
       chip.addEventListener('click', function(e){
         if(e.target.tagName === 'IMG') return;
@@ -2394,6 +2517,10 @@
               total_points: s.total_points || 0,
               history: s.history || [],
               today: s.today || null,
+              today_note: s.today_note || '',
+              rewards: s.rewards || DEFAULT_REWARDS,
+              opts: s.opts || DEFAULT_OPTS,
+              max_draws: typeof s.max_draws === 'number' ? s.max_draws : DEFAULT_MAX_DRAWS,
               updated_at: p.updated_at || s.updated_at || ''
             };
           });
@@ -2441,6 +2568,92 @@
   }
 
   var vipCurrentUser = null;
+  var vipOptsDraft = [];
+  var vipRewardsDraft = [];
+
+  // 渲染积分档位可视化编辑器
+  function renderVipOpts(){
+    var box = document.getElementById('vipOptList');
+    box.innerHTML = '';
+    var totalW = vipOptsDraft.reduce(function(s,o){return s + (parseInt(o.w)||1);}, 0);
+    vipOptsDraft.forEach(function(o, i){
+      var col = PALETTE[i % PALETTE.length];
+      var card = document.createElement('div');
+      card.className = 'vp-opt-card';
+      var ratio = totalW > 0 ? ((parseInt(o.w)||1) / totalW * 100) : 0;
+      card.innerHTML =
+        '<div class="vp-opt-head">'+
+          '<span class="vp-opt-color" style="background:'+col+'"></span>'+
+          '<div class="vp-opt-fields">'+
+            '<div class="vp-opt-field"><label>分数</label><input type="number" min="1" max="9999" value="'+(o.v||1)+'" data-k="v" data-i="'+i+'"></div>'+
+            '<div class="vp-opt-field"><label>权重</label><input type="number" min="1" max="9999" value="'+(o.w||1)+'" data-k="w" data-i="'+i+'"></div>'+
+          '</div>'+
+          '<button class="vp-opt-del" data-i="'+i+'">×</button>'+
+        '</div>'+
+        '<div class="vp-opt-bar">'+
+          '<span style="width:'+ratio+'%;background:'+col+'"></span>'+
+        '</div>'+
+        '<div class="vp-opt-ratio">中奖概率约 '+ratio.toFixed(1)+'%</div>';
+      box.appendChild(card);
+    });
+    // 绑定事件
+    box.querySelectorAll('input').forEach(function(inp){
+      inp.addEventListener('input', function(){
+        var i = parseInt(inp.dataset.i);
+        var k = inp.dataset.k;
+        var val = Math.max(1, Math.min(9999, parseInt(inp.value)||1));
+        if(vipOptsDraft[i]) vipOptsDraft[i][k] = val;
+        // 更新预览条（重新渲染，但避免失焦，用延迟）
+        clearTimeout(inp._t);
+        inp._t = setTimeout(function(){ renderVipOpts(); }, 400);
+      });
+    });
+    box.querySelectorAll('.vp-opt-del').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if(vipOptsDraft.length <= 2) return;
+        var i = parseInt(btn.dataset.i);
+        vipOptsDraft.splice(i, 1);
+        renderVipOpts();
+      });
+    });
+  }
+
+  // 渲染奖励可视化编辑器
+  function renderVipRewards(){
+    var box = document.getElementById('vipRwList');
+    box.innerHTML = '';
+    vipRewardsDraft.forEach(function(r, i){
+      var card = document.createElement('div');
+      card.className = 'vp-rw-card';
+      card.innerHTML =
+        '<span class="vp-rw-icon">🎁</span>'+
+        '<div class="vp-rw-fields">'+
+          '<input class="vp-rw-name" type="text" value="'+escapeHtml(r.name||'')+'" placeholder="奖励名称" data-i="'+i+'" data-k="name">'+
+          '<input class="vp-rw-cost" type="number" min="1" max="999999" value="'+(r.cost||1)+'" data-i="'+i+'" data-k="cost">'+
+        '</div>'+
+        '<button class="vp-rw-del" data-i="'+i+'">×</button>';
+      box.appendChild(card);
+    });
+    if(!vipRewardsDraft.length){
+      box.innerHTML = '<div style="color:#94a3b8;font-size:13px;padding:10px;text-align:center;">还没有奖励，点下面添加</div>';
+    }
+    box.querySelectorAll('input').forEach(function(inp){
+      inp.addEventListener('input', function(){
+        var i = parseInt(inp.dataset.i);
+        var k = inp.dataset.k;
+        if(!vipRewardsDraft[i]) return;
+        if(k === 'name') vipRewardsDraft[i].name = inp.value;
+        else vipRewardsDraft[i].cost = Math.max(1, Math.min(999999, parseInt(inp.value)||1));
+      });
+    });
+    box.querySelectorAll('.vp-rw-del').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var i = parseInt(btn.dataset.i);
+        vipRewardsDraft.splice(i, 1);
+        renderVipRewards();
+      });
+    });
+  }
 
   function openVipDetail(u){
     vipCurrentUser = u;
@@ -2451,27 +2664,42 @@
     if(u.email) sub.push(u.email);
     if(u.is_vip) sub.push('VIP');
     document.getElementById('vipDSub').textContent = sub.join(' · ');
-    document.getElementById('vipDPoints').textContent = u.total_points + ' 分';
+
+    document.getElementById('vipDNameInput').value = u.baby_name || '';
+    document.getElementById('vipDLoginIdInput').value = u.login_id || '';
+    document.getElementById('vipDPointsInput').value = u.total_points || 0;
+    document.getElementById('vipDMaxDrawsInput').value = typeof u.max_draws === 'number' ? u.max_draws : 3;
+
+    var t = u.today || {};
+    document.getElementById('vipDAllowedSel').value = t.allowed ? '1' : '0';
+    document.getElementById('vipDDrawCountInput').value = t.drawCount || 0;
+    document.getElementById('vipDTodayNoteInput').value = t.note || u.today_note || '';
+
+    // 深拷贝到草稿
+    vipOptsDraft = JSON.parse(JSON.stringify(u.opts || DEFAULT_OPTS));
+    vipRewardsDraft = JSON.parse(JSON.stringify(u.rewards || DEFAULT_REWARDS));
+    renderVipOpts();
+    renderVipRewards();
 
     var hbox = document.getElementById('vipDHist');
-    var list = (u.history || []).slice(0, 20);
+    var list = (u.history || []).slice(0, 50);
     if(!list.length){
-      hbox.innerHTML = '<div style="color:#a09080;font-size:13px;">还没有记录</div>';
+      hbox.innerHTML = '<div style="color:#94a3b8;font-size:13px;padding:8px;">还没有记录</div>';
     } else {
       hbox.innerHTML = list.map(function(h){
-        var note = h.note ? (' 📝'+escapeHtml(h.note)) : '';
         var pTxt = h.p<0 ? (h.p+'分') : ('+'+h.p+'分');
-        var pColor = h.p<0 ? 'color:#c92a2a;' : 'color:#e67e22;';
+        var pColor = h.p<0 ? 'color:#dc2626;' : 'color:#3b82f6;';
+        var note = h.note ? (' <span style="color:#94a3b8;">📝'+escapeHtml(h.note)+'</span>') : '';
         var imgs = '';
         if(h.photos && h.photos.length){
-          imgs = '<span class="imgs">'+h.photos.map(function(p){
+          imgs = ' <span class="imgs">'+h.photos.map(function(p){
             var url = (typeof p==='string')?p:(p.url||'');
             return '<img src="'+url+'" data-url="'+url+'" alt="照片">';
           }).join('')+'</span>';
         }
         return '<div class="hist-item">'+
-          '<span class="date">'+escapeHtml(h.full||h.d||'')+'</span>'+
-          '<span class="p" style="'+pColor+'">'+pTxt+'</span>'+
+          '<span class="date">'+escapeHtml(h.full||h.d||'')+'</span> '+
+          '<span class="p" style="'+pColor+'">'+pTxt+'</span> '+
           escapeHtml(h.name||'')+
           note+imgs+
         '</div>';
@@ -2481,6 +2709,7 @@
       });
     }
 
+    document.getElementById('vipDErr').textContent = '';
     document.getElementById('vipDetailOv').classList.add('show');
   }
 
@@ -2492,96 +2721,105 @@
     if(e.target === this){ this.classList.remove('show'); vipCurrentUser = null; }
   });
 
-  document.getElementById('vipDEditPoints').addEventListener('click', function(){
+  // 添加档位
+  document.getElementById('vipOptAdd').addEventListener('click', function(){
+    if(vipOptsDraft.length >= 10) return;
+    vipOptsDraft.push({v:5, w:10});
+    renderVipOpts();
+  });
+
+  // 添加奖励
+  document.getElementById('vipRwAdd').addEventListener('click', function(){
+    if(vipRewardsDraft.length >= 20) return;
+    vipRewardsDraft.push({name:'新奖励', cost:50});
+    renderVipRewards();
+  });
+
+  // 保存修改
+  document.getElementById('vipDSave').addEventListener('click', function(){
     if(!vipCurrentUser) return;
-    document.getElementById('vipEditHint').textContent = '把 '+ (vipCurrentUser.baby_name||'该用户') +' 的积分改成：';
-    document.getElementById('vipEditInput').value = vipCurrentUser.total_points;
-    document.getElementById('vipEditErr').textContent = '';
-    document.getElementById('vipEditOv').classList.add('show');
-  });
-  document.getElementById('vipEditNo').addEventListener('click', function(){
-    document.getElementById('vipEditOv').classList.remove('show');
-  });
-  document.getElementById('vipEditOv').addEventListener('click', function(e){
-    if(e.target === this) this.classList.remove('show');
-  });
-  document.getElementById('vipEditYes').addEventListener('click', function(){
-    if(!vipCurrentUser) return;
-    var v = parseInt(document.getElementById('vipEditInput').value);
-    if(isNaN(v) || v < 0){
-      document.getElementById('vipEditErr').textContent = '请输入非负整数';
-      return;
-    }
-    var oldV = vipCurrentUser.total_points || 0;
-    var diff = v - oldV;
-    if(diff === 0){
-      document.getElementById('vipEditOv').classList.remove('show');
-      return;
-    }
-
-    var newHist = (vipCurrentUser.history || []).slice(0);
-    newHist.unshift({
-      d: todayStr().slice(5),
-      p: diff,
-      full: todayStr(),
-      note: '👑 VIP 管理员调整',
-      admin: true
-    });
-    if(newHist.length > 100) newHist = newHist.slice(0, 100);
-
-    sb.from('scores').update({
-      total_points: v,
-      history: newHist,
-      updated_at: new Date().toISOString()
-    }).eq('user_id', vipCurrentUser.user_id)
-      .then(function(res){
-        if(res.error){
-          document.getElementById('vipEditErr').textContent = '保存失败：'+res.error.message;
-          return;
-        }
-        vipCurrentUser.total_points = v;
-        vipCurrentUser.history = newHist;
-        document.getElementById('vipDPoints').textContent = v + ' 分';
-        document.getElementById('vipEditOv').classList.remove('show');
-        openVipDetail(vipCurrentUser);
-        vipLoadUsers();
-      });
-  });
-
-  document.getElementById('vipDEditProfile').addEventListener('click', function(){
-    if(!vipCurrentUser) return;
-    document.getElementById('vipProfileName').value = vipCurrentUser.baby_name || '';
-    document.getElementById('vipProfileLoginId').value = vipCurrentUser.login_id || '';
-    document.getElementById('vipProfileErr').textContent = '';
-    document.getElementById('vipProfileOv').classList.add('show');
-    setTimeout(function(){ document.getElementById('vipProfileName').focus(); }, 100);
-  });
-
-  document.getElementById('vipProfileNo').addEventListener('click', function(){
-    document.getElementById('vipProfileOv').classList.remove('show');
-  });
-  document.getElementById('vipProfileOv').addEventListener('click', function(e){
-    if(e.target === this) this.classList.remove('show');
-  });
-
-  document.getElementById('vipProfileYes').addEventListener('click', function(){
-    if(!vipCurrentUser) return;
-    var newName = (document.getElementById('vipProfileName').value || '').trim();
-    if(newName.length > 12) newName = newName.slice(0, 12);
-    var newId = (document.getElementById('vipProfileLoginId').value || '').trim().toLowerCase();
-    var errEl = document.getElementById('vipProfileErr');
-
-    if(!newName){ errEl.textContent = '请输入宝贝名字'; return; }
-    if(newId && !LOGIN_ID_RE.test(newId)){
-      errEl.textContent = '唯一号 3~20 位，只能用字母、数字、下划线';
-      return;
-    }
-
+    var errEl = document.getElementById('vipDErr');
     var btn = this;
+
+    var newName = (document.getElementById('vipDNameInput').value || '').trim();
+    if(newName.length > 12) newName = newName.slice(0, 12);
+    var newId = (document.getElementById('vipDLoginIdInput').value || '').trim().toLowerCase();
+    var newPoints = parseInt(document.getElementById('vipDPointsInput').value);
+    var newMaxDraws = parseInt(document.getElementById('vipDMaxDrawsInput').value);
+    var allowed = document.getElementById('vipDAllowedSel').value === '1';
+    var drawCount = parseInt(document.getElementById('vipDDrawCountInput').value);
+    var todayNote = (document.getElementById('vipDTodayNoteInput').value || '').trim();
+
+    errEl.textContent = '';
+    if(!newName){ errEl.textContent = '请输入宝贝名字'; return; }
+    if(newId && !LOGIN_ID_RE.test(newId)){ errEl.textContent = '唯一号格式不对'; return; }
+    if(isNaN(newPoints) || newPoints < 0){ errEl.textContent = '积分必须是非负整数'; return; }
+    if(isNaN(newMaxDraws) || newMaxDraws < 1 || newMaxDraws > 99){ errEl.textContent = '每天抽奖次数需在 1~99 之间'; return; }
+    if(isNaN(drawCount) || drawCount < 0){ errEl.textContent = '今日已抽次数需为非负整数'; return; }
+
+    // 校验草稿
+    if(vipOptsDraft.length < 2){ errEl.textContent = '积分档位至少两档'; return; }
+    for(var i=0;i<vipOptsDraft.length;i++){
+      var o = vipOptsDraft[i];
+      if(!o.v || o.v < 1 || !o.w || o.w < 1){ errEl.textContent = '积分档位分数和权重必须 ≥1'; return; }
+    }
+    var cleanRewards = [];
+    for(var j=0;j<vipRewardsDraft.length;j++){
+      var r = vipRewardsDraft[j];
+      if(!r.name || !r.name.trim()){ errEl.textContent = '奖励名称不能为空'; return; }
+      if(!r.cost || r.cost < 1){ errEl.textContent = '奖励积分必须 ≥1'; return; }
+      cleanRewards.push({name:r.name.trim(), cost:r.cost});
+    }
+
+    var newOpts = vipOptsDraft.map(function(o){ return {v:parseInt(o.v), w:parseInt(o.w)}; });
+    var newRewards = cleanRewards;
+
+    var newToday = (vipCurrentUser.today || {});
+    newToday = {
+      date: newToday.date || todayStr(),
+      allowed: allowed,
+      drawn: (drawCount > 0),
+      got: newToday.got || 0,
+      drawCount: drawCount,
+      photos: newToday.photos || []
+    };
+
+    var diff = newPoints - (vipCurrentUser.total_points || 0);
+    var newHist = (vipCurrentUser.history || []).slice(0);
+    if(diff !== 0){
+      newHist.unshift({
+        d: todayStr().slice(5),
+        p: diff,
+        full: todayStr(),
+        note: '👑 VIP 管理员调整',
+        admin: true
+      });
+      if(newHist.length > 100) newHist = newHist.slice(0, 100);
+    }
+
     btn.disabled = true;
     var oldText = btn.textContent;
     btn.textContent = '保存中…';
-    errEl.textContent = '';
+
+    var checkIdThenSave = function(){
+      if(newId && newId !== (vipCurrentUser.login_id || '')){
+        sb.from('profiles').select('user_id').eq('login_id', newId).maybeSingle()
+          .then(function(res){
+            if(res.data && res.data.user_id !== vipCurrentUser.user_id){
+              btn.disabled = false; btn.textContent = oldText;
+              errEl.textContent = '这个唯一号已经被别的用户用了';
+              return;
+            }
+            doSave();
+          })
+          .catch(function(){
+            btn.disabled = false; btn.textContent = oldText;
+            errEl.textContent = '网络错误，请重试';
+          });
+      } else {
+        doSave();
+      }
+    };
 
     var doSave = function(){
       var patch = {
@@ -2591,15 +2829,32 @@
       };
       sb.from('profiles').update(patch).eq('user_id', vipCurrentUser.user_id)
         .then(function(res){
+          if(res.error) throw res.error;
+          return sb.from('scores').upsert({
+            user_id: vipCurrentUser.user_id,
+            total_points: newPoints,
+            history: newHist,
+            today: newToday,
+            today_note: todayNote,
+            rewards: newRewards,
+            opts: newOpts,
+            max_draws: newMaxDraws,
+            updated_at: new Date().toISOString()
+          });
+        })
+        .then(function(res){
           btn.disabled = false;
           btn.textContent = oldText;
-          if(res.error){
-            errEl.textContent = '保存失败：' + res.error.message;
-            return;
-          }
+          if(res.error){ errEl.textContent = '保存失败：'+res.error.message; return; }
           vipCurrentUser.baby_name = newName;
           vipCurrentUser.login_id = newId;
-          document.getElementById('vipProfileOv').classList.remove('show');
+          vipCurrentUser.total_points = newPoints;
+          vipCurrentUser.max_draws = newMaxDraws;
+          vipCurrentUser.today = newToday;
+          vipCurrentUser.today_note = todayNote;
+          vipCurrentUser.history = newHist;
+          vipCurrentUser.rewards = newRewards;
+          vipCurrentUser.opts = newOpts;
           openVipDetail(vipCurrentUser);
           vipLoadUsers();
         })
@@ -2610,40 +2865,17 @@
         });
     };
 
-    if(newId && newId !== (vipCurrentUser.login_id || '')){
-      sb.from('profiles').select('user_id').eq('login_id', newId).maybeSingle()
-        .then(function(res){
-          if(res.data && res.data.user_id !== vipCurrentUser.user_id){
-            btn.disabled = false;
-            btn.textContent = oldText;
-            errEl.textContent = '这个唯一号已经被别的用户用了';
-            return;
-          }
-          doSave();
-        })
-        .catch(function(){
-          btn.disabled = false;
-          btn.textContent = oldText;
-          errEl.textContent = '网络错误，请重试';
-        });
-    } else {
-      doSave();
-    }
+    checkIdThenSave();
   });
 
+  // 清空记录
   document.getElementById('vipDReset').addEventListener('click', function(){
     if(!vipCurrentUser) return;
     if(!confirm('确定清空「'+(vipCurrentUser.baby_name||'该用户')+'」的积分和历史记录吗？')) return;
     sb.from('scores').upsert({
       user_id: vipCurrentUser.user_id,
       total_points: 0,
-      history: [{
-        d: todayStr().slice(5),
-        p: 0,
-        full: todayStr(),
-        note: '👑 VIP 管理员清空了记录',
-        admin: true
-      }],
+      history: [{ d: todayStr().slice(5), p: 0, full: todayStr(), note: '👑 VIP 管理员清空了记录', admin: true }],
       today: {date:todayStr(), allowed:false, drawn:false, got:0, photos:[], drawCount:0},
       today_note: '',
       rewards: vipCurrentUser.rewards || DEFAULT_REWARDS,
@@ -2659,6 +2891,7 @@
     });
   });
 
+  // 删除用户
   document.getElementById('vipDDelete').addEventListener('click', function(){
     if(!vipCurrentUser) return;
     if(!confirm('⚠️ 确定删除「'+(vipCurrentUser.baby_name||'该用户')+'」吗？\n这会删除该用户的档案和积分数据（Auth 里的账号还在，需要去 Supabase 后台删）。')) return;
