@@ -1377,6 +1377,11 @@
       .then(function(res){
         if(res.error){ console.warn('读取 profile 失败', res.error); return; }
         if(res.data){
+          // 【核心拦截】如果账号被标记为删除，强制退出
+          if (res.data.is_deleted) {
+            alert('该账号已被注销，无法登录。如有疑问请联系管理员。');
+            return sb.auth.signOut().then(function(){ location.reload(); });
+          }
           loginId = res.data.login_id || '';
           babyName = res.data.baby_name || '';
           accountEmail = res.data.email || user.email || '';
@@ -2610,8 +2615,10 @@
         var scores = (sRes.data || []);
         var scoreMap = {};
         scores.forEach(function(s){ scoreMap[s.user_id] = s; });
+        
+        // 【核心修改】过滤掉自己，并且过滤掉 is_deleted 为 true 的用户
         vipAllUsers = profiles
-          .filter(function(p){ return p.user_id !== user.id; })
+          .filter(function(p){ return p.user_id !== user.id && !p.is_deleted; })
           .map(function(p){
             var s = scoreMap[p.user_id] || {};
             return {
@@ -3002,18 +3009,22 @@
     });
   });
 
-  // 删除用户
+  // 【核心修改】删除用户（软删除）
   document.getElementById('vipDDelete').addEventListener('click', function(){
     if(!vipCurrentUser) return;
-    if(!confirm('⚠️ 确定删除「'+(vipCurrentUser.baby_name||'该用户')+'」吗？\n这会删除该用户的档案和积分数据（Auth 里的账号还在，需要去 Supabase 后台删）。')) return;
-    sb.from('scores').delete().eq('user_id', vipCurrentUser.user_id).then(function(){
-      return sb.from('profiles').delete().eq('user_id', vipCurrentUser.user_id);
-    }).then(function(res){
-      if(res && res.error){ alert('删除失败：'+res.error.message); return; }
-      alert('已删除');
+    if(!confirm('⚠️ 确定注销「'+(vipCurrentUser.baby_name||'该用户')+'」吗？\n注销后，该用户将无法登录，并会在列表中隐藏。')) return;
+    
+    // 标记为已删除，并把邮箱置空/乱码，释放邮箱给新用户注册
+    sb.from('profiles').update({ 
+      is_deleted: true, 
+      email: 'deleted_' + Date.now() + '@fake.com',
+      login_id: null
+    }).eq('user_id', vipCurrentUser.user_id).then(function(res) {
+      if(res.error) { alert('操作失败：' + res.error.message); return; }
+      alert('已成功注销并隐藏该用户');
       document.getElementById('vipDetailOv').classList.remove('show');
       vipCurrentUser = null;
-      vipLoadUsers();
+      vipLoadUsers(); // 重新加载列表，此时该用户已被过滤掉
     });
   });
 
