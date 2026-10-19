@@ -393,18 +393,8 @@
   var PAGE_SIZE = 24;
 
   var state = {
-    mode: 'all',
-    letter: '',
-    len: '',
-    keyword: '',
-    list: [],
-    index: 0,
-    total: 0,
-    page: 0,
-    loading: false,
-    currentIdiom: null,
-    ready: false,
-    isRandomView: false
+    mode: 'all', letter: '', len: '', keyword: '',
+    list: [], index: 0, total: 0, page: 0, loading: false, currentIdiom: null, ready: false, isRandomView: false
   };
 
   var els = {
@@ -443,20 +433,61 @@
   function setEmpty(msg){ els.main.innerHTML = '<div class="empty">' + msg + '</div>'; }
   function setLoggedOut(){ els.main.innerHTML = '<div class="empty" style="line-height:2;">请先登录后再学习成语<br><a href="index.html" style="color:#ff9f1a;text-decoration:underline;">去登录</a></div>'; }
 
-  // 语音朗读
-  function speakText(text, lang) {
+  // ========================
+  // 🎵 纯原生朗读功能（去声调 + 强制中文）
+  // ========================
+  var speech = window.speechSynthesis;
+  var availableVoices = [];
+  
+  function loadVoices() {
+    if (speech) availableVoices = speech.getVoices();
+  }
+  if (speech) {
+    loadVoices();
+    if (speech.onvoiceschanged !== undefined) {
+      speech.onvoiceschanged = loadVoices;
+    }
+  }
+
+  // 清除拼音的声调，防止被当成英文乱读
+  function removeTones(pinyin) {
+    return pinyin.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function speakText(text, isPinyin) {
+    if (!text) return;
     if (!('speechSynthesis' in window)) {
-      showToast('您的浏览器不支持语音朗读功能');
+      showToast('当前浏览器不支持语音朗读');
       return;
     }
+    
     window.speechSynthesis.cancel();
-    var msg = new SpeechSynthesisUtterance(text);
-    msg.lang = lang || 'zh-CN';
+    
+    // 如果是拼音，先去掉声调
+    var speakContent = isPinyin ? removeTones(text) : text;
+    
+    var msg = new SpeechSynthesisUtterance(speakContent);
+    msg.lang = 'zh-CN'; // 强制中文
     msg.rate = 0.85;
-    var voices = window.speechSynthesis.getVoices();
-    var zhVoice = voices.find(function(v) { return v.lang.indexOf('zh') === 0; });
-    if (zhVoice) msg.voice = zhVoice;
-    window.speechSynthesis.speak(msg);
+    msg.pitch = 1.0;
+    
+    if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
+    
+    // 优先寻找高质量中文引擎（如苹果的 Ting-Ting，安卓的 Google 或 Xiaoxiao）
+    var bestVoice = availableVoices.find(function(v) {
+      return v.lang === 'zh-CN' && (v.name.indexOf('Ting') > -1 || v.name.indexOf('Google') > -1 || v.name.indexOf('Xiaoxiao') > -1 || v.name.indexOf('Yunxi') > -1);
+    });
+    
+    // 退而求其次，找任何标记为 zh 开头的引擎
+    if (!bestVoice) {
+      bestVoice = availableVoices.find(function(v) { return v.lang.indexOf('zh') === 0; });
+    }
+    
+    if (bestVoice) msg.voice = bestVoice;
+
+    setTimeout(function() {
+      window.speechSynthesis.speak(msg);
+    }, 100);
   }
 
   function buildQuery(){
@@ -541,7 +572,6 @@
         '</div>' +
         '<div class="meta">' +
           '<span class="meta-badge len-badge">共 <b>' + len + '</b> 字</span>' +
-          /* 直接渲染数据库返回的 abbreviation 字段，不做任何前端计算加工 */
           (idiom.abbreviation ? '<span class="meta-badge">首字母 <b>' + escapeHtml(idiom.abbreviation) + '</b></span>' : '') +
         '</div>' +
         (explanation ? '<div class="section"><div class="label">📖 释义</div><div class="content">' + escapeHtml(explanation) + '</div></div>' : '') +
@@ -565,10 +595,10 @@
     });
 
     document.getElementById('speakWord').addEventListener('click', function() {
-      speakText(idiom.word, 'zh-CN');
+      speakText(idiom.word, false);
     });
     document.getElementById('speakPinyin').addEventListener('click', function() {
-      speakText(idiom.pinyin, 'zh-CN');
+      speakText(idiom.pinyin, true);
     });
 
     if(state.isRandomView){
