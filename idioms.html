@@ -118,7 +118,6 @@
     box-shadow:0 14px 40px rgba(90,60,40,.14);
     border:2px solid #fff; position:relative; overflow:hidden;
     transition:transform .18s ease;
-    /* 防止长内容撑爆 */
     word-break: break-word;
   }
   .card:hover{transform:translateY(-2px);}
@@ -143,11 +142,28 @@
     font-size:52px; color:var(--ink); letter-spacing:4px; line-height:1.2;
     margin:12px 0 8px; font-weight:800;
     text-shadow:0 2px 0 rgba(255,220,160,.4);
+    cursor: pointer;
+  }
+  .card .word:active{ transform: scale(0.98); }
+
+  .card .pinyin-wrap {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 16px;
   }
   .card .pinyin{
-    font-size:16px; color:var(--accent); letter-spacing:2px;
-    margin-bottom:16px; font-weight: 500;
+    font-size:16px; color:var(--accent); letter-spacing:2px; font-weight: 500;
   }
+
+  /* 语音按钮 */
+  .speak-btn {
+    background: #fff3cd; border: 1px solid #ffe08a; border-radius: 50%;
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .15s; color: #d97706; font-size: 14px;
+    padding: 0;
+  }
+  .speak-btn:hover { background: #ffe08a; transform: scale(1.1); }
+  .speak-btn:active { transform: scale(0.95); }
+
   .card .meta{
     display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
     margin-bottom:16px;
@@ -197,7 +213,6 @@
   }
   .result-list{
     display:grid; 
-    /* 默认桌面端两列 */
     grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
     gap:14px; max-width:680px; margin:0 auto;
     align-items: start;
@@ -208,7 +223,6 @@
     text-align:left; font-family:inherit;
     display:flex; flex-direction:column; gap:5px;
     position:relative; 
-    /* 关键：限制宽度，溢出强制换行 */
     width: 100%;
     min-width: 0;
     overflow: hidden;
@@ -276,7 +290,6 @@
     .filter-group{padding:10px 10px 8px;}
     .filter-chip{font-size:13px; padding:5px 11px;}
     
-    /* 强制手机端变为单列 */
     .result-list { 
       grid-template-columns: 1fr; 
       gap: 12px; 
@@ -419,13 +432,6 @@
     return Array.from(s).length;
   }
 
-  function getCleanAbbr(pinyin) {
-    if (!pinyin) return '';
-    return pinyin.split(/[\s,，]+/).map(function(word) {
-      return word.charAt(0).toLowerCase();
-    }).filter(Boolean).join('');
-  }
-
   function showToast(msg){
     els.toast.textContent = msg;
     els.toast.classList.add('show');
@@ -436,6 +442,22 @@
   function setLoading(html){ els.main.innerHTML = '<div class="loading">' + html + '</div>'; }
   function setEmpty(msg){ els.main.innerHTML = '<div class="empty">' + msg + '</div>'; }
   function setLoggedOut(){ els.main.innerHTML = '<div class="empty" style="line-height:2;">请先登录后再学习成语<br><a href="index.html" style="color:#ff9f1a;text-decoration:underline;">去登录</a></div>'; }
+
+  // 语音朗读
+  function speakText(text, lang) {
+    if (!('speechSynthesis' in window)) {
+      showToast('您的浏览器不支持语音朗读功能');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    var msg = new SpeechSynthesisUtterance(text);
+    msg.lang = lang || 'zh-CN';
+    msg.rate = 0.85;
+    var voices = window.speechSynthesis.getVoices();
+    var zhVoice = voices.find(function(v) { return v.lang.indexOf('zh') === 0; });
+    if (zhVoice) msg.voice = zhVoice;
+    window.speechSynthesis.speak(msg);
+  }
 
   function buildQuery(){
     var q = sb.from('idioms').select('*', { count: 'exact' });
@@ -493,7 +515,6 @@
     var explanation = (idiom.explanation || '').trim();
     var hasExample = example && example !== '无';
     var len = wordLen(idiom.word);
-    var cleanAbbr = getCleanAbbr(idiom.pinyin);
 
     var topLeftHtml = '';
     var actionsHtml = '';
@@ -513,11 +534,15 @@
       '<div class="card">' +
         topLeftHtml + 
         '<div class="tag">成语</div>' +
-        '<div class="word">' + escapeHtml(idiom.word || '') + '</div>' +
-        '<div class="pinyin">' + escapeHtml(idiom.pinyin || '') + '</div>' +
+        '<div class="word" id="speakWord">' + escapeHtml(idiom.word || '') + '</div>' +
+        '<div class="pinyin-wrap">' +
+          '<div class="pinyin">' + escapeHtml(idiom.pinyin || '') + '</div>' +
+          '<button class="speak-btn" id="speakPinyin" title="朗读拼音">🔊</button>' +
+        '</div>' +
         '<div class="meta">' +
           '<span class="meta-badge len-badge">共 <b>' + len + '</b> 字</span>' +
-          (cleanAbbr ? '<span class="meta-badge">首字母 <b>' + escapeHtml(cleanAbbr) + '</b></span>' : '') +
+          /* 直接渲染数据库返回的 abbreviation 字段，不做任何前端计算加工 */
+          (idiom.abbreviation ? '<span class="meta-badge">首字母 <b>' + escapeHtml(idiom.abbreviation) + '</b></span>' : '') +
         '</div>' +
         (explanation ? '<div class="section"><div class="label">📖 释义</div><div class="content">' + escapeHtml(explanation) + '</div></div>' : '') +
         (derivation ? '<div class="section"><div class="label">📜 出处</div><div class="content quote">' + escapeHtml(derivation) + '</div></div>' : '') +
@@ -537,6 +562,13 @@
       expanded = !expanded;
       sections.forEach(function(s){ s.classList.toggle('hide', !expanded); });
       toggleBtn.textContent = expanded ? '👀 收起释义' : '👀 展开释义';
+    });
+
+    document.getElementById('speakWord').addEventListener('click', function() {
+      speakText(idiom.word, 'zh-CN');
+    });
+    document.getElementById('speakPinyin').addEventListener('click', function() {
+      speakText(idiom.pinyin, 'zh-CN');
     });
 
     if(state.isRandomView){
