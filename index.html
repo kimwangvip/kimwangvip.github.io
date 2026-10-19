@@ -6,6 +6,7 @@
 <title>宝贝攒分啦 · 云端版</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffd43b'/%3E%3Ctext x='32' y='42' font-size='30' text-anchor='middle' fill='%23fff' font-family='Arial' font-weight='bold'%3E%E5%88%86%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://miaoda.feishu.cn">
+<!-- 加了 display=swap，防止字体加载慢卡死页面 -->
 <link href="https://miaoda.feishu.cn/fonts/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -964,6 +965,12 @@
         <span class="mval" id="mDrawLimitVal">3 次</span>
         <span class="marrow">›</span>
       </button>
+      <button class="mitem" id="mSpinSpeed">
+        <span class="mico">💫</span>
+        <span class="mtxt">转盘速度</span>
+        <span class="mval" id="mSpinSpeedVal">标准</span>
+        <span class="marrow">›</span>
+      </button>
       <button class="mitem" id="mPoints">
         <span class="mico">⭐</span>
         <span class="mtxt">积分档位</span>
@@ -1053,6 +1060,31 @@
     <div class="rowbtns">
       <button class="btn-sm btn-cancel" id="drawLimitBack">返回</button>
       <button class="btn-sm btn-ok" id="drawLimitSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 转盘速度弹层 -->
+<div class="overlay" id="spinSpeedOv">
+  <div class="panel">
+    <h2>转盘速度</h2>
+    <p class="hint">调整抽奖动画的时长</p>
+    <div class="menu">
+      <button class="mitem" data-speed="fast">
+        <span class="mico">🚀</span>
+        <span class="mtxt">快速（约 2 秒）</span>
+      </button>
+      <button class="mitem" data-speed="normal">
+        <span class="mico">⏱️</span>
+        <span class="mtxt">标准（约 4.6 秒）</span>
+      </button>
+      <button class="mitem" data-speed="slow">
+        <span class="mico">🐢</span>
+        <span class="mtxt">慢速（约 7 秒）</span>
+      </button>
+    </div>
+    <div class="rowbtns">
+      <button class="btn-sm btn-cancel" id="spinSpeedBack">返回</button>
     </div>
   </div>
 </div>
@@ -1231,6 +1263,7 @@
   var opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
   var rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
   var maxDraws = DEFAULT_MAX_DRAWS;
+  var spinSpeed = 'normal';
   var totalPoints = 0;
   var hist = [];
   var soundOn = true;
@@ -1264,9 +1297,15 @@
     var a = document.getElementById('mBabyNameVal');
     var b = document.getElementById('mAccountVal');
     var c = document.getElementById('mDrawLimitVal');
+    var d = document.getElementById('mSpinSpeedVal');
     if(a) a.textContent = babyName || '未设置';
     if(b) b.textContent = loginId ? ('@' + loginId) : '';
     if(c) c.textContent = maxDraws + ' 次';
+    if(d) {
+      if(spinSpeed === 'fast') d.textContent = '快速';
+      else if(spinSpeed === 'slow') d.textContent = '慢速';
+      else d.textContent = '标准';
+    }
   }
 
   function isEmail(s){ return s.indexOf('@') !== -1; }
@@ -1369,6 +1408,7 @@
         rewards: rewards,
         opts: opts,
         max_draws: maxDraws,
+        spin_speed: spinSpeed,
         updated_at: new Date().toISOString()
       }).then(function(res){
         if(res.error) console.warn('保存失败', res.error);
@@ -1388,11 +1428,13 @@
           if(res.data.rewards && res.data.rewards.length) rewards = res.data.rewards;
           if(res.data.opts && res.data.opts.length) opts = res.data.opts;
           if(typeof res.data.max_draws === 'number') maxDraws = res.data.max_draws;
+          if(res.data.spin_speed) spinSpeed = res.data.spin_speed;
         } else {
           totalPoints = 0; hist = []; today = null; todayNote='';
           rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
           opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
           maxDraws = DEFAULT_MAX_DRAWS;
+          spinSpeed = 'normal';
           saveCloud();
         }
         resetTodayIfNeeded();
@@ -1562,7 +1604,13 @@
     var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(reduced){ angle=final; draw(final); finish(target); return; }
     spinning=true; var btn=document.getElementById('spinBtn'); btn.disabled=true;
-    var startT=performance.now(), dur=4600, startAngle=angle, lastIndex=-1;
+    
+    // 动态获取动画时长
+    var dur = 4600;
+    if(spinSpeed === 'fast') dur = 2000;
+    if(spinSpeed === 'slow') dur = 7000;
+    
+    var startT=performance.now(), startAngle=angle, lastIndex=-1;
     cancelAnimationFrame(rafId);
     function frame(now){
       var p=Math.min(1,(now-startT)/dur), e=1-Math.pow(2,-10*p);
@@ -2046,6 +2094,32 @@
     document.getElementById('drawLimitErr').textContent = '';
     document.getElementById('drawLimitOv').classList.add('show');
   });
+  
+  // 转盘速度设置
+  document.getElementById('mSpinSpeed').addEventListener('click', function(){
+    closeSet();
+    document.getElementById('spinSpeedOv').classList.add('show');
+  });
+  document.getElementById('spinSpeedBack').addEventListener('click', function(){
+    document.getElementById('spinSpeedOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('spinSpeedOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+  document.querySelectorAll('#spinSpeedOv .mitem').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var speed = btn.dataset.speed;
+      askSaveConfirm(function(){
+        spinSpeed = speed;
+        saveCloud();
+        refreshMenuValues();
+        document.getElementById('spinSpeedOv').classList.remove('show');
+        openSet();
+      });
+    });
+  });
+
   document.getElementById('mPoints').addEventListener('click', function(){
     closeSet();
     setTab = 'points';
