@@ -670,14 +670,33 @@
   .vp-btn-warn{background:#fef3c7; color:#92400e;}
   .vp-btn-danger{background:#fee2e2; color:#991b1b;}
 
+  /* ===== 移动端适配优化 ===== */
   @media (max-width:420px){
     .title{font-size:32px;}
     .spinbtn{width:100px; height:100px; font-size:22px;}
     .wallet .pts{font-size:38px;}
     .vp-grid{grid-template-columns:90px 1fr;}
-    .vp-rw-fields{flex-direction:column; align-items:stretch;}
-    .vp-rw-cost{width:100%;}
+    
+    /* 设置弹层变窄，降低 padding */
+    .panel { width: 95vw; padding: 16px; max-height: 90vh; border-radius: 20px; }
+    .panel .rowbtns { flex-wrap: wrap; gap: 8px; }
+    .btn-sm { flex: auto; padding: 10px 15px; font-size: 15px; }
+    
+    /* 积分档位行：紧凑三列网格，绝不溢出 */
+    .optrow { display: grid; grid-template-columns: 1fr 1fr 40px; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .optrow .dot { display: none; } /* 手机端隐藏彩点节省空间 */
+    .optrow .val { width: 100%; padding: 6px; font-size: 14px; }
+    .optrow .note { display: none; } /* 手机端隐藏"权重"文字 */
+    .optrow .w { width: 100%; padding: 6px; font-size: 14px; }
+    .optrow .del { width: 40px; height: 36px; }
+    
+    /* 奖励选项行：名字占满，积分和删除按钮下放 */
+    .rwrow { display: grid; grid-template-columns: 1fr 70px 40px; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .rwrow .nm { width: 100%; padding: 6px; font-size: 14px; }
+    .rwrow .cost { width: 100%; padding: 6px; font-size: 14px; }
+    .rwrow .del { width: 40px; height: 36px; }
   }
+  
   @media (prefers-reduced-motion: reduce){
     .star,.confetti{animation:none !important;}
     .deco .cloud{animation:none !important;}
@@ -994,6 +1013,11 @@
         <span class="mval" id="mSwitchVal"></span>
         <span class="marrow">›</span>
       </button>
+      <button class="mitem" id="mDeleteAccount">
+        <span class="mico">🗑️</span>
+        <span class="mtxt" style="color:#e03131;">注销账号</span>
+        <span class="marrow">›</span>
+      </button>
       <button class="mitem" id="mAbout">
         <span class="mico">ℹ️</span>
         <span class="mtxt">关于</span>
@@ -1139,6 +1163,13 @@
     <div class="about-info">
       <div class="ver" id="aboutVer">v2.1</div>
       <div class="date" id="aboutDate">2026-10-16</div>
+      
+      <!-- 新增的统计行 -->
+      <div class="about-stats" style="margin: 12px 0; background: #fff3cd; border: 1.5px dashed #ffe08a; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 600; color: #8a6a1a; display: flex; justify-content: center; gap: 20px;">
+        <span>📅 已注册：<span id="aboutDaysRegistered" style="color:#e67e22; font-size:18px;">0</span> 天</span>
+        <span>🔥 活跃：<span id="aboutDaysActive" style="color:#e67e22; font-size:18px;">0</span> 天</span>
+      </div>
+
       <div class="desc">
         「宝贝攒分啦」是一个家庭用的小工具：<br>
         每天由家长确认表现，宝贝抽积分，攒够了可以兑换奖励。<br><br>
@@ -1200,6 +1231,20 @@
     <div class="btns">
       <button class="yes" id="resetPwYes">确定清零</button>
       <button class="no" id="resetPwNo">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 注销账号密码验证 -->
+<div class="overlay" id="deleteAccountOv">
+  <div class="panel verify-panel">
+    <h2>注销账号</h2>
+    <p class="hint">注销后无法恢复且无法登录，<br>请输入密码确认</p>
+    <input type="password" id="deleteAccountPw" placeholder="登录密码" autocomplete="current-password">
+    <div class="err" id="deleteAccountErr"></div>
+    <div class="btns">
+      <button class="yes" id="deleteAccountYes" style="background:linear-gradient(180deg,#ff8787,#ff6b6b); box-shadow:0 4px 0 #e03131;">确定注销</button>
+      <button class="no" id="deleteAccountNo">取消</button>
     </div>
   </div>
 </div>
@@ -2144,6 +2189,57 @@
     });
   });
 
+  // 注销账号
+  document.getElementById('mDeleteAccount').addEventListener('click', function(){
+    closeSet();
+    document.getElementById('deleteAccountPw').value = '';
+    document.getElementById('deleteAccountErr').textContent = '';
+    document.getElementById('deleteAccountOv').classList.add('show');
+    setTimeout(function(){ document.getElementById('deleteAccountPw').focus(); }, 100);
+  });
+  document.getElementById('deleteAccountNo').addEventListener('click', function(){
+    document.getElementById('deleteAccountOv').classList.remove('show');
+  });
+  document.getElementById('deleteAccountOv').addEventListener('click', function(e){
+    if(e.target === this) this.classList.remove('show');
+  });
+  document.getElementById('deleteAccountYes').addEventListener('click', function(){
+    var pw = (document.getElementById('deleteAccountPw').value || '').trim();
+    if(!pw){ document.getElementById('deleteAccountErr').textContent = '请输入密码'; return; }
+    if(!user || !user.email){ document.getElementById('deleteAccountErr').textContent = '登录状态异常'; return; }
+
+    var btn = this;
+    btn.disabled = true;
+    var oldText = btn.textContent;
+    btn.textContent = '验证中…';
+    document.getElementById('deleteAccountErr').textContent = '';
+
+    sb.auth.signInWithPassword({ email: user.email, password: pw })
+      .then(function(res){
+        if(res.error) throw new Error('密码不对');
+        
+        // 注销逻辑（软删除）
+        return sb.from('profiles').update({ 
+          is_deleted: true, 
+          email: 'deleted_' + Date.now() + '@fake.com',
+          login_id: null
+        }).eq('user_id', user.id);
+      })
+      .then(function(res){
+        if(res && res.error) throw res.error;
+        alert('账号已成功注销，再见！');
+        sb.auth.signOut().then(function(){ location.reload(); });
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        btn.textContent = oldText;
+        document.getElementById('deleteAccountErr').textContent = (err && err.message) || '注销失败，请重试';
+      });
+  });
+  document.getElementById('deleteAccountPw').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('deleteAccountYes').click();
+  });
+
   document.getElementById('mPoints').addEventListener('click', function(){
     closeSet();
     setTab = 'points';
@@ -2185,6 +2281,26 @@
     closeSet();
     document.getElementById('aboutVer').textContent = APP_VERSION;
     document.getElementById('aboutDate').textContent = APP_DATE;
+    
+    // 计算注册天数和活跃天数
+    if (user && user.created_at) {
+      var regDate = new Date(user.created_at);
+      var diffDays = Math.ceil(Math.abs(new Date() - regDate) / (1000 * 60 * 60 * 24));
+      document.getElementById('aboutDaysRegistered').textContent = diffDays || 1;
+    } else {
+      document.getElementById('aboutDaysRegistered').textContent = 1;
+    }
+    
+    var activeDates = new Set();
+    hist.forEach(function(h) {
+      if (h.full) activeDates.add(h.full);
+    });
+    // 如果今天还没有记录，但正在看，至少也算今天活跃
+    if (activeDates.size === 0) {
+      activeDates.add(todayStr());
+    }
+    document.getElementById('aboutDaysActive').textContent = activeDates.size;
+
     document.getElementById('aboutOv').classList.add('show');
   });
 
