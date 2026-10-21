@@ -689,12 +689,17 @@
     .optrow .note { display: none; } /* 手机端隐藏"权重"文字 */
     .optrow .w { width: 100%; padding: 6px; font-size: 14px; }
     .optrow .del { width: 40px; height: 36px; }
+
+    /* 输入框溢出修复 */
+    .bnrow { flex-wrap: wrap; }
+    .bnrow input { min-width: 0; width: 100%; }
+    .bninput { min-width: 0; }
     
     /* 奖励选项行：名字占满，积分和删除按钮下放 */
-    .rwrow { display: grid; grid-template-columns: 1fr 70px 40px; gap: 6px; align-items: center; margin-bottom: 10px; }
-    .rwrow .nm { width: 100%; padding: 6px; font-size: 14px; }
-    .rwrow .cost { width: 100%; padding: 6px; font-size: 14px; }
-    .rwrow .del { width: 40px; height: 36px; }
+    .rwrow { display: grid; grid-template-columns: 1fr 60px 36px; gap: 4px; align-items: center; margin-bottom: 8px; }
+    .rwrow .nm { width: 100%; min-width: 0; }
+    .rwrow .cost { width: 100%; min-width: 0; padding: 6px 2px; font-size: 14px; text-align: center; }
+    .rwrow .del { width: 36px; height: 36px; }
   }
   
   @media (prefers-reduced-motion: reduce){
@@ -1422,11 +1427,7 @@
       .then(function(res){
         if(res.error){ console.warn('读取 profile 失败', res.error); return; }
         if(res.data){
-          // 【核心拦截】如果账号被标记为删除，强制退出
-          if (res.data.is_deleted) {
-            alert('该账号已被注销，无法登录。如有疑问请联系管理员。');
-            return sb.auth.signOut().then(function(){ location.reload(); });
-          }
+          // 这里不再执行 signOut，只在下方强制拦截
           loginId = res.data.login_id || '';
           babyName = res.data.baby_name || '';
           accountEmail = res.data.email || user.email || '';
@@ -1798,7 +1799,8 @@
     var r = rewards[idx];
     if(!r || totalPoints < r.cost) return;
     totalPoints -= r.cost;
-    hist.unshift({d:todayStr().slice(5), p:-r.cost, full:todayStr() + ' 兑换' + r.name, name:r.name});
+    // 修复：full 只存日期，不存名字
+    hist.unshift({d:todayStr().slice(5), p:-r.cost, full:todayStr(), name:r.name});
     if(hist.length>100)hist=hist.slice(0,100);
     saveCloud();
     document.getElementById('totalPts').textContent = totalPoints;
@@ -2283,23 +2285,27 @@
     document.getElementById('aboutDate').textContent = APP_DATE;
     
     // 计算注册天数和活跃天数
+    var regDays = 1;
     if (user && user.created_at) {
       var regDate = new Date(user.created_at);
       var diffDays = Math.ceil(Math.abs(new Date() - regDate) / (1000 * 60 * 60 * 24));
-      document.getElementById('aboutDaysRegistered').textContent = diffDays || 1;
-    } else {
-      document.getElementById('aboutDaysRegistered').textContent = 1;
+      regDays = diffDays > 0 ? diffDays : 1;
     }
     
     var activeDates = new Set();
     hist.forEach(function(h) {
       if (h.full) activeDates.add(h.full);
     });
-    // 如果今天还没有记录，但正在看，至少也算今天活跃
-    if (activeDates.size === 0) {
-      activeDates.add(todayStr());
+    if (activeDates.size === 0) activeDates.add(todayStr());
+    var activeDays = activeDates.size;
+    
+    // 防穿越兜底
+    if (activeDays > regDays) {
+      activeDays = regDays;
     }
-    document.getElementById('aboutDaysActive').textContent = activeDates.size;
+
+    document.getElementById('aboutDaysRegistered').textContent = regDays;
+    document.getElementById('aboutDaysActive').textContent = activeDays;
 
     document.getElementById('aboutOv').classList.add('show');
   });
@@ -3241,55 +3247,132 @@
     authMsg.textContent = isRegister ? '注册中…' : '登录中…';
 
     if(isRegister){
-      sb.auth.signUp({ email: acc, password: pass })
-        .then(function(res){
-          if(res.error) throw res.error;
-          if(res.data.user){
-            return sb.from('profiles').upsert({
-              user_id: res.data.user.id,
-              email: acc,
-              login_id: null,
-              baby_name: '',
-              is_vip: false
-            });
-          }
-        })
-        .then(function(){
+      var doSignUp = function() {
+        return sb.auth.signUp({ email: acc, password: pass })
+          .then(function(res){
+            if(res.error) throw res.error;
+            if(res.data.user){
+              return sb.from('profiles').upsert({
+                user_id: res.data.user.id,
+                email: acc,
+                login_id: null,
+                baby_name: '',
+                is_vip: false
+              });
+            }
+          });
+      };
+
+      doSignUp()
+        .then(function() {
           authBtn.disabled = false;
           authMsg.className = 'msg ok';
           authMsg.textContent = '注册成功！请用邮箱登录。';
           setAuthMode(false);
           passInput.value = '';
         })
+        .catch(function(err) {
+          if(err.message && err.message.indexOf('already registered') > -1) {
+            // 尝试用原密码登录，看看是不是注销的号
+            return sb.auth.signInWithPassword({ email: acc, password: pass })
+              .then(function(signInRes) {
+                if(signInRes.error) {
+                  throw new Error('该邮箱已被其他用户注册，请更换一个邮箱。');
+                }
+                // 登录成功，说明密码是对的！查一下是不是 is_deleted
+                return sb.from('profiles').select('is_deleted').eq('user_id', signInRes.data.user.id).single()
+                  .then(function(pRes) {
+                    if (pRes.data && pRes.data.is_deleted) {
+                      // 复活账号：清空积分，重置 is_deleted
+                      return sb.from('profiles').update({ is_deleted: false, login_id: null, baby_name: '' }).eq('user_id', signInRes.data.user.id)
+                        .then(function() {
+                          return sb.from('scores').upsert({
+                            user_id: signInRes.data.user.id,
+                            total_points: 0,
+                            history: [],
+                            today: null,
+                            today_note: '',
+                            rewards: DEFAULT_REWARDS,
+                            opts: DEFAULT_OPTS,
+                            max_draws: DEFAULT_MAX_DRAWS,
+                            updated_at: new Date().toISOString()
+                          });
+                        })
+                        .then(function() {
+                          authBtn.disabled = false;
+                          authMsg.className = 'msg ok';
+                          authMsg.textContent = '检测到历史注销账号，已为您重新激活并重置数据！';
+                          // 稍等一下进入主页
+                          setTimeout(() => { location.reload(); }, 1000);
+                        });
+                    } else {
+                      throw new Error('该邮箱已被其他用户注册，请更换一个邮箱。');
+                    }
+                  });
+              })
+              .catch(function(signInErr) {
+                throw new Error('该邮箱已被注册，且密码不匹配，请更换邮箱或找回密码。');
+              });
+          }
+          throw err;
+        })
         .catch(function(err){
           authBtn.disabled = false;
           authMsg.textContent = (err && err.message) || '注册失败，请重试';
           generateCaptcha();
         });
+
     } else {
+      // 登录逻辑
+      var doSignIn = function(emailToUse) {
+        return sb.auth.signInWithPassword({ email: emailToUse, password: pass });
+      };
+
       if(isEmail(acc)){
-        sb.auth.signInWithPassword({ email: acc, password: pass })
+        // 尝试用原邮箱登录
+        doSignIn(acc)
+          .then(function(res){
+            if (res.error) throw res.error;
+            // 成功拿到 session，立刻去查 profile 的 is_deleted
+            return sb.from('profiles').select('is_deleted').eq('user_id', res.data.user.id).single()
+              .then(function(pRes) {
+                if (pRes.data && pRes.data.is_deleted) {
+                  // 如果被注销，先 sign out，然后报错
+                  return sb.auth.signOut().then(() => {
+                    throw new Error('该账号已被注销，请点击「去注册」重新激活。');
+                  });
+                }
+                return res;
+              });
+          })
           .then(function(res){
             authBtn.disabled = false;
-            if(res.error){ authMsg.textContent = res.error.message || '邮箱或密码不对'; return; }
             addRecent(acc, acc);
             authMsg.className = 'msg ok';
             authMsg.textContent = '成功！正在进入…';
           })
           .catch(function(err){
             authBtn.disabled = false;
-            authMsg.textContent = (err && err.message) || '网络错误，请重试';
+            authMsg.textContent = err.message;
           });
       } else {
+        // 用唯一号登录
         var id = acc.toLowerCase();
-        sb.from('profiles').select('email').eq('login_id', id).maybeSingle()
+        sb.from('profiles').select('email, is_deleted').eq('login_id', id).maybeSingle()
           .then(function(check){
             if(!check.data || !check.data.email){ throw new Error('找不到这个唯一号，请检查后重试'); }
-            return sb.auth.signInWithPassword({ email: check.data.email, password: pass });
+            if (check.data.is_deleted) { throw new Error('该账号已被注销，无法登录。'); }
+            
+            // 使用底层真实的邮箱登录
+            return doSignIn(check.data.email).then(function(res){
+              if(res.error) {
+                throw new Error('密码不对或账号异常');
+              }
+              return res;
+            });
           })
           .then(function(res){
             authBtn.disabled = false;
-            if(res && res.error){ authMsg.textContent = res.error.message || '密码不对'; return; }
             addRecent(id, '@'+id);
             authMsg.className = 'msg ok';
             authMsg.textContent = '成功！正在进入…';
