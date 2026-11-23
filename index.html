@@ -186,6 +186,8 @@
   .chip.clickable{cursor:pointer;}
   .chip.clickable:hover{border-color:#ffb347; background:#fff8e7; transform:translateY(-2px); box-shadow:0 6px 14px rgba(255,180,80,.25);}
   .chip.exchange{background:#ffe3e3; color:#c92a2a; border-color:#ffa8a8;}
+  .chip.exchange.clickable{cursor:pointer;}
+  .chip.exchange.clickable:hover{border-color:#ff8787; background:#fff5f5; transform:translateY(-2px); box-shadow:0 6px 14px rgba(255,135,135,.25);}
   .chip .note{display:block; font-size:11px; color:#a09080; margin-top:3px; font-family:'PingFang SC','Microsoft YaHei',sans-serif;}
   .chip .thumbs{display:flex; gap:5px; margin-top:6px;}
   .chip .thumbs img{
@@ -1867,7 +1869,8 @@
         }).join('') + '</span>';
       }
       if(g.isExchange){
-        return '<span class="chip exchange" data-gi="'+gi+'">'+dateStr+' · '+escapeHtml(g.name||'兑换')+'('+g.totalP+'分)'+
+        var exCntTxt = g.count>1 ? ('共'+g.count+'次 ') : '';
+        return '<span class="chip exchange clickable" data-gi="'+gi+'">'+dateStr+' · '+exCntTxt+escapeHtml(g.name||'兑换')+'('+g.totalP+'分)'+
           noteHtml+
         '</span>';
       } else {
@@ -1894,9 +1897,11 @@
 
   function openHistDetail(group){
     if(!group) return;
+    var isExchange = group.isExchange === true;
     document.getElementById('hdTitle').textContent = group.date + ' 的详情';
-    document.getElementById('hdSummary').innerHTML =
-      '共抽 <b>'+group.count+'</b> 次，合计 <b>+'+group.totalP+'</b> 分';
+    document.getElementById('hdSummary').innerHTML = isExchange
+      ? '共兑换 <b>'+group.count+'</b> 次，合计 <b>'+group.totalP+'</b> 分'
+      : '共抽 <b>'+group.count+'</b> 次，合计 <b>+'+group.totalP+'</b> 分';
 
     var listEl = document.getElementById('hdList');
     if(!group.items.length){
@@ -1914,7 +1919,7 @@
         return '<div class="hd-item">'+
           '<div class="hd-top">'+
             '<span class="hd-idx">第 '+(group.items.length - i)+' 次</span>'+
-            '<span class="hd-p">+'+h.p+' 分</span>'+
+            '<span class="hd-p">'+(isExchange ? h.p : '+'+h.p)+' 分</span>'+
           '</div>'+
           note+
           photos+
