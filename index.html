@@ -716,13 +716,15 @@
     <div class="emoji">🧸</div>
     <h1>宝贝<span class="tw">攒分啦</span></h1>
     <p class="tip" id="authTip">登录后，积分会保存在云端，换设备也不会丢哦</p>
+    <form id="authForm" autocomplete="on">
     <input type="text" id="accountInput" placeholder="邮箱 或 唯一号" autocomplete="username">
     <input type="password" id="passInput" placeholder="密码" autocomplete="current-password">
     <div class="captcha-row" id="captchaRow" style="display:none;">
       <input type="text" id="captchaInput" placeholder="输入验证码" maxlength="4" autocomplete="off">
       <canvas class="captcha-canvas" id="captchaCanvas" width="220" height="92" title="点击刷新"></canvas>
     </div>
-    <button class="auth-btn" id="authBtn">登 录</button>
+    <button type="submit" class="auth-btn" id="authBtn">登 录</button>
+    </form>
     <div class="switch">
       <span id="switchText">还没有账号？</span>
       <a id="switchLink">去注册</a>
@@ -3222,6 +3224,9 @@
     }, 300);
   }
 
+  document.getElementById('authForm').addEventListener('submit', function(e){
+    e.preventDefault();
+  });
   authBtn.addEventListener('click', function(){
     var acc = (accountInput.value||'').trim();
     var pass = (passInput.value||'').trim();

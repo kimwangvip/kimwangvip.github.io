@@ -422,6 +422,12 @@
     return Array.from(s).length;
   }
 
+  function safeLengthFilter(q, len){
+    if(!len) return q;
+    if(len === '10+') return q.gte('word_len', 10);
+    return q.eq('word_len', parseInt(len, 10));
+  }
+
   function showToast(msg){
     els.toast.textContent = msg;
     els.toast.classList.add('show');
@@ -499,8 +505,7 @@
       q = q.ilike('abbreviation', state.letter + '%');
     }
     if(state.len){
-      if(state.len === '10+') q = q.gte('word_len', 10);
-      else q = q.eq('word_len', parseInt(state.len));
+      q = safeLengthFilter(q, state.len);
     }
     q = q.order('word', { ascending: true });
     return q;
@@ -517,7 +522,24 @@
     var q = buildQuery();
     var res = await q.range(from, to);
     state.loading = false;
-    if(res.error){ setEmpty('加载失败：' + escapeHtml(res.error.message)); return; }
+    if(res.error){
+      var msg = res.error.message || '未知错误';
+      if(/word_len|column.*does not exist|42703/i.test(msg)){
+        var len = state.len;
+        state.len = '';
+        setLenActive('');
+        var retryQ = buildQuery();
+        var retryRes = await retryQ.range(from, to);
+        if(!retryRes.error){
+          state.list = retryRes.data || []; state.total = retryRes.count || 0; state.index = 0;
+          renderList();
+          showToast('字数筛选暂不可用，已按全部成语展示');
+          return;
+        }
+      }
+      setEmpty('加载失败：' + escapeHtml(msg));
+      return;
+    }
     state.list = res.data || []; state.total = res.count || 0; state.index = 0;
     renderList();
   }
