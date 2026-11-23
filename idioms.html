@@ -460,15 +460,17 @@
     return pinyin.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
-  function speakText(text, isPinyin) {
+  function speakText(text, isPinyin, phrase) {
     if (!text) return;
 
     // 如果是拼音，先去掉声调
     var speakContent = isPinyin ? removeTones(text) : text;
+    var phrasePinyin = phrase && phrase.pinyin ? phrase.pinyin : '';
 
-    // 优先使用 App 内置原生 TTS 桥梁；安卓 WebView 的 speechSynthesis 经常不可用
+    // 成语条目本身带语境拼音；读成语时把“汉字+正确拼音”一起交给 TTS，减少多音字读错
     if (window.AndroidTTS && typeof window.AndroidTTS.speak === 'function') {
-      window.AndroidTTS.speak(speakContent);
+      var androidText = isPinyin ? speakContent : ((phrase && phrase.word ? phrase.word : text) + '，' + phrasePinyin);
+      window.AndroidTTS.speak(androidText);
       return;
     }
 
@@ -624,10 +626,10 @@
     });
 
     document.getElementById('speakWord').addEventListener('click', function() {
-      speakText(idiom.word, false);
+      speakText(idiom.word, false, idiom);
     });
     document.getElementById('speakPinyin').addEventListener('click', function() {
-      speakText(idiom.pinyin, true);
+      speakText(idiom.pinyin, true, idiom);
     });
 
     if(state.isRandomView){
