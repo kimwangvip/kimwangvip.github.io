@@ -462,33 +462,47 @@
 
   function speakText(text, isPinyin) {
     if (!text) return;
+
+    // 优先使用 App 内置原生 TTS 桥梁；WebView 自带 speechSynthesis 在部分安卓机型上不可用
+    if (window.AndroidTTS && typeof window.AndroidTTS.speak === 'function') {
+      var androidReady = true;
+      try { androidReady = window.AndroidTTS.isReady(); } catch (e) {}
+      if (androidReady) {
+        var androidContent = isPinyin ? removeTones(text) : text;
+        window.AndroidTTS.speak(androidContent);
+        return;
+      }
+      showToast('系统缺少中文语音包，请在手机设置中安装');
+      return;
+    }
+
     if (!('speechSynthesis' in window)) {
       showToast('当前浏览器不支持语音朗读');
       return;
     }
-    
+
     window.speechSynthesis.cancel();
-    
+
     // 如果是拼音，先去掉声调
     var speakContent = isPinyin ? removeTones(text) : text;
-    
+
     var msg = new SpeechSynthesisUtterance(speakContent);
     msg.lang = 'zh-CN'; // 强制中文
     msg.rate = 0.85;
     msg.pitch = 1.0;
-    
+
     if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
-    
+
     // 优先寻找高质量中文引擎（如苹果的 Ting-Ting，安卓的 Google 或 Xiaoxiao）
     var bestVoice = availableVoices.find(function(v) {
       return v.lang === 'zh-CN' && (v.name.indexOf('Ting') > -1 || v.name.indexOf('Google') > -1 || v.name.indexOf('Xiaoxiao') > -1 || v.name.indexOf('Yunxi') > -1);
     });
-    
+
     // 退而求其次，找任何标记为 zh 开头的引擎
     if (!bestVoice) {
       bestVoice = availableVoices.find(function(v) { return v.lang.indexOf('zh') === 0; });
     }
-    
+
     if (bestVoice) msg.voice = bestVoice;
 
     setTimeout(function() {
