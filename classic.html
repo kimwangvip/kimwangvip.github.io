@@ -216,15 +216,15 @@
 
   function speakText(text){
     if(!text) return;
-    // 优先使用 App 内置原生 TTS 桥梁；WebView 自带 speechSynthesis 在部分安卓机型上不可用
+    // 优先使用 App 内置原生 TTS 桥梁；安卓 WebView 的 speechSynthesis 经常不可用
     if(window.AndroidTTS && typeof window.AndroidTTS.speak === 'function'){
-      var androidReady = true;
-      try { androidReady = window.AndroidTTS.isReady(); } catch(e){}
-      if(androidReady){ window.AndroidTTS.speak(text); return; }
-      showToast('系统缺少中文语音包，请在手机设置中安装');
+      window.AndroidTTS.speak(text);
       return;
     }
-    if(!('speechSynthesis' in window)){ showToast('当前浏览器不支持语音朗读'); return; }
+    if(!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined'){
+      showToast('当前设备不支持语音朗读');
+      return;
+    }
     window.speechSynthesis.cancel();
     var msg = new SpeechSynthesisUtterance(text);
     msg.lang = 'zh-CN';
