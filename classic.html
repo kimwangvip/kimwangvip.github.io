@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>国学学习 · 孝经</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%238d5a2b'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle' fill='%23fff' font-family='sans-serif' font-weight='bold'%3E孝%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg1:#f6ead7; --bg2:#fff9ec; --ink:#4b3524; --ink2:#8a735d;
+    --accent:#a86a2f; --accent2:#d99a45; --cream:#fff6e5; --line:#ead9bf;
+    --paper:#fffdf8; --green:#6b8f5a;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; overflow-x:hidden;}
+  body{
+    min-height:100vh;
+    background:radial-gradient(120% 90% at 50% -10%, #f2ddb7 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg1) 0%, #fbf2df 45%, var(--bg2) 100%);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
+    padding-bottom:40px;
+  }
+  .deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+  .deco .blob{position:absolute; border-radius:50%; filter:blur(40px); opacity:.45;}
+  .deco .b1{width:260px; height:260px; background:#e8c98d; top:-60px; left:-80px;}
+  .deco .b2{width:320px; height:320px; background:#c7d8b4; bottom:-100px; right:-100px;}
+  .deco .b3{width:200px; height:200px; background:#e6b777; top:40%; right:-60px;}
+
+  .wrap{position:relative; z-index:1; max-width:760px; margin:0 auto; padding:24px 16px 40px;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .back-link{color:var(--accent); text-decoration:none; font-size:15px; background:#fff; border:1px solid var(--line); border-radius:20px; padding:8px 14px; box-shadow:0 3px 10px rgba(90,60,30,.08);}
+  h1.title{font-size:38px; margin:0; color:#fff; letter-spacing:2px; font-weight:800; text-shadow:0 3px 0 rgba(0,0,0,.12), 0 6px 14px rgba(168,106,47,.28);}
+  h1.title .tw{color:var(--accent2);}
+  .subtitle{font-size:15px; color:var(--ink2); margin:6px 0 22px;}
+
+  .searchbar{display:flex; gap:8px; align-items:center; max-width:560px; margin:0 auto 14px; background:#fff; border-radius:16px; padding:8px 8px 8px 18px; box-shadow:0 8px 22px rgba(90,60,30,.12); border:2px solid #fff;}
+  .searchbar input{flex:1; font-family:inherit; font-size:17px; color:var(--ink); border:none; outline:none; background:transparent; padding:8px 0;}
+  .searchbar input::placeholder{color:#c9b89a;}
+  .searchbar button{font-family:inherit; font-size:15px; color:#fff; cursor:pointer; border:none; border-radius:12px; padding:10px 18px; background:linear-gradient(180deg,#d99a45,#a86a2f); box-shadow:0 3px 0 #87521f; font-weight:600;}
+  .searchbar button:active{transform:translateY(2px);}
+
+  .random-btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; font-size:17px; font-weight:600; color:#fff; cursor:pointer; background:linear-gradient(180deg,#7fa96b,#5f854e); border:none; border-radius:30px; padding:12px 30px; box-shadow:0 4px 0 #48683b; transition:transform .1s; margin:0 auto 18px; width:100%; max-width:560px;}
+  .random-btn:active{transform:translateY(3px);}
+
+  .chapter-nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:20px;}
+  .chapter-chip{font-family:inherit; font-size:14px; color:var(--ink2); cursor:pointer; background:var(--paper); border:2px solid var(--line); border-radius:20px; padding:7px 13px; transition:all .15s;}
+  .chapter-chip:hover{border-color:var(--accent2); background:#fff8e7;}
+  .chapter-chip.active{color:#fff; border-color:#a86a2f; background:linear-gradient(180deg,#d99a45,#a86a2f); box-shadow:0 3px 8px rgba(168,106,47,.3);}
+
+  .card{background:var(--paper); border-radius:26px; padding:26px 24px 22px; max-width:680px; margin:0 auto 20px; text-align:center; box-shadow:0 14px 40px rgba(90,60,30,.14); border:2px solid #fff; position:relative; overflow:hidden; word-break:break-word;}
+  .card::before{content:''; position:absolute; top:-50%; right:-20%; width:180px; height:180px; background:radial-gradient(circle, rgba(232,201,141,.5), transparent 70%); border-radius:50%; pointer-events:none;}
+  .meta-top{display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .badge{font-size:13px; color:var(--ink2); background:var(--cream); border:1.5px solid var(--line); border-radius:12px; padding:4px 12px;}
+  .badge.theme{color:var(--accent);}
+  .card h2{font-size:28px; margin:0 0 8px; letter-spacing:1px;}
+  .original{font-size:19px; line-height:1.9; color:#3f2d1f; background:var(--cream); border:1.5px solid #eed9ae; border-radius:18px; padding:18px 18px; margin:16px 0; white-space:pre-line; position:relative;}
+  .speak-word{cursor:pointer; color:var(--accent); font-size:15px; margin-left:6px;}
+  .section{text-align:left; background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; margin-top:12px;}
+  .section .label{font-size:13px; color:var(--accent); margin-bottom:6px; display:flex; align-items:center; gap:6px; font-weight:600; letter-spacing:1px;}
+  .section .content{font-size:15.5px; color:#5b4636; line-height:1.75; white-space:pre-line;}
+  .summary{font-size:15px; color:#6b523e; line-height:1.7;}
+  .notes{display:flex; flex-direction:column; gap:8px;}
+  .note{display:flex; gap:8px; align-items:flex-start; font-size:14.5px; line-height:1.6;}
+  .note b{color:var(--accent); flex:none;}
+
+  .card-actions{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; justify-content:center;}
+  .btn{font-family:inherit; font-size:16px; font-weight:600; color:#fff; cursor:pointer; border:none; border-radius:40px; padding:12px 22px; letter-spacing:1px; box-shadow:0 4px 0 rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.08); transition:transform .1s;}
+  .btn:active{transform:translateY(3px);}
+  .btn-back{background:#fff; color:var(--ink2); border:2px solid var(--line); box-shadow:0 4px 0 var(--line);}
+  .btn-primary{background:linear-gradient(180deg,#d99a45,#a86a2f);}
+  .btn-toggle{background:linear-gradient(180deg,#b197fc,#8f6ce8);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  .result-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; max-width:700px; margin:0 auto;}
+  .result-item{background:var(--paper); border:2px solid var(--line); border-radius:18px; padding:16px; cursor:pointer; text-align:left; font-family:inherit; display:flex; flex-direction:column; gap:6px; min-width:0; transition:all .15s;}
+  .result-item:hover{border-color:var(--accent2); background:#fff8e7; transform:translateY(-2px);}
+  .result-item .w{font-size:19px; font-weight:700; color:var(--ink);}
+  .result-item .p{font-size:13px; color:var(--accent);}
+  .result-item .e{font-size:13.5px; color:var(--ink2); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .result-info{font-size:14px; color:var(--ink2); text-align:center; margin-bottom:14px;}
+  .loading, .empty{padding:40px 20px; color:#b0a08d; font-size:16px; text-align:center;}
+  .loading::before{content:''; display:inline-block; width:18px; height:18px; border:3px solid #d99a45; border-top-color:transparent; border-radius:50%; animation:spin .8s linear infinite; margin-right:10px; vertical-align:-3px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .toast{position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(60,40,20,.92); color:#fff; font-size:15px; border-radius:24px; padding:12px 24px; opacity:0; transition:all .3s; z-index:100; pointer-events:none;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:600px){
+    h1.title{font-size:30px;}
+    .card{padding:22px 16px 18px;}
+    .original{font-size:17px; padding:14px;}
+    .searchbar{padding-left:14px;}
+    .result-list{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="deco"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <a class="back-link" href="index.html">← 返回首页</a>
+    <a class="back-link" href="idioms.html">📖 成语页</a>
+  </div>
+  <h1 class="title">国学<span class="tw">·孝经</span></h1>
+  <div class="subtitle">读原文、看译文、记章旨，每天读一点经典</div>
+
+  <div class="searchbar">
+    <input type="text" id="searchInput" placeholder="搜索章节、原文或关键词…" autocomplete="off">
+    <button id="searchBtn">搜索</button>
+  </div>
+
+  <button class="random-btn" id="randomBtn">🎲 随便读一章</button>
+  <div class="chapter-nav" id="chapterNav"></div>
+  <div id="mainArea"><div class="loading">正在加载《孝经》…</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="src/xiaojing-data.js"></script>
+<script>
+(function(){
+  'use strict';
+  var DATA = window.XIAOJING_DATA || [];
+  var state = { list: DATA, index: 0, view: 'list', keyword: '' };
+  var els = {
+    nav: document.getElementById('chapterNav'),
+    main: document.getElementById('mainArea'),
+    input: document.getElementById('searchInput'),
+    searchBtn: document.getElementById('searchBtn'),
+    randomBtn: document.getElementById('randomBtn'),
+    toast: document.getElementById('toast')
+  };
+
+  function escapeHtml(s){
+    if(s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function showToast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ els.toast.classList.remove('show'); }, 2000);
+  }
+
+  function renderNav(activeId){
+    els.nav.innerHTML = DATA.map(function(item){
+      var cls = 'chapter-chip' + (item.id === activeId ? ' active' : '');
+      return '<button class="' + cls + '" data-id="' + item.id + '">' + escapeHtml(item.title) + '</button>';
+    }).join('');
+  }
+
+  function renderList(){
+    state.view = 'list';
+    renderNav(null);
+    if(!state.list.length){
+      els.main.innerHTML = '<div class="empty">没有找到相关章节，换个关键词试试～</div>';
+      return;
+    }
+    var info = '共 ' + state.list.length + ' 章';
+    if(state.keyword) info += '，关键词「' + escapeHtml(state.keyword) + '」';
+    var items = state.list.map(function(it, i){
+      return '<button class="result-item" data-i="' + i + '">' +
+        '<span class="w">' + escapeHtml(it.title) + '</span>' +
+        '<span class="p">' + escapeHtml(it.theme) + '</span>' +
+        '<span class="e">' + escapeHtml(it.summary) + '</span>' +
+      '</button>';
+    }).join('');
+    els.main.innerHTML = '<div class="result-info">' + info + '</div><div class="result-list">' + items + '</div>';
+    els.main.querySelectorAll('.result-item').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var i = parseInt(btn.dataset.i, 10);
+        state.index = i;
+        renderCard();
+      });
+    });
+  }
+
+  function renderCard(){
+    var item = state.list[state.index];
+    if(!item){ renderList(); return; }
+    state.view = 'card';
+    renderNav(item.id);
+
+    var notesHtml = item.notes.map(function(n){
+      return '<div class="note"><b>' + escapeHtml(n.word) + '</b><span>' + escapeHtml(n.meaning) + '</span></div>';
+    }).join('');
+
+    var prevDisabled = state.index <= 0 ? 'disabled' : '';
+    var nextDisabled = state.index >= state.list.length - 1 ? 'disabled' : '';
+
+    els.main.innerHTML =
+      '<div class="card">' +
+        '<div class="meta-top"><span class="badge">第 ' + item.id + ' 章</span><span class="badge theme">' + escapeHtml(item.theme) + '</span></div>' +
+        '<h2>' + escapeHtml(item.title) + '</h2>' +
+        '<div class="original" id="originalText">' + escapeHtml(item.original) + '<span class="speak-word" id="speakOriginal" title="朗读原文">🔊 朗读</span></div>' +
+        '<div class="section"><div class="label">📖 白话译文</div><div class="content">' + escapeHtml(item.translation) + '</div></div>' +
+        '<div class="section"><div class="label">💡 本章主旨</div><div class="content summary">' + escapeHtml(item.summary) + '</div></div>' +
+        '<div class="section"><div class="label">🔎 词语注释</div><div class="notes">' + notesHtml + '</div></div>' +
+        '<div class="card-actions">' +
+          '<button class="btn btn-back" id="btnBackList">⬅️ 返回列表</button>' +
+          '<button class="btn btn-back" id="btnPrev" ' + prevDisabled + '>👈 上一章</button>' +
+          '<button class="btn btn-back" id="btnNext" ' + nextDisabled + '>下一章 👉</button>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('btnBackList').addEventListener('click', renderList);
+    var prevBtn = document.getElementById('btnPrev');
+    var nextBtn = document.getElementById('btnNext');
+    if(prevBtn) prevBtn.addEventListener('click', function(){ state.index--; renderCard(); });
+    if(nextBtn) nextBtn.addEventListener('click', function(){ state.index++; renderCard(); });
+    document.getElementById('speakOriginal').addEventListener('click', function(){ speakText(item.original); });
+  }
+
+  function speakText(text){
+    if(!text) return;
+    if(!('speechSynthesis' in window)){ showToast('当前浏览器不支持语音朗读'); return; }
+    window.speechSynthesis.cancel();
+    var msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'zh-CN';
+    msg.rate = 0.82;
+    msg.pitch = 1;
+    var voices = window.speechSynthesis.getVoices();
+    var zh = voices.find(function(v){ return v.lang && v.lang.indexOf('zh') === 0; });
+    if(zh) msg.voice = zh;
+    setTimeout(function(){ window.speechSynthesis.speak(msg); }, 100);
+  }
+
+  function doSearch(){
+    var kw = (els.input.value || '').trim();
+    state.keyword = kw;
+    if(!kw){ state.list = DATA; renderList(); return; }
+    var lower = kw.toLowerCase();
+    state.list = DATA.filter(function(it){
+      var hay = [it.title, it.theme, it.original, it.translation, it.summary, it.notes.map(function(n){ return n.word + ' ' + n.meaning; }).join(' ')].join(' ').toLowerCase();
+      return hay.indexOf(lower) > -1;
+    });
+    renderList();
+  }
+
+  els.searchBtn.addEventListener('click', doSearch);
+  els.input.addEventListener('keydown', function(e){ if(e.key === 'Enter') doSearch(); });
+  els.randomBtn.addEventListener('click', function(){
+    state.index = Math.floor(Math.random() * DATA.length);
+    renderCard();
+  });
+  els.nav.addEventListener('click', function(e){
+    var btn = e.target.closest('.chapter-chip');
+    if(!btn) return;
+    var id = parseInt(btn.dataset.id, 10);
+    var found = DATA.find(function(x){ return x.id === id; });
+    if(found){ state.list = DATA; state.index = DATA.indexOf(found); renderCard(); }
+  });
+
+  renderList();
+})();
+</script>
+</body>
+</html>

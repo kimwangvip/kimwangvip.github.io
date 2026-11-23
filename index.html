@@ -157,9 +157,13 @@
   .btn-set{background:linear-gradient(180deg,#b197fc,#8f6ce8);}
   .btn:disabled{opacity:.5; cursor:default;}
 
-  /* 成语学习按钮 */
+  /* 学习入口按钮 */
   .btn-idiom{
     background:linear-gradient(180deg,#38d9a9,#20c997);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-classic{
+    background:linear-gradient(180deg,#d99a45,#a86a2f);
     display:inline-flex; align-items:center; gap:6px;
   }
 
@@ -796,6 +800,7 @@
     <button class="btn btn-parent" id="parentBtn">（家长）确认今日表现</button>
     <button class="btn btn-set" id="setBtn">设置</button>
     <button class="btn btn-idiom" id="idiomBtn">📖 学成语</button>
+    <button class="btn btn-classic" id="classicBtn">📜 学孝经</button>
   </div>
 
   <div class="result" id="result">先让爸爸妈妈确认今天的表现哦</div>
@@ -2721,6 +2726,9 @@
   document.getElementById('idiomBtn').addEventListener('click', function(){
     // 跳转到 idioms.html，附带当前登录邮箱，方便新页面校验 session
     window.location.href = 'idioms.html';
+  });
+  document.getElementById('classicBtn').addEventListener('click', function(){
+    window.location.href = 'classic.html';
   });
 
   // ==================== VIP 后台 ====================
