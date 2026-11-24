@@ -3569,6 +3569,34 @@
 
   var sessionLoadToken = 0;
   var onlineSessionId = '';
+  var sessionLoadTimer = null;
+
+  function finishSessionLoad(token){
+    if(token !== sessionLoadToken) return;
+    if(sessionLoadTimer){ clearTimeout(sessionLoadTimer); sessionLoadTimer = null; }
+    enterApp();
+  }
+  function failSessionLoad(token, err){
+    if(token !== sessionLoadToken) return;
+    console.warn('会话数据加载失败', err);
+    if(sessionLoadTimer){ clearTimeout(sessionLoadTimer); sessionLoadTimer = null; }
+    var msg = document.getElementById('authMsg');
+    if(msg){
+      msg.className = 'msg';
+      msg.textContent = '数据加载较慢，正在重试…';
+    }
+    setTimeout(function(){
+      if(token !== sessionLoadToken) return;
+      location.reload();
+    }, 1500);
+  }
+  function loadSessionData(session, token){
+    if(sessionLoadTimer){ clearTimeout(sessionLoadTimer); sessionLoadTimer = null; }
+    sessionLoadTimer = setTimeout(function(){ failSessionLoad(token, new Error('会话加载超时')); }, 12000);
+    Promise.all([loadProfile(), loadCloud()])
+      .then(function(){ finishSessionLoad(token); })
+      .catch(function(err){ failSessionLoad(token, err); });
+  }
   restoreNetworkMsg();
   sb.auth.onAuthStateChange(function(event, session){
     if(session && session.user){
@@ -3578,10 +3606,7 @@
       setAuthMode(false);
       authMsg.className = 'msg ok';
       authMsg.textContent = '正在加载数据…';
-      Promise.all([loadProfile(), loadCloud()]).then(function(){
-        if(token !== sessionLoadToken || onlineSessionId !== (session.access_token || session.user.id)) return;
-        enterApp();
-      });
+      loadSessionData(session, token);
     } else {
       user = null;
       isVip = false;
@@ -3599,12 +3624,13 @@
       user = res.data.session.user;
       onlineSessionId = res.data.session.access_token || res.data.session.user.id;
       var token = ++sessionLoadToken;
-      Promise.all([loadProfile(), loadCloud()]).then(function(){
-        if(token !== sessionLoadToken || onlineSessionId !== (session.access_token || session.user.id)) return;
-        enterApp();
-      });
+      authMsg.className = 'msg ok';
+      authMsg.textContent = '正在加载数据…';
+      loadSessionData(res.data.session, token);
     } else {
       document.getElementById('authScreen').style.display = 'flex';
+      document.getElementById('mainWrap').style.display = 'none';
+      document.getElementById('vipWrap').style.display = 'none';
       var switchTo = null;
       try { switchTo = localStorage.getItem('bao_switch_to'); } catch(e){}
       if(switchTo){
