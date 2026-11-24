@@ -166,6 +166,10 @@
     background:linear-gradient(180deg,#d99a45,#a86a2f);
     display:inline-flex; align-items:center; gap:6px;
   }
+  .btn-game{
+    background:linear-gradient(180deg,#9d86ff,#7c5cff);
+    display:inline-flex; align-items:center; gap:6px;
+  }
 
   .result{margin:16px auto 0; max-width:450px; min-height:52px; background:var(--cream); border:2px dashed #ffd43b; border-radius:18px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:19px; color:#7a5a3a; padding:10px 16px; box-shadow:0 8px 20px rgba(0,0,0,.06);}
   .result .prize{color:var(--accent); font-size:25px;}
@@ -807,6 +811,7 @@
     <button class="btn btn-set" id="setBtn">设置</button>
     <button class="btn btn-idiom" id="idiomBtn">📖 学成语</button>
     <button class="btn btn-classic" id="classicBtn">📜 学孝经</button>
+    <button class="btn btn-game" id="gameBtn">🎮 小游戏</button>
   </div>
 
   <div class="result" id="result">先让爸爸妈妈确认今天的表现哦</div>
@@ -2773,6 +2778,9 @@
   });
   document.getElementById('classicBtn').addEventListener('click', function(){
     window.location.href = 'classic.html';
+  });
+  document.getElementById('gameBtn').addEventListener('click', function(){
+    window.location.href = 'games.html';
   });
 
   // ==================== VIP 后台 ====================
