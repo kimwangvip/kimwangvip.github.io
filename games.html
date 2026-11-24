@@ -41,6 +41,11 @@ h1 .tw{color:var(--purple2);}
 .icon{width:62px; height:62px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:16px; box-shadow:0 8px 18px rgba(0,0,0,.12);}
 .c2048 .icon{background:linear-gradient(180deg,#ffd43b,#ff9f1a);}
 .tic .icon{background:linear-gradient(180deg,#8ce99a,#51cf66);}
+.memo .icon{background:linear-gradient(180deg,#b197fc,#8f6ce8);}
+.match .icon{background:linear-gradient(180deg,#66d9e8,#3bc9db);}
+.slide .icon{background:linear-gradient(180deg,#ffd8a8,#ff922b);}
+.pattern .icon{background:linear-gradient(180deg,#ffa8a8,#ff8787);}
+.guess .icon{background:linear-gradient(180deg,#a9e34b,#69db7c);}
 .game-card h2{margin:0 0 8px; font-size:23px;}
 .game-card p{margin:0; color:var(--ink2); line-height:1.7; font-size:15px;}
 .tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
@@ -76,6 +81,29 @@ h1 .tw{color:var(--purple2);}
 .mode-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
 .mode-btn{font-family:inherit; border:2px solid var(--line); background:#fff; color:var(--ink2); border-radius:20px; padding:9px 14px; cursor:pointer; font-weight:700;}
 .mode-btn.active{background:var(--purple); color:#fff; border-color:var(--purple);}
+
+/* 通用益智游戏 */
+.mini-grid{display:grid; gap:12px; width:min(100%,360px); margin:0 auto;}
+.memo-grid{grid-template-columns:repeat(4,1fr);}
+.memo-card{aspect-ratio:1; border-radius:18px; border:2px solid var(--line); background:#f3eefc; display:flex; align-items:center; justify-content:center; font-size:30px; cursor:pointer; font-family:inherit; color:transparent; transition:transform .12s;}
+.memo-card.open{background:#fff; color:var(--ink); border-color:var(--purple2);}
+.memo-card.matched{background:#d3f9d8; color:var(--green); border-color:#8ce99a; cursor:default;}
+.match-cols{display:grid; grid-template-columns:1fr 1fr; gap:18px; width:min(100%,420px); margin:0 auto;}
+.match-list{display:flex; flex-direction:column; gap:10px;}
+.match-item{border:2px solid var(--line); background:#fff; border-radius:16px; padding:13px 10px; text-align:center; font-weight:800; font-size:19px; cursor:pointer; font-family:inherit; color:var(--ink);}
+.match-item.selected{background:#e7f5ff; border-color:#3bc9db;}
+.match-item.done{background:#f1f8ec; border-color:#8ce99a; color:#51cf66; cursor:default;}
+.slide-board{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:min(100%,330px); margin:0 auto;}
+.slide-cell{aspect-ratio:1; border-radius:18px; background:#f1e8ff; display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:900; cursor:pointer; border:2px solid transparent;}
+.slide-cell.empty{background:transparent; border-style:dashed; border-color:var(--line);}
+.pattern-row{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center; margin:18px 0;}
+.pattern-tile{width:56px; height:56px; border-radius:18px; background:#fff; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900;}
+.pattern-options{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px;}
+.option-btn{font-family:inherit; min-width:64px; border:2px solid var(--line); background:#fff; border-radius:18px; padding:14px 16px; font-size:24px; font-weight:900; cursor:pointer; color:var(--ink);}
+.guess-input{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:16px 0;}
+.guess-input input{width:120px; border:2px solid var(--line); border-radius:16px; padding:12px 14px; font-size:20px; text-align:center; font-family:inherit; outline:none;}
+.history-row{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px;}
+.history-chip{background:#f6f1ff; border:1px solid var(--line); border-radius:12px; padding:6px 10px; font-size:14px; color:var(--ink2);}
 @media(max-width:520px){ .wrap{padding:16px 12px 24px;} h1{font-size:28px;} .panel{padding:18px 14px;} }
 </style>
 </head>
@@ -88,7 +116,7 @@ h1 .tw{color:var(--purple2);}
     <a class="back-link" href="classic.html">📜 孝经</a>
   </div>
   <h1>🎮 小游戏<span class="tw">乐园</span></h1>
-  <div class="subtitle">先休息一下，玩两个轻松的小游戏吧～</div>
+  <div class="subtitle">先休息一下，玩几个轻松的益智小游戏吧～</div>
 
   <div class="game-grid" id="gameGrid">
     <button class="game-card c2048" data-game="g2048">
@@ -102,6 +130,36 @@ h1 .tw{color:var(--purple2);}
       <h2>井字棋</h2>
       <p>轮流下子，连成横、竖或斜的三个棋子就获胜。可以双人对战，也可以挑战电脑。</p>
       <div class="tags"><span class="tag">双人对战</span><span class="tag">人机模式</span><span class="tag">经典棋类</span></div>
+    </button>
+    <button class="game-card memo" data-game="memo">
+      <div class="icon">🃏</div>
+      <h2>记忆翻牌</h2>
+      <p>翻开两张相同的图案消除它们，看看你能用最少的步数全部找出来。</p>
+      <div class="tags"><span class="tag">记忆力</span><span class="tag">观察力</span><span class="tag">单人</span></div>
+    </button>
+    <button class="game-card match" data-game="match">
+      <div class="icon">🔗</div>
+      <h2>数字连连看</h2>
+      <p>把左边的数字和右边对应的圆点数量连起来，全部配对就获胜。</p>
+      <div class="tags"><span class="tag">数学启蒙</span><span class="tag">配对</span><span class="tag">单人</span></div>
+    </button>
+    <button class="game-card slide" data-game="slide">
+      <div class="icon">🧩</div>
+      <h2>滑块拼图</h2>
+      <p>移动数字滑块，把 1 到 8 按从小到大的顺序排好。</p>
+      <div class="tags"><span class="tag">空间规划</span><span class="tag">顺序感</span><span class="tag">单人</span></div>
+    </button>
+    <button class="game-card pattern" data-game="pattern">
+      <div class="icon">🌈</div>
+      <h2>找规律</h2>
+      <p>观察颜色和图形的排列规律，选出问号后面应该出现的那一个。</p>
+      <div class="tags"><span class="tag">逻辑推理</span><span class="tag">规律观察</span><span class="tag">单人</span></div>
+    </button>
+    <button class="game-card guess" data-game="guess">
+      <div class="icon">🎯</div>
+      <h2>猜数字</h2>
+      <p>电脑心里想了一个 1 到 100 的数字，根据“大了”“小了”的提示猜出来。</p>
+      <div class="tags"><span class="tag">大小比较</span><span class="tag">推理</span><span class="tag">单人</span></div>
     </button>
   </div>
 
@@ -132,12 +190,70 @@ h1 .tw{color:var(--purple2);}
     <div class="tic-board" id="ticBoard"></div>
     <div style="text-align:center; margin-top:18px;"><button class="btn" id="restartTic">重新开始</button></div>
   </section>
+
+  <section class="panel" id="panelMemo">
+    <div class="panel-head">
+      <h2>🃏 记忆翻牌</h2>
+      <button class="btn secondary" id="backFromMemo">返回游戏</button>
+    </div>
+    <div class="score-row">
+      <div class="score-box"><div class="label">步数</div><div class="num" id="memoMoves">0</div></div>
+      <div class="score-box"><div class="label">已配对</div><div class="num" id="memoPairs">0/6</div></div>
+    </div>
+    <div class="status" id="memoStatus">翻两张相同的图案</div>
+    <div class="mini-grid memo-grid" id="memoBoard"></div>
+  </section>
+
+  <section class="panel" id="panelMatch">
+    <div class="panel-head">
+      <h2>🔗 数字连连看</h2>
+      <button class="btn secondary" id="backFromMatch">返回游戏</button>
+    </div>
+    <div class="status" id="matchStatus">先点左边数字，再点右边对应的圆点</div>
+    <div class="match-cols">
+      <div class="match-list" id="matchLeft"></div>
+      <div class="match-list" id="matchRight"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panelSlide">
+    <div class="panel-head">
+      <h2>🧩 滑块拼图</h2>
+      <button class="btn secondary" id="backFromSlide">返回游戏</button>
+    </div>
+    <div class="status" id="slideStatus">把数字按 1～8 排好，空格在右下角</div>
+    <div class="slide-board" id="slideBoard"></div>
+    <div style="text-align:center; margin-top:18px;"><button class="btn" id="restartSlide">重新打乱</button></div>
+  </section>
+
+  <section class="panel" id="panelPattern">
+    <div class="panel-head">
+      <h2>🌈 找规律</h2>
+      <button class="btn secondary" id="backFromPattern">返回游戏</button>
+    </div>
+    <div class="status" id="patternStatus">问号后面应该是哪一个？</div>
+    <div class="pattern-row" id="patternRow"></div>
+    <div class="pattern-options" id="patternOptions"></div>
+  </section>
+
+  <section class="panel" id="panelGuess">
+    <div class="panel-head">
+      <h2>🎯 猜数字</h2>
+      <button class="btn secondary" id="backFromGuess">返回游戏</button>
+    </div>
+    <div class="status" id="guessStatus">我想好了一个 1～100 的数字，你来猜吧！</div>
+    <div class="guess-input">
+      <input type="number" id="guessInput" min="1" max="100" placeholder="1～100">
+      <button class="btn" id="guessSubmit">猜一下</button>
+    </div>
+    <div class="history-row" id="guessHistory"></div>
+  </section>
 </div>
 
 <script>
 (function(){
   var grid = document.getElementById('gameGrid');
-  var panels = { g2048: document.getElementById('panel2048'), tic: document.getElementById('panelTic') };
+  var panels = { g2048: document.getElementById('panel2048'), tic: document.getElementById('panelTic'), memo: document.getElementById('panelMemo'), match: document.getElementById('panelMatch'), slide: document.getElementById('panelSlide'), pattern: document.getElementById('panelPattern'), guess: document.getElementById('panelGuess') };
   function showPanel(name){
     grid.style.display = name ? 'none' : 'grid';
     Object.keys(panels).forEach(function(k){ panels[k].classList.toggle('show', k === name); });
@@ -146,8 +262,9 @@ h1 .tw{color:var(--purple2);}
     var card = e.target.closest('.game-card');
     if(card) showPanel(card.dataset.game);
   });
-  document.getElementById('backFrom2048').addEventListener('click', function(){ showPanel(''); });
-  document.getElementById('backFromTic').addEventListener('click', function(){ showPanel(''); });
+  ['backFrom2048','backFromTic','backFromMemo','backFromMatch','backFromSlide','backFromPattern','backFromGuess'].forEach(function(id){
+    document.getElementById(id).addEventListener('click', function(){ showPanel(''); });
+  });
 
   /* ---------- 2048 ---------- */
   var SIZE = 4, board = [], score = 0, bestTile = 2, over = false, won = false;
@@ -334,6 +451,191 @@ h1 .tw{color:var(--purple2);}
   });
   document.getElementById('restartTic').addEventListener('click', resetTic);
   renderTic();
+
+  /* ---------- 记忆翻牌 ---------- */
+  var memoIcons = ['🍎','⭐','🐰','🚗','🌈','⚽'];
+  var memoDeck = [], memoOpen = [], memoMatched = 0, memoMoves = 0, memoLock = false;
+  var memoBoard = document.getElementById('memoBoard');
+  var memoStatus = document.getElementById('memoStatus');
+  var memoMovesEl = document.getElementById('memoMoves');
+  var memoPairsEl = document.getElementById('memoPairs');
+  function shuffle(arr){ return arr.slice().sort(function(){ return Math.random() - 0.5; }); }
+  function resetMemo(){
+    memoDeck = shuffle(memoIcons.concat(memoIcons));
+    memoOpen = []; memoMatched = 0; memoMoves = 0; memoLock = false;
+    renderMemo();
+  }
+  function renderMemo(){
+    memoBoard.innerHTML = '';
+    memoDeck.forEach(function(icon, i){
+      var btn = document.createElement('button');
+      btn.className = 'memo-card';
+      btn.textContent = icon;
+      btn.addEventListener('click', function(){ flipMemo(i, btn); });
+      memoBoard.appendChild(btn);
+    });
+    memoMovesEl.textContent = memoMoves;
+    memoPairsEl.textContent = memoMatched + '/6';
+    memoStatus.textContent = memoMatched === 6 ? '🎉 全部配对成功！' : '翻两张相同的图案';
+  }
+  function flipMemo(i, btn){
+    if(memoLock || btn.classList.contains('open') || btn.classList.contains('matched')) return;
+    btn.classList.add('open'); memoOpen.push({i:i, btn:btn});
+    if(memoOpen.length === 2){
+      memoMoves += 1; memoMovesEl.textContent = memoMoves;
+      var a = memoOpen[0], b = memoOpen[1];
+      if(memoDeck[a.i] === memoDeck[b.i]){
+        a.btn.classList.add('matched'); b.btn.classList.add('matched');
+        memoMatched += 1; memoPairsEl.textContent = memoMatched + '/6';
+        memoOpen = [];
+        if(memoMatched === 6) memoStatus.textContent = '🎉 全部配对成功！';
+      } else {
+        memoLock = true;
+        setTimeout(function(){
+          a.btn.classList.remove('open'); b.btn.classList.remove('open');
+          memoOpen = []; memoLock = false;
+        }, 650);
+      }
+    }
+  }
+  resetMemo();
+
+  /* ---------- 数字连连看 ---------- */
+  var matchPairs = [1,2,3,4,5,6];
+  var matchLeftSel = null, matchDone = [];
+  var matchLeftEl = document.getElementById('matchLeft');
+  var matchRightEl = document.getElementById('matchRight');
+  var matchStatus = document.getElementById('matchStatus');
+  function renderMatch(){
+    matchLeftEl.innerHTML = ''; matchRightEl.innerHTML = ''; matchDone = []; matchLeftSel = null;
+    shuffle(matchPairs).forEach(function(n){
+      var btn = document.createElement('button');
+      btn.className = 'match-item'; btn.textContent = n; btn.dataset.value = n;
+      btn.addEventListener('click', function(){ matchLeftSel = btn; highlightMatch(btn, matchLeftEl); });
+      matchLeftEl.appendChild(btn);
+    });
+    shuffle(matchPairs).forEach(function(n){
+      var btn = document.createElement('button');
+      btn.className = 'match-item'; btn.textContent = '●'.repeat(n); btn.dataset.value = n;
+      btn.addEventListener('click', function(){ matchRightClick(btn); });
+      matchRightEl.appendChild(btn);
+    });
+    matchStatus.textContent = '先点左边数字，再点右边对应的圆点';
+  }
+  function highlightMatch(btn, list){
+    list.querySelectorAll('.match-item').forEach(function(b){ b.classList.remove('selected'); });
+    btn.classList.add('selected');
+  }
+  function matchRightClick(btn){
+    if(!matchLeftSel || btn.classList.contains('done')) return;
+    if(matchLeftSel.dataset.value === btn.dataset.value){
+      matchLeftSel.classList.remove('selected'); matchLeftSel.classList.add('done'); btn.classList.add('done');
+      matchDone.push(Number(btn.dataset.value)); matchLeftSel = null;
+      matchStatus.textContent = matchDone.length === matchPairs.length ? '🎉 全部配对成功！' : '配对正确，继续下一组';
+    } else {
+      matchStatus.textContent = '再想一想，圆点数量要和数字一样哦';
+    }
+  }
+  renderMatch();
+
+  /* ---------- 滑块拼图 ---------- */
+  var slideOrder = [], slideEmpty = 8, slideWon = false;
+  var slideBoard = document.getElementById('slideBoard');
+  var slideStatus = document.getElementById('slideStatus');
+  function resetSlide(){
+    do { slideOrder = shuffle([1,2,3,4,5,6,7,8,0]); } while(isSlideSolved());
+    slideEmpty = slideOrder.indexOf(0); slideWon = false; renderSlide();
+  }
+  function isSlideSolved(){
+    for(var i=0;i<8;i++) if(slideOrder[i] !== i+1) return false;
+    return slideOrder[8] === 0;
+  }
+  function renderSlide(){
+    slideBoard.innerHTML = '';
+    slideOrder.forEach(function(v, i){
+      var btn = document.createElement('button');
+      btn.className = 'slide-cell' + (v ? '' : ' empty');
+      btn.textContent = v || '';
+      btn.addEventListener('click', function(){ moveSlide(i); });
+      slideBoard.appendChild(btn);
+    });
+    slideStatus.textContent = slideWon ? '🎉 排好啦，真聪明！' : '把数字按 1～8 排好，空格在右下角';
+  }
+  function moveSlide(i){
+    if(slideWon) return;
+    var row = Math.floor(i/3), col = i%3, er = Math.floor(slideEmpty/3), ec = slideEmpty%3;
+    if(Math.abs(row-er) + Math.abs(col-ec) !== 1) return;
+    slideOrder[slideEmpty] = slideOrder[i]; slideOrder[i] = 0; slideEmpty = i;
+    if(isSlideSolved()) slideWon = true;
+    renderSlide();
+  }
+  document.getElementById('restartSlide').addEventListener('click', resetSlide);
+  resetSlide();
+
+  /* ---------- 找规律 ---------- */
+  var patternSets = [
+    {seq:['🔴','🟡','🔴','🟡'], options:['🔴','🟡','🟢'], answer:0},
+    {seq:['⭐','⭐','🌙','⭐','⭐'], options:['🌙','⭐','☀️'], answer:0},
+    {seq:['🚗','🚕','🚗','🚕'], options:['🚕','🚗','🚙'], answer:0},
+    {seq:['1','2','3','4'], options:['5','3','6'], answer:0},
+    {seq:['🔵','🔵','🔴','🔵','🔵'], options:['🔴','🔵','🟢'], answer:0}
+  ];
+  var patternIndex = 0;
+  var patternRow = document.getElementById('patternRow');
+  var patternOptions = document.getElementById('patternOptions');
+  var patternStatus = document.getElementById('patternStatus');
+  function renderPattern(){
+    var set = patternSets[patternIndex];
+    patternRow.innerHTML = '';
+    set.seq.forEach(function(v){
+      var tile = document.createElement('div'); tile.className = 'pattern-tile'; tile.textContent = v; patternRow.appendChild(tile);
+    });
+    var q = document.createElement('div'); q.className = 'pattern-tile'; q.textContent = '?'; patternRow.appendChild(q);
+    patternOptions.innerHTML = '';
+    set.options.forEach(function(v, i){
+      var btn = document.createElement('button'); btn.className = 'option-btn'; btn.textContent = v;
+      btn.addEventListener('click', function(){ checkPattern(i); });
+      patternOptions.appendChild(btn);
+    });
+    patternStatus.textContent = '问号后面应该是哪一个？';
+  }
+  function checkPattern(i){
+    var set = patternSets[patternIndex];
+    if(i === set.answer){
+      patternStatus.textContent = '✅ 答对了！';
+      patternIndex = (patternIndex + 1) % patternSets.length;
+      setTimeout(renderPattern, 700);
+    } else {
+      patternStatus.textContent = '再观察一下前面的排列规律哦';
+    }
+  }
+  renderPattern();
+
+  /* ---------- 猜数字 ---------- */
+  var guessAnswer = Math.floor(Math.random()*100)+1, guessTries = 0;
+  var guessInput = document.getElementById('guessInput');
+  var guessStatus = document.getElementById('guessStatus');
+  var guessHistory = document.getElementById('guessHistory');
+  function resetGuess(){
+    guessAnswer = Math.floor(Math.random()*100)+1; guessTries = 0;
+    guessHistory.innerHTML = ''; guessInput.value = '';
+    guessStatus.textContent = '我想好了一个 1～100 的数字，你来猜吧！';
+  }
+  function submitGuess(){
+    var v = Number(guessInput.value);
+    if(!v || v < 1 || v > 100){ guessStatus.textContent = '请输入 1 到 100 之间的数字'; return; }
+    guessTries += 1;
+    var chip = document.createElement('span'); chip.className = 'history-chip';
+    if(v === guessAnswer){
+      chip.textContent = v + ' ✅'; guessStatus.textContent = '🎉 猜对了！共用了 ' + guessTries + ' 次';
+      guessHistory.appendChild(chip); setTimeout(resetGuess, 1200); return;
+    }
+    var hint = v > guessAnswer ? '大了' : '小了';
+    chip.textContent = v + ' · ' + hint; guessHistory.appendChild(chip);
+    guessStatus.textContent = hint + '，再猜一次！'; guessInput.value = ''; guessInput.focus();
+  }
+  document.getElementById('guessSubmit').addEventListener('click', submitGuess);
+  guessInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') submitGuess(); });
 })();
 </script>
 </body>
