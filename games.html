@@ -69,8 +69,8 @@ h1 .tw{color:var(--purple2);}
 .tip{text-align:center; color:var(--ink2); font-size:13px; margin-top:14px;}
 
 /* 井字棋 */
-.tic-board{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:360px; margin:0 auto;}
-.tic-cell{aspect-ratio:1; border-radius:20px; background:#f1f8ec; border:2px solid #d8f3cf; display:flex; align-items:center; justify-content:center; font-size:clamp(30px,9vw,44px); font-weight:900; cursor:pointer;}
+.tic-board{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr)); gap:12px; width:min(100%,360px); aspect-ratio:1; margin:0 auto;}
+.tic-cell{width:100%; height:100%; min-width:0; min-height:0; border-radius:20px; background:#f1f8ec; border:2px solid #d8f3cf; display:flex; align-items:center; justify-content:center; font-size:clamp(30px,9vw,44px); font-weight:900; cursor:pointer; line-height:1; padding:0;}
 .tic-cell.x{color:var(--purple);} .tic-cell.o{color:var(--orange);}
 .tic-cell.win{background:#d3f9d8; border-color:#8ce99a;}
 .mode-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
