@@ -1446,7 +1446,7 @@
           accountEmail = res.data.email || user.email || '';
           isVip = !!res.data.is_vip;
         } else {
-          return sb.from('profiles').insert({
+          return sb.from('profiles').upsert({
             user_id: user.id,
             email: user.email || null,
             login_id: null,
