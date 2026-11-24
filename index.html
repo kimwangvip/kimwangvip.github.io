@@ -182,12 +182,15 @@
   }
   .hist-tab.active{background:linear-gradient(180deg,#ffd166,#ff9f1a); color:#fff; border-color:#ffb347; box-shadow:0 3px 8px rgba(255,159,26,.3);}
   .history .list{display:flex; flex-wrap:wrap; gap:8px; min-height:26px;}
+  .history .list.exchange-list{flex-direction:column; align-items:stretch;}
   .chip{background:#fff2cc; color:#8a5b00; border-radius:16px; padding:8px 14px; font-size:15px; border:2px solid #ffe08a; white-space:nowrap; position:relative; display:inline-flex; flex-direction:column; align-items:flex-start; transition:all .15s;}
   .chip.clickable{cursor:pointer;}
   .chip.clickable:hover{border-color:#ffb347; background:#fff8e7; transform:translateY(-2px); box-shadow:0 6px 14px rgba(255,180,80,.25);}
   .chip.exchange{background:#ffe3e3; color:#c92a2a; border-color:#ffa8a8;}
-  .chip.exchange.clickable{cursor:pointer;}
+  .chip.exchange.clickable{cursor:pointer; width:100%; box-sizing:border-box; white-space:normal; flex-direction:row; flex-wrap:wrap; gap:4px 10px; align-items:center;}
   .chip.exchange.clickable:hover{border-color:#ff8787; background:#fff5f5; transform:translateY(-2px); box-shadow:0 6px 14px rgba(255,135,135,.25);}
+  .ex-name{font-weight:700;}
+  .ex-sub{font-size:12px; color:#a07070; margin-left:auto;}
   .chip .note{display:block; font-size:11px; color:#a09080; margin-top:3px; font-family:'PingFang SC','Microsoft YaHei',sans-serif;}
   .chip .thumbs{display:flex; gap:5px; margin-top:6px;}
   .chip .thumbs img{
@@ -360,6 +363,7 @@
   }
   .hd-item .hd-idx{font-size:13px; color:#a09080;}
   .hd-item .hd-p{font-size:20px; color:#e67e22; font-weight:900;}
+  .hd-item .hd-name{font-size:15px; color:#c92a2a; font-weight:700; margin-top:4px;}
   .hd-item .hd-note{
     font-size:13px; color:#7a5a3a; background:#fff;
     border-radius:8px; padding:6px 10px; margin-top:6px;
@@ -1831,7 +1835,7 @@
     list.forEach(function(h){
       var key = h.full || h.d || '';
       if(!map[key]){
-        map[key] = {date:key, items:[], totalP:0, count:0, note:'', photos:[], isExchange: h.p<0, name: h.name||''};
+        map[key] = {date:key, items:[], totalP:0, count:0, note:'', photos:[], isExchange: h.p<0, name: h.name||'', names:[]};
         order.push(key);
       }
       map[key].items.push(h);
@@ -1841,7 +1845,10 @@
       if(h.photos && h.photos.length){
         map[key].photos = map[key].photos.concat(h.photos);
       }
-      if(h.p<0) map[key].name = h.name || map[key].name;
+      if(h.p<0){
+        var exName = h.name || '兑换';
+        if(map[key].names.indexOf(exName) === -1) map[key].names.push(exName);
+      }
     });
     return order.map(function(k){ return map[k]; });
   }
@@ -1850,6 +1857,7 @@
 
   function renderHist(){
     var box=document.getElementById('histList');
+    box.classList.toggle('exchange-list', currentTab==='exchange');
     var list = hist.filter(function(h){ return currentTab==='earn' ? h.p>=0 : h.p<0; });
     if(!list.length){
       currentGroups = [];
@@ -1869,8 +1877,14 @@
         }).join('') + '</span>';
       }
       if(g.isExchange){
-        var exCntTxt = g.count>1 ? ('共'+g.count+'次 ') : '';
-        return '<span class="chip exchange clickable" data-gi="'+gi+'">'+dateStr+' · '+exCntTxt+escapeHtml(g.name||'兑换')+'('+g.totalP+'分)'+
+        var exNames = g.names && g.names.length ? g.names : [g.name || '兑换'];
+        var exCountTxt = g.count>1 ? ('共'+g.count+'次') : '1次';
+        var exTitle = exNames.slice(0,3).join('、');
+        var exMoreTxt = exNames.length>3 ? (' 等'+exNames.length+'种') : '';
+        return '<span class="chip exchange clickable" data-gi="'+gi+'">'+
+          '<span>'+dateStr+'</span>'+
+          '<span class="ex-name">'+escapeHtml(exTitle)+escapeHtml(exMoreTxt)+'</span>'+
+          '<span class="ex-sub">'+exCountTxt + ' · ' + g.totalP + '分</span>'+
           noteHtml+
         '</span>';
       } else {
@@ -1916,11 +1930,13 @@
             return '<img src="'+url+'" data-url="'+url+'" alt="照片">';
           }).join('')+'</div>';
         }
+        var exchangeName = isExchange ? ('<div class="hd-name">🎁 '+escapeHtml(h.name||'兑换')+'</div>') : '';
         return '<div class="hd-item">'+
           '<div class="hd-top">'+
             '<span class="hd-idx">第 '+(group.items.length - i)+' 次</span>'+
             '<span class="hd-p">'+(isExchange ? h.p : '+'+h.p)+' 分</span>'+
           '</div>'+
+          exchangeName+
           note+
           photos+
         '</div>';
