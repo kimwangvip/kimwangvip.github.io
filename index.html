@@ -1476,25 +1476,48 @@
   }
 
   var saveTimer = null;
+  var saveRetry = 0;
+  var pendingSave = null;
   function saveCloud(){
-    if(!user) return;
+    if(!user) return Promise.resolve();
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(function(){
-      sb.from('scores').upsert({
-        user_id: user.id,
-        total_points: totalPoints,
-        history: hist,
-        today: today,
-        today_note: todayNote,
-        rewards: rewards,
-        opts: opts,
-        max_draws: maxDraws,
-        spin_speed: spinSpeed,
-        updated_at: new Date().toISOString()
-      }).then(function(res){
-        if(res.error) console.warn('保存失败', res.error);
-      });
-    }, 300);
+    var snapshot = {
+      user_id: user.id,
+      total_points: totalPoints,
+      history: hist.slice(),
+      today: today,
+      today_note: todayNote,
+      rewards: rewards.map(function(r){ return {name:r.name, cost:r.cost}; }),
+      opts: opts.map(function(o){ return {v:o.v, w:o.w}; }),
+      max_draws: maxDraws,
+      spin_speed: spinSpeed,
+      updated_at: new Date().toISOString()
+    };
+    pendingSave = new Promise(function(resolve){
+      saveTimer = setTimeout(function(){
+        sb.from('scores').upsert(snapshot).then(function(res){
+          if(res.error){
+            console.warn('保存失败，稍后重试', res.error);
+            if(saveRetry < 3){
+              saveRetry += 1;
+              setTimeout(saveCloud, 1000 * saveRetry);
+            }
+            resolve(res);
+            return;
+          }
+          saveRetry = 0;
+          resolve(res);
+        }).catch(function(err){
+          console.warn('保存异常，稍后重试', err);
+          if(saveRetry < 3){
+            saveRetry += 1;
+            setTimeout(saveCloud, 1000 * saveRetry);
+          }
+          resolve({ error: err });
+        });
+      }, 300);
+    });
+    return pendingSave;
   }
 
   function loadCloud(){
@@ -1502,8 +1525,8 @@
       .then(function(res){
         if(res.error){ console.warn('读取失败', res.error); return; }
         if(res.data){
-          totalPoints = res.data.total_points || 0;
-          hist = res.data.history || [];
+          totalPoints = Number(res.data.total_points || 0);
+          hist = Array.isArray(res.data.history) ? res.data.history : [];
           today = res.data.today || null;
           todayNote = res.data.today_note || '';
           if(res.data.rewards && res.data.rewards.length) rewards = res.data.rewards;
@@ -1728,7 +1751,7 @@
 
     saveCloud();
     var ptsBox = document.getElementById('ptsBox');
-    document.getElementById('totalPts').textContent=totalPoints;
+    refreshPointsDisplay();
     ptsBox.classList.remove('pop'); void ptsBox.offsetWidth; ptsBox.classList.add('pop');
     document.getElementById('result').innerHTML='今天抽到 <span class="prize">+'+v+' 分</span>，真棒！';
     document.getElementById('prizePts').textContent='+'+v;
@@ -1816,7 +1839,7 @@
     hist.unshift({d:todayStr().slice(5), p:-r.cost, full:todayStr(), name:r.name});
     if(hist.length>100)hist=hist.slice(0,100);
     saveCloud();
-    document.getElementById('totalPts').textContent = totalPoints;
+    refreshPointsDisplay();
     document.getElementById('result').innerHTML = '🎉 成功兑换「'+escapeHtml(r.name)+'」！<span class="prize">-'+r.cost+'分</span>';
     renderHist();
     updateStatus();
@@ -3227,7 +3250,13 @@
     renderRecent();
   });
 
+  function refreshPointsDisplay(){
+    var ptsBox = document.getElementById('totalPts');
+    if(ptsBox) ptsBox.textContent = totalPoints;
+  }
+
   function enterApp(){
+    refreshPointsDisplay();
     if(isVip){
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('mainWrap').style.display = 'none';
@@ -3442,13 +3471,20 @@
 
   window.addEventListener('resize',function(){ setupCanvas(); buildWheel(-1); draw(angle); });
 
+  var sessionLoadToken = 0;
+  var onlineSessionId = '';
   sb.auth.onAuthStateChange(function(event, session){
     if(session && session.user){
       user = session.user;
+      onlineSessionId = session.access_token || session.user.id;
+      var token = ++sessionLoadToken;
       setAuthMode(false);
       authMsg.className = 'msg ok';
       authMsg.textContent = '正在加载数据…';
-      Promise.all([loadProfile(), loadCloud()]).then(function(){ enterApp(); });
+      Promise.all([loadProfile(), loadCloud()]).then(function(){
+        if(token !== sessionLoadToken || onlineSessionId !== (session.access_token || session.user.id)) return;
+        enterApp();
+      });
     } else {
       user = null;
       isVip = false;
@@ -3464,7 +3500,12 @@
   sb.auth.getSession().then(function(res){
     if(res.data && res.data.session && res.data.session.user){
       user = res.data.session.user;
-      Promise.all([loadProfile(), loadCloud()]).then(enterApp);
+      onlineSessionId = res.data.session.access_token || res.data.session.user.id;
+      var token = ++sessionLoadToken;
+      Promise.all([loadProfile(), loadCloud()]).then(function(){
+        if(token !== sessionLoadToken || onlineSessionId !== (session.access_token || session.user.id)) return;
+        enterApp();
+      });
     } else {
       document.getElementById('authScreen').style.display = 'flex';
       var switchTo = null;
