@@ -286,23 +286,40 @@ h1 .tw{color:var(--purple2);}
   }
   function aiMove(){
     if(ticOver) return;
-    var best = minimax(tic, 0, true).index;
-    if(best != null) placeTic(best);
+    var open = tic.map(function(v, i){ return v ? null : i; }).filter(function(v){ return v !== null; });
+    var bestIndex = null, bestScore = -Infinity;
+    open.forEach(function(i){
+      var next = tic.slice(); next[i] = 'O';
+      var score = minimaxState(next, 1, false);
+      if(score > bestScore){ bestScore = score; bestIndex = i; }
+    });
+    if(bestIndex === null) return;
+    var tied = open.filter(function(i){
+      var next = tic.slice(); next[i] = 'O';
+      return minimaxState(next, 1, false) === bestScore;
+    });
+    if(tied.indexOf(4) !== -1) bestIndex = 4;
+    else {
+      var corner = tied.find(function(i){ return [0,2,6,8].indexOf(i) !== -1; });
+      if(corner !== undefined) bestIndex = corner;
+    }
+    placeTic(bestIndex);
   }
-  function minimax(boardState, depth, isMax){
-    var line = winnerLine();
-    if(line) return {score: boardState[line[0]] === 'O' ? 10 - depth : depth - 10};
-    if(boardState.every(Boolean)) return {score:0};
-    var moves = [];
+  function minimaxState(boardState, depth, isMax){
+    var line = wins.find(function(w){
+      var a=w[0], b=w[1], c=w[2];
+      return boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c];
+    });
+    if(line) return boardState[line[0]] === 'O' ? 10 - depth : depth - 10;
+    if(boardState.every(Boolean)) return 0;
+    var scores = [];
     for(var i=0;i<9;i++){
       if(!boardState[i]){
         var next = boardState.slice(); next[i] = isMax ? 'O' : 'X';
-        var res = minimax(next, depth+1, !isMax);
-        moves.push({index:i, score:res.score});
+        scores.push(minimaxState(next, depth+1, !isMax));
       }
     }
-    var best = isMax ? Math.max.apply(null, moves.map(function(m){return m.score;})) : Math.min.apply(null, moves.map(function(m){return m.score;}));
-    return moves.find(function(m){ return m.score === best; });
+    return isMax ? Math.max.apply(null, scores) : Math.min.apply(null, scores);
   }
   function resetTic(){
     tic = Array(9).fill(''); current = 'X'; ticOver = false;
