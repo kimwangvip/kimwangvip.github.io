@@ -13,6 +13,8 @@
     --cream:#fff8e7; --line:#e8dcc8;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  button, input{ min-height:40px; }
+  @media (max-width:600px){ button, input{ min-height:44px; } }
   html,body{margin:0; padding:0; overflow-x: hidden;}
   body{
     min-height:100vh;
@@ -524,6 +526,7 @@
     if(!state.ready){ setLoggedOut(); return; }
     state.loading = true;
     state.isRandomView = false;
+    setLoading('正在加载成语…');
 
     state.page = page || 0;
     var from = state.page * PAGE_SIZE;

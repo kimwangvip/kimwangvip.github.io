@@ -12,6 +12,8 @@
   --pink:#ff8787; --paper:#fffdf8; --line:#eadff6; --shadow:0 14px 34px rgba(94,67,154,.16);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+button, input{ min-height:40px; }
+@media (max-width:600px){ button, input{ min-height:44px; } }
 html,body{margin:0; padding:0; overflow-x:hidden;}
 body{
   min-height:100vh;
@@ -266,8 +268,16 @@ h1 .tw{color:var(--purple2);}
     document.getElementById(id).addEventListener('click', function(){ showPanel(''); });
   });
 
+  function loadGameHigh(key, fallback){
+    try { return Number(localStorage.getItem(key)) || fallback; } catch(e){ return fallback; }
+  }
+  function saveGameHigh(key, value){
+    try { localStorage.setItem(key, String(value)); } catch(e){}
+  }
+
   /* ---------- 2048 ---------- */
   var SIZE = 4, board = [], score = 0, bestTile = 2, over = false, won = false;
+  var high2048 = loadGameHigh('bao_high_2048', 0);
   var boardEl = document.getElementById('board2048');
   var scoreEl = document.getElementById('score2048');
   var bestEl = document.getElementById('bestTile');
@@ -340,8 +350,9 @@ h1 .tw{color:var(--purple2);}
       cell.textContent = v || '';
       boardEl.appendChild(cell);
     }); });
+    if(score > high2048){ high2048 = score; saveGameHigh('bao_high_2048', high2048); }
     scoreEl.textContent = score; bestEl.textContent = bestTile;
-    statusEl.textContent = over ? '没有可移动的方块啦，重新开始吧！' : won ? '太棒了，已经合成 2048！' : '滑动或按方向键移动方块';
+    statusEl.textContent = over ? ('没有可移动的方块啦！历史最高分 ' + high2048) : won ? '太棒了，已经合成 2048！' : '滑动或按方向键移动方块';
   }
   document.addEventListener('keydown', function(e){
     if(!panels.g2048.classList.contains('show')) return;
@@ -455,6 +466,7 @@ h1 .tw{color:var(--purple2);}
   /* ---------- 记忆翻牌 ---------- */
   var memoIcons = ['🍎','⭐','🐰','🚗','🌈','⚽'];
   var memoDeck = [], memoOpen = [], memoMatched = 0, memoMoves = 0, memoLock = false;
+  var memoBest = loadGameHigh('bao_best_memo', 0) || null;
   var memoBoard = document.getElementById('memoBoard');
   var memoStatus = document.getElementById('memoStatus');
   var memoMovesEl = document.getElementById('memoMoves');
@@ -466,6 +478,7 @@ h1 .tw{color:var(--purple2);}
     renderMemo();
   }
   function renderMemo(){
+    memoBest = loadGameHigh('bao_best_memo', 0) || null;
     memoBoard.innerHTML = '';
     memoDeck.forEach(function(icon, i){
       var btn = document.createElement('button');
@@ -476,7 +489,9 @@ h1 .tw{color:var(--purple2);}
     });
     memoMovesEl.textContent = memoMoves;
     memoPairsEl.textContent = memoMatched + '/6';
-    memoStatus.textContent = memoMatched === 6 ? '🎉 全部配对成功！' : '翻两张相同的图案';
+    memoStatus.textContent = memoMatched === 6
+      ? ('🎉 全部配对成功！' + (memoBest ? ' 最少 ' + memoBest + ' 步' : ''))
+      : '翻两张相同的图案';
   }
   function flipMemo(i, btn){
     if(memoLock || btn.classList.contains('open') || btn.classList.contains('matched')) return;
@@ -488,7 +503,10 @@ h1 .tw{color:var(--purple2);}
         a.btn.classList.add('matched'); b.btn.classList.add('matched');
         memoMatched += 1; memoPairsEl.textContent = memoMatched + '/6';
         memoOpen = [];
-        if(memoMatched === 6) memoStatus.textContent = '🎉 全部配对成功！';
+        if(memoMatched === 6){
+          if(!memoBest || memoMoves < memoBest){ memoBest = memoMoves; saveGameHigh('bao_best_memo', memoBest); }
+          memoStatus.textContent = '🎉 全部配对成功！最少 ' + memoBest + ' 步';
+        }
       } else {
         memoLock = true;
         setTimeout(function(){

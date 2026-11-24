@@ -70,6 +70,9 @@
   }
   .logoutbtn:active{transform:translateY(2px); box-shadow:0 1px 0 #5a5a5a;}
 
+  button, input, .btn, .filter-chip, .mode-btn{ min-height:40px; }
+  @media (max-width:600px){ button, input, .btn{ min-height:44px; } }
+
   /* 钱包卡片 */
   .wallet{
     position:relative; overflow:hidden;
@@ -92,6 +95,9 @@
   .wallet .pts small{font-size:20px;}
   .wallet .pts.pop{animation:ptsPop .5s cubic-bezier(.22,1,.36,1);}
   @keyframes ptsPop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .net-status{max-width:450px; margin:12px auto 0; border-radius:16px; padding:10px 14px; font-size:14px; line-height:1.5; text-align:center;}
+  .net-status.warn{background:#fff3bf; color:#8a6100; border:1px solid #ffd43b;}
+  .net-status.info{background:#e7f5ff; color:#1864ab; border:1px solid #a5d8ff;}
   .wallet .btns{display:flex; gap:8px; flex-wrap:wrap; position:relative;}
   .wallet .reset-btn{
     font-family:inherit; font-size:14px; color:#fff; cursor:pointer; border:none;
@@ -783,6 +789,8 @@
     </div>
   </header>
 
+  <div class="net-status" id="netStatus" style="display:none;"></div>
+
   <div class="wallet">
     <div class="lbl">
       <span class="bn" id="babyNameDisplay">宝贝</span>攒到的积分
@@ -1337,6 +1345,8 @@
   var LOGIN_ID_RE = /^[a-zA-Z0-9_]{3,20}$/;
   var RECENT_KEY = 'bao_recent_accounts';
   var RECENT_MAX = 5;
+  var CACHE_KEY_PREFIX = 'bao_cache_score_';
+  var NETWORK_MSG_KEY = 'bao_network_msg';
 
   var user = null;
   var isVip = false;
@@ -1395,6 +1405,59 @@
 
   function isEmail(s){ return s.indexOf('@') !== -1; }
 
+  function cacheKey(){ return CACHE_KEY_PREFIX + (user ? user.id : 'guest'); }
+  function saveLocalCache(){
+    if(!user) return;
+    try {
+      localStorage.setItem(cacheKey(), JSON.stringify({
+        totalPoints: totalPoints, hist: hist, today: today, todayNote: todayNote,
+        rewards: rewards, opts: opts, maxDraws: maxDraws, spinSpeed: spinSpeed,
+        savedAt: new Date().toISOString()
+      }));
+    } catch(e){}
+  }
+  function loadLocalCache(){
+    if(!user) return null;
+    try { return JSON.parse(localStorage.getItem(cacheKey()) || 'null'); } catch(e){ return null; }
+  }
+  function applyLocalCache(cache){
+    if(!cache) return false;
+    totalPoints = Number(cache.totalPoints || 0);
+    hist = Array.isArray(cache.history || cache.hist) ? (cache.history || cache.hist) : [];
+    today = cache.today || null;
+    todayNote = cache.todayNote || '';
+    if(Array.isArray(cache.rewards) && cache.rewards.length) rewards = cache.rewards;
+    if(Array.isArray(cache.opts) && cache.opts.length) opts = cache.opts;
+    if(typeof cache.maxDraws === 'number') maxDraws = cache.maxDraws;
+    if(cache.spinSpeed) spinSpeed = cache.spinSpeed;
+    return true;
+  }
+  function showNetworkMsg(text, type){
+    var el = document.getElementById('netStatus');
+    if(!el) return;
+    el.textContent = text || '';
+    el.style.display = text ? 'block' : 'none';
+    el.className = 'net-status ' + (type || 'info');
+    try {
+      if(text) localStorage.setItem(NETWORK_MSG_KEY, JSON.stringify({text:text, type:type||'info', t:Date.now()}));
+      else localStorage.removeItem(NETWORK_MSG_KEY);
+    } catch(e){}
+  }
+  function restoreNetworkMsg(){
+    try {
+      var raw = localStorage.getItem(NETWORK_MSG_KEY);
+      if(!raw) return;
+      var saved = JSON.parse(raw);
+      if(saved && saved.text){
+        var el = document.getElementById('netStatus');
+        if(el){
+          el.textContent = saved.text;
+          el.style.display = 'block';
+          el.className = 'net-status ' + (saved.type || 'warn');
+        }
+      }
+    } catch(e){}
+  }
   function loadRecent(){
     try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e){ return []; }
   }
@@ -1498,6 +1561,7 @@
       spin_speed: spinSpeed,
       updated_at: new Date().toISOString()
     };
+    saveLocalCache();
     pendingSave = new Promise(function(resolve){
       saveTimer = setTimeout(function(){
         sb.from('scores').upsert(snapshot).then(function(res){
@@ -1506,6 +1570,8 @@
             if(saveRetry < 3){
               saveRetry += 1;
               setTimeout(saveCloud, 1000 * saveRetry);
+            } else {
+              showNetworkMsg('网络暂时不可用，记录已先保存在本机，联网后会自动重试', 'warn');
             }
             resolve(res);
             return;
@@ -1517,6 +1583,8 @@
           if(saveRetry < 3){
             saveRetry += 1;
             setTimeout(saveCloud, 1000 * saveRetry);
+          } else {
+            showNetworkMsg('网络暂时不可用，记录已先保存在本机，联网后会自动重试', 'warn');
           }
           resolve({ error: err });
         });
@@ -1528,7 +1596,13 @@
   function loadCloud(){
     return sb.from('scores').select('*').eq('user_id', user.id).maybeSingle()
       .then(function(res){
-        if(res.error){ console.warn('读取失败', res.error); return; }
+        if(res.error){
+          console.warn('读取失败，使用本地缓存', res.error);
+          var cached = loadLocalCache();
+          if(applyLocalCache(cached)) showNetworkMsg('网络暂时不可用，当前显示本地缓存记录', 'warn');
+          resetTodayIfNeeded();
+          return;
+        }
         if(res.data){
           totalPoints = Number(res.data.total_points || 0);
           hist = Array.isArray(res.data.history) ? res.data.history : [];
@@ -1539,13 +1613,18 @@
           if(typeof res.data.max_draws === 'number') maxDraws = res.data.max_draws;
           if(res.data.spin_speed) spinSpeed = res.data.spin_speed;
         } else {
-          totalPoints = 0; hist = []; today = null; todayNote='';
-          rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
-          opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
-          maxDraws = DEFAULT_MAX_DRAWS;
-          spinSpeed = 'normal';
+          var cached = loadLocalCache();
+          if(!applyLocalCache(cached)){
+            totalPoints = 0; hist = []; today = null; todayNote='';
+            rewards = DEFAULT_REWARDS.map(function(r){return {name:r.name,cost:r.cost};});
+            opts = DEFAULT_OPTS.map(function(o){return {v:o.v,w:o.w};});
+            maxDraws = DEFAULT_MAX_DRAWS;
+            spinSpeed = 'normal';
+          }
           saveCloud();
         }
+        saveLocalCache();
+        showNetworkMsg('', 'info');
         resetTodayIfNeeded();
       });
   }
@@ -2083,6 +2162,7 @@
       }
 
       pendingPhotos = [];
+      saveLocalCache();
       renderPhotoPreview();
       document.getElementById('totalPts').textContent = '0';
       document.getElementById('result').innerHTML = '积分已清零，重新开始攒分吧！';
@@ -3292,6 +3372,7 @@
 
   document.getElementById('authForm').addEventListener('submit', function(e){
     e.preventDefault();
+    authBtn.click();
   });
   authBtn.addEventListener('click', function(){
     var acc = (accountInput.value||'').trim();
@@ -3481,6 +3562,7 @@
 
   var sessionLoadToken = 0;
   var onlineSessionId = '';
+  restoreNetworkMsg();
   sb.auth.onAuthStateChange(function(event, session){
     if(session && session.user){
       user = session.user;
