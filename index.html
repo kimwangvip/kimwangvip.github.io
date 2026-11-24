@@ -799,7 +799,6 @@
     <div class="pts" id="ptsBox"><span id="totalPts">0</span><small> 分</small></div>
     <div class="btns">
       <button class="exchange-btn" id="exchangeBtn" disabled>🎁 兑换奖励</button>
-      <button class="reset-btn" id="resetBtn" title="积分清零，重新开始">🔄 清零重记</button>
     </div>
   </div>
 
@@ -1044,6 +1043,11 @@
         <span class="mval" id="mSwitchVal"></span>
         <span class="marrow">›</span>
       </button>
+      <button class="mitem" id="mResetPoints">
+        <span class="mico">🔄</span>
+        <span class="mtxt" style="color:#e03131;">清零重记</span>
+        <span class="marrow">›</span>
+      </button>
       <button class="mitem" id="mDeleteAccount">
         <span class="mico">🗑️</span>
         <span class="mtxt" style="color:#e03131;">注销账号</span>
@@ -1052,7 +1056,7 @@
       <button class="mitem" id="mAbout">
         <span class="mico">ℹ️</span>
         <span class="mtxt">关于</span>
-        <span class="mval" id="mAboutVal">v2.1</span>
+        <span class="mval" id="mAboutVal">v2.2</span>
         <span class="marrow">›</span>
       </button>
     </div>
@@ -1192,8 +1196,8 @@
   <div class="panel">
     <h2>关于</h2>
     <div class="about-info">
-      <div class="ver" id="aboutVer">v2.1</div>
-      <div class="date" id="aboutDate">2026-10-16</div>
+      <div class="ver" id="aboutVer">v2.2</div>
+      <div class="date" id="aboutDate">2026-11-24</div>
       
       <!-- 新增的统计行 -->
       <div class="about-stats" style="margin: 12px 0; background: #fff3cd; border: 1.5px dashed #ffe08a; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 600; color: #8a6a1a; display: flex; justify-content: center; gap: 20px;">
@@ -1328,8 +1332,8 @@
 (function(){
   'use strict';
 
-  var APP_VERSION = 'v2.1';
-  var APP_DATE = '2026-10-16';
+  var APP_VERSION = 'v2.2';
+  var APP_DATE = '2026-11-24';
 
   var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_bwUO6RQBa1qiurFdMbNX3A_nTtHTMEt';
@@ -2822,7 +2826,10 @@
   document.getElementById('confirmOv').addEventListener('click',function(e){ if(e.target===this)this.classList.remove('show'); });
 
   document.getElementById('againBtn').addEventListener('click',function(){ document.getElementById('prizePop').classList.remove('show'); });
-  document.getElementById('resetBtn').addEventListener('click',resetPoints);
+  document.getElementById('mResetPoints').addEventListener('click', function(){
+    closeSet();
+    resetPoints();
+  });
 
   document.getElementById('exchangeBtn').addEventListener('click', function(){
     if(!rewards.length) { alert('还没有设置奖励，去「设置 → 奖励选项」里添加吧'); return; }
