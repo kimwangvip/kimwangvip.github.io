@@ -58,6 +58,11 @@
   .card h2{font-size:28px; margin:0 0 8px; letter-spacing:1px;}
   .original{font-size:19px; line-height:1.9; color:#3f2d1f; background:var(--cream); border:1.5px solid #eed9ae; border-radius:18px; padding:18px 18px; margin:16px 0; white-space:pre-line; position:relative;}
   .speak-word{cursor:pointer; color:var(--accent); font-size:15px; margin-left:6px;}
+  ruby{ruby-position:over;}
+  rt{font-size:11px; color:var(--accent); font-weight:600; letter-spacing:0; padding:0 1px;}
+  .card.no-pinyin rt{display:none;}
+  .speak-mini{font-family:inherit; font-size:13px; color:var(--accent); background:#fff; border:1px solid var(--line); border-radius:14px; padding:4px 12px; cursor:pointer; margin-left:auto; min-height:auto;}
+  .speak-mini:active{transform:scale(.96);}
   .section{text-align:left; background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:14px 16px; margin-top:12px;}
   .section .label{font-size:13px; color:var(--accent); margin-bottom:6px; display:flex; align-items:center; gap:6px; font-weight:600; letter-spacing:1px;}
   .section .content{font-size:15.5px; color:#5b4636; line-height:1.75; white-space:pre-line;}
@@ -124,6 +129,9 @@
   'use strict';
   var DATA = window.XIAOJING_DATA || [];
   var state = { list: DATA, index: 0, view: 'list', keyword: '' };
+  var PINYIN_KEY = 'bao_xj_pinyin';
+  var showPinyin = true;
+  try { showPinyin = localStorage.getItem(PINYIN_KEY) !== '0'; } catch(e){}
   var els = {
     nav: document.getElementById('chapterNav'),
     main: document.getElementById('mainArea'),
@@ -138,6 +146,22 @@
     return String(s).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
+  }
+
+  function escapeRe(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  // 原文按手工注音标注生成 ruby 拼音；未标注的字正常显示汉字
+  function renderOriginal(text, reading){
+    if(!text) return '';
+    if(!reading || !reading.length) return escapeHtml(text);
+    var items = reading.slice().sort(function(a,b){ return b.w.length - a.w.length; });
+    var re = new RegExp('(' + items.map(function(it){ return escapeRe(it.w); }).join('|') + ')');
+    return text.split(re).map(function(seg){
+      if(!seg) return '';
+      var hit = items.find(function(it){ return it.w === seg; });
+      if(hit) return '<ruby>' + escapeHtml(seg) + '<rt>' + escapeHtml(hit.p) + '</rt></ruby>';
+      return escapeHtml(seg);
+    }).join('');
   }
 
   function showToast(msg){
@@ -194,17 +218,18 @@
     var nextDisabled = state.index >= state.list.length - 1 ? 'disabled' : '';
 
     els.main.innerHTML =
-      '<div class="card">' +
+      '<div class="card' + (showPinyin ? '' : ' no-pinyin') + '">' +
         '<div class="meta-top"><span class="badge">第 ' + item.id + ' 章</span><span class="badge theme">' + escapeHtml(item.theme) + '</span></div>' +
         '<h2>' + escapeHtml(item.title) + '</h2>' +
-        '<div class="original" id="originalText">' + escapeHtml(item.original) + '<span class="speak-word" id="speakOriginal" title="朗读原文">🔊 朗读</span></div>' +
-        '<div class="section"><div class="label">📖 白话译文</div><div class="content">' + escapeHtml(item.translation) + '</div></div>' +
+        '<div class="original" id="originalText">' + renderOriginal(item.original, item.reading) + '<span class="speak-word" id="speakOriginal" title="朗读原文">🔊 朗读</span></div>' +
+        '<div class="section"><div class="label">📖 白话译文<button class="speak-mini" id="speakTranslation">🔊 读译文</button></div><div class="content">' + escapeHtml(item.translation) + '</div></div>' +
         '<div class="section"><div class="label">💡 本章主旨</div><div class="content summary">' + escapeHtml(item.summary) + '</div></div>' +
         '<div class="section"><div class="label">🔎 词语注释</div><div class="notes">' + notesHtml + '</div></div>' +
         '<div class="card-actions">' +
           '<button class="btn btn-back" id="btnBackList">⬅️ 返回列表</button>' +
           '<button class="btn btn-back" id="btnPrev" ' + prevDisabled + '>👈 上一章</button>' +
           '<button class="btn btn-back" id="btnNext" ' + nextDisabled + '>下一章 👉</button>' +
+          '<button class="btn btn-back" id="btnPinyin">🔤 拼音：开</button>' +
         '</div>' +
       '</div>';
 
@@ -214,6 +239,17 @@
     if(prevBtn) prevBtn.addEventListener('click', function(){ state.index--; renderCard(); });
     if(nextBtn) nextBtn.addEventListener('click', function(){ state.index++; renderCard(); });
     document.getElementById('speakOriginal').addEventListener('click', function(){ speakText(item.original); });
+    document.getElementById('speakTranslation').addEventListener('click', function(){ speakText(item.translation); });
+    var pinyinBtn = document.getElementById('btnPinyin');
+    function refreshPinyinBtn(){ pinyinBtn.textContent = showPinyin ? '🔤 拼音：开' : '🔤 拼音：关'; }
+    pinyinBtn.addEventListener('click', function(){
+      showPinyin = !showPinyin;
+      try { localStorage.setItem(PINYIN_KEY, showPinyin ? '1' : '0'); } catch(e){}
+      var card = document.querySelector('.card');
+      if(card) card.classList.toggle('no-pinyin', !showPinyin);
+      refreshPinyinBtn();
+    });
+    refreshPinyinBtn();
   }
 
   function speakText(text){
