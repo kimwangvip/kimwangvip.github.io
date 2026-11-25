@@ -1351,6 +1351,7 @@
   var RECENT_MAX = 5;
   var CACHE_KEY_PREFIX = 'bao_cache_score_';
   var NETWORK_MSG_KEY = 'bao_network_msg';
+  var MAIN_VIEW_KEY = 'bao_main_view';
 
   var user = null;
   var isVip = false;
@@ -1419,6 +1420,12 @@
         savedAt: new Date().toISOString()
       }));
     } catch(e){}
+  }
+  function saveMainView(view){
+    try { localStorage.setItem(MAIN_VIEW_KEY, view || 'main'); } catch(e){}
+  }
+  function loadMainView(){
+    try { return localStorage.getItem(MAIN_VIEW_KEY) || 'main'; } catch(e){ return 'main'; }
   }
   function loadLocalCache(){
     if(!user) return null;
@@ -3353,12 +3360,14 @@
   function enterApp(){
     refreshPointsDisplay();
     if(isVip){
+      saveMainView('vip');
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('mainWrap').style.display = 'none';
       document.getElementById('vipWrap').style.display = 'block';
       vipLoadUsers();
       return;
     }
+    saveMainView('main');
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('vipWrap').style.display = 'none';
     document.getElementById('mainWrap').style.display = 'block';
@@ -3368,7 +3377,7 @@
     refreshNameDisplay();
     renderHist(); updateStatus(); syncSound();
     updateExchangeBtn();
-    setupCanvas(); buildWheel(-1); draw(0);
+    setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
 
     setTimeout(function(){
       if(!babyName){
@@ -3566,6 +3575,17 @@
   });
 
   window.addEventListener('resize',function(){ setupCanvas(); buildWheel(-1); draw(angle); });
+  window.addEventListener('pageshow', function(event){
+    if(event.persisted && user && !isVip){
+      saveMainView('main');
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('vipWrap').style.display = 'none';
+      document.getElementById('mainWrap').style.display = 'block';
+      refreshPointsDisplay();
+      renderHist(); updateStatus(); updateExchangeBtn();
+      setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
+    }
+  });
 
   var sessionLoadToken = 0;
   var onlineSessionId = '';
