@@ -1053,6 +1053,11 @@
         <span class="mtxt" style="color:#e03131;">注销账号</span>
         <span class="marrow">›</span>
       </button>
+      <button class="mitem" id="mDiag">
+        <span class="mico">🩺</span>
+        <span class="mtxt">诊断日志</span>
+        <span class="marrow">›</span>
+      </button>
       <button class="mitem" id="mAbout">
         <span class="mico">ℹ️</span>
         <span class="mtxt">关于</span>
@@ -1217,6 +1222,19 @@
   </div>
 </div>
 
+<!-- 诊断日志弹层 -->
+<div class="overlay" id="diagOv">
+  <div class="panel" style="display:flex;flex-direction:column;max-height:72vh;">
+    <h2>诊断日志</h2>
+    <pre id="diagText" style="flex:1;overflow:auto;background:#2b2b2b;color:#e8e8e8;border-radius:12px;padding:12px;font-size:12px;line-height:1.6;white-space:pre-wrap;margin:10px 0;"></pre>
+    <div class="rowbtns">
+      <button class="btn-sm btn-add" id="diagCopy">复制日志</button>
+      <button class="btn-sm btn-cancel" id="diagClear">清空</button>
+      <button class="btn-sm btn-cancel" id="diagBack">返回</button>
+    </div>
+  </div>
+</div>
+
 <!-- 保存确认（算术题） -->
 <div class="overlay" id="saveConfirmOv">
   <div class="panel verify-panel">
@@ -1332,7 +1350,7 @@
 (function(){
   'use strict';
 
-  var APP_VERSION = 'v2.4';
+  var APP_VERSION = 'v2.5';
   var APP_DATE = '2026-11-25';
 
   var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
@@ -1352,6 +1370,36 @@
   var CACHE_KEY_PREFIX = 'bao_cache_score_';
   var NETWORK_MSG_KEY = 'bao_network_msg';
   var MAIN_VIEW_KEY = 'bao_main_view';
+  var DEBUG_LOG_KEY = 'bao_debug_log';
+
+  var __baoLogs = [];
+  function baoLoadLogs(){ try { __baoLogs = JSON.parse(localStorage.getItem(DEBUG_LOG_KEY) || '[]') || []; } catch(e){ __baoLogs = []; } }
+  function baoState(){ try { return { pts: totalPoints, draw: today ? today.drawCount : null, date: today ? today.date : null, got: today ? today.got : null, hist: hist.length, vip: isVip }; } catch(e){ return {}; } }
+  function baoLog(tag, msg, data){
+    try {
+      var entry = { t: new Date().toLocaleString('zh-CN', {hour12:false}), tag: tag, msg: String(msg == null ? '' : msg), state: baoState() };
+      if(data !== undefined) entry.data = data;
+      __baoLogs.push(entry);
+      if(__baoLogs.length > 200) __baoLogs = __baoLogs.slice(-200);
+      localStorage.setItem(DEBUG_LOG_KEY, JSON.stringify(__baoLogs));
+    } catch(e){}
+  }
+  function baoLogText(){
+    return __baoLogs.map(function(x){
+      var s = x.state || {};
+      var line = x.t + ' [' + x.tag + '] ' + x.msg + ' | pts=' + s.pts + ' draw=' + s.draw + ' date=' + s.date + ' hist=' + s.hist;
+      if(x.data !== undefined) line += ' | ' + JSON.stringify(x.data);
+      return line;
+    }).join('\n');
+  }
+  baoLoadLogs();
+  window.__baoLog = baoLog;
+  baoLog('boot', '页面打开', { url: location.href, ver: APP_VERSION });
+  window.onerror = function(msg, src, line){ baoLog('error', String(msg), { src: String(src), line: line }); };
+  window.addEventListener('unhandledrejection', function(e){ baoLog('promise', '未处理异常', { reason: e && e.reason && (e.reason.message || String(e.reason)) }); });
+  window.addEventListener('popstate', function(){ baoLog('history', 'popstate', { url: location.href, len: history.length }); });
+  window.addEventListener('hashchange', function(){ baoLog('history', 'hashchange', { url: location.href }); });
+  document.addEventListener('visibilitychange', function(){ baoLog('visibility', document.visibilityState, { url: location.href }); });
 
   var user = null;
   var isVip = false;
@@ -1374,6 +1422,7 @@
   function resetTodayIfNeeded(){
     var ts = todayStr();
     if(!today || today.date !== ts){
+      baoLog('today', '跨天重置今日状态', { old: today && today.date, now: ts });
       today = {date:ts, allowed:false, drawn:false, got:0, photos:[], drawCount:0};
       todayNote='';
     }
@@ -1517,14 +1566,16 @@
     if(!user) return Promise.resolve();
     return sb.from('profiles').select('*').eq('user_id', user.id).maybeSingle()
       .then(function(res){
-        if(res.error){ console.warn('读取 profile 失败', res.error); return; }
+        if(res.error){ console.warn('读取 profile 失败', res.error); baoLog('profile', '读取失败', { msg: res.error.message }); return; }
         if(res.data){
           // 这里不再执行 signOut，只在下方强制拦截
           loginId = res.data.login_id || '';
           babyName = res.data.baby_name || '';
           accountEmail = res.data.email || user.email || '';
           isVip = !!res.data.is_vip;
+          baoLog('profile', '读取成功', { baby: babyName, vip: isVip, loginId: loginId });
         } else {
+          baoLog('profile', '无记录，准备创建');
           return sb.from('profiles').upsert({
             user_id: user.id,
             email: user.email || null,
@@ -1573,11 +1624,13 @@
       updated_at: new Date().toISOString()
     };
     saveLocalCache();
+    baoLog('save', '准备保存云端', { pts: snapshot.total_points, draw: snapshot.today && snapshot.today.drawCount, got: snapshot.today && snapshot.today.got });
     pendingSave = new Promise(function(resolve){
       saveTimer = setTimeout(function(){
         sb.from('scores').upsert(snapshot).then(function(res){
           if(res.error){
             console.warn('保存失败，稍后重试', res.error);
+            baoLog('save', '保存失败', { msg: res.error.message, retry: saveRetry });
             if(saveRetry < 3){
               saveRetry += 1;
               setTimeout(saveCloud, 1000 * saveRetry);
@@ -1588,9 +1641,11 @@
             return;
           }
           saveRetry = 0;
+          baoLog('save', '保存成功', { pts: totalPoints, draw: today && today.drawCount });
           resolve(res);
         }).catch(function(err){
           console.warn('保存异常，稍后重试', err);
+          baoLog('save', '保存异常', { msg: err && err.message });
           if(saveRetry < 3){
             saveRetry += 1;
             setTimeout(saveCloud, 1000 * saveRetry);
@@ -1609,6 +1664,7 @@
       .then(function(res){
         if(res.error){
           console.warn('读取失败，使用本地缓存', res.error);
+          baoLog('cloud', '读取失败，改用本地缓存', { msg: res.error.message });
           var cached = loadLocalCache();
           if(applyLocalCache(cached)) showNetworkMsg('网络暂时不可用，当前显示本地缓存记录', 'warn');
           resetTodayIfNeeded();
@@ -1623,7 +1679,9 @@
           if(res.data.opts && res.data.opts.length) opts = res.data.opts;
           if(typeof res.data.max_draws === 'number') maxDraws = res.data.max_draws;
           if(res.data.spin_speed) spinSpeed = res.data.spin_speed;
+          baoLog('cloud', '读取成功', { pts: totalPoints, draw: today && today.drawCount, date: today && today.date, got: today && today.got, hist: hist.length, updated: res.data.updated_at });
         } else {
+          baoLog('cloud', '云端无记录');
           var cached = loadLocalCache();
           if(!applyLocalCache(cached)){
             totalPoints = 0; hist = []; today = null; todayNote='';
@@ -1793,6 +1851,7 @@
     resetTodayIfNeeded();
     if(!today.allowed){ updateStatus(); return; }
     if(today.drawCount >= maxDraws){ updateStatus(); return; }
+    baoLog('spin', '开始抽奖', { draw: today.drawCount, max: maxDraws });
     ensureAudio();
     var target=pickIndex();
     var mid=segs[target].start+(segs[target].end-segs[target].start)/2;
@@ -1843,7 +1902,7 @@
 
     today.photos = [];
     pendingPhotos = [];
-
+    baoLog('spin', '抽奖完成', { v: v, pts: totalPoints, draw: today.drawCount });
     saveCloud();
     var ptsBox = document.getElementById('ptsBox');
     refreshPointsDisplay();
@@ -2616,6 +2675,36 @@
     document.getElementById('aboutOv').classList.remove('show');
     openSet();
   });
+
+  function openDiag(){
+    document.getElementById('diagText').textContent = baoLogText() || '（暂无日志）';
+    document.getElementById('diagOv').classList.add('show');
+  }
+  document.getElementById('mDiag').addEventListener('click', function(){ closeSet(); openDiag(); });
+  document.getElementById('diagBack').addEventListener('click', function(){
+    document.getElementById('diagOv').classList.remove('show');
+    openSet();
+  });
+  document.getElementById('diagOv').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('show'); openSet(); }
+  });
+  document.getElementById('diagClear').addEventListener('click', function(){
+    __baoLogs = [];
+    try { localStorage.removeItem(DEBUG_LOG_KEY); } catch(e){}
+    document.getElementById('diagText').textContent = '（已清空）';
+  });
+  document.getElementById('diagCopy').addEventListener('click', function(){
+    var text = baoLogText();
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(e){}
+      ta.remove();
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).catch(fallback);
+    } else { fallback(); }
+  });
   document.getElementById('aboutOv').addEventListener('click', function(e){
     if(e.target === this){ this.classList.remove('show'); openSet(); }
   });
@@ -2867,12 +2956,11 @@
 
   // ==================== 成语学习跳转 ====================
   function openSubPage(path){
-    // 先等抽奖结果存到云端再跳走，避免防抖保存被页面卸载打断；
-    // 网络无响应时最迟 2.5 秒也照常跳转，不让点击卡住
+    baoLog('nav', '跳转子页面', { path: path, pts: totalPoints, draw: today && today.drawCount });
     var done = false;
-    var go = function(){ if(done) return; done = true; clearTimeout(timer); window.location.href = path; };
-    var timer = setTimeout(go, 2500);
-    saveCloud().then(go, go);
+    var go = function(reason){ if(done) return; done = true; clearTimeout(timer); baoLog('nav', '离开首页（' + reason + '）', { path: path }); window.location.href = path; };
+    var timer = setTimeout(function(){ go('超时'); }, 2500);
+    saveCloud().then(function(res){ go(res && res.error ? '保存有错误' : '保存完成'); }, function(){ go('保存异常'); });
   }
   document.getElementById('idiomBtn').addEventListener('click', function(){
     // 跳转到 idioms.html，附带当前登录邮箱，方便新页面校验 session
@@ -3593,18 +3681,27 @@
     setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
   }
   function restoreHomeView(){
-    if(!user || isVip) return;
+    if(!user || isVip){ baoLog('restore', '跳过恢复（未登录或 VIP）', { vip: isVip }); return; }
+    baoLog('restore', '返回首页恢复', { persistedState: baoState() });
     saveMainView('main');
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('vipWrap').style.display = 'none';
     document.getElementById('mainWrap').style.display = 'block';
     renderHomeUI();
-    // 返回首页时静默从云端校正一次，避免内存快照停留在跳转前的旧状态
-    Promise.all([loadProfile(), loadCloud()]).then(renderHomeUI, renderHomeUI);
+    Promise.all([loadProfile(), loadCloud()]).then(function(){
+      baoLog('restore', '云端校正完成', baoState());
+      renderHomeUI();
+    }, function(err){
+      baoLog('restore', '云端校正失败', { msg: err && err.message });
+      renderHomeUI();
+    });
   }
   window.addEventListener('pageshow', function(event){
+    baoLog('lifecycle', 'pageshow', { persisted: event.persisted, url: location.href });
     if(event.persisted) restoreHomeView();
   });
+  window.addEventListener('pagehide', function(){ baoLog('lifecycle', 'pagehide', { url: location.href }); });
+  window.addEventListener('beforeunload', function(){ baoLog('lifecycle', 'beforeunload', { url: location.href }); });
 
   var sessionLoadToken = 0;
   var onlineSessionId = '';
@@ -3613,11 +3710,13 @@
   function finishSessionLoad(token){
     if(token !== sessionLoadToken) return;
     if(sessionLoadTimer){ clearTimeout(sessionLoadTimer); sessionLoadTimer = null; }
+    baoLog('session', '会话加载完成', baoState());
     enterApp();
   }
   function failSessionLoad(token, err){
     if(token !== sessionLoadToken) return;
     console.warn('会话数据加载失败', err);
+    baoLog('session', '会话加载失败', { msg: err && err.message, token: token });
     if(sessionLoadTimer){ clearTimeout(sessionLoadTimer); sessionLoadTimer = null; }
     var msg = document.getElementById('authMsg');
     if(msg){
@@ -3630,6 +3729,7 @@
     }, 1500);
   }
   function loadSessionData(session, token){
+    baoLog('session', '开始加载会话数据', { token: token });
     if(sessionLoadTimer){ clearTimeout(sessionLoadTimer); sessionLoadTimer = null; }
     sessionLoadTimer = setTimeout(function(){ failSessionLoad(token, new Error('会话加载超时')); }, 12000);
     Promise.all([loadProfile(), loadCloud()])
@@ -3638,6 +3738,7 @@
   }
   restoreNetworkMsg();
   sb.auth.onAuthStateChange(function(event, session){
+    baoLog('auth', 'onAuthStateChange', { event: event, hasSession: !!(session && session.user), uid: session && session.user && session.user.id.slice(0,8) });
     if(session && session.user){
       user = session.user;
       onlineSessionId = session.access_token || session.user.id;
@@ -3659,6 +3760,8 @@
   });
 
   sb.auth.getSession().then(function(res){
+    var has = !!(res.data && res.data.session && res.data.session.user);
+    baoLog('auth', 'getSession', { hasSession: has, uid: has && res.data.session.user.id.slice(0,8) });
     if(res.data && res.data.session && res.data.session.user){
       user = res.data.session.user;
       onlineSessionId = res.data.session.access_token || res.data.session.user.id;
