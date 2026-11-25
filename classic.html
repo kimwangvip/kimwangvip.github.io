@@ -164,6 +164,20 @@
     }).join('');
   }
 
+  // 朗读专用：把易错多音字替换成同音常用字，避免 TTS 按常用音读错；显示仍用原字
+  function buildSpeechText(text, reading){
+    if(!text) return '';
+    if(!reading || !reading.length) return text;
+    var items = reading.filter(function(it){ return !!it.say; })
+      .sort(function(a,b){ return b.w.length - a.w.length; });
+    if(!items.length) return text;
+    var re = new RegExp('(' + items.map(function(it){ return escapeRe(it.w); }).join('|') + ')');
+    return text.split(re).map(function(seg){
+      var hit = items.find(function(it){ return it.w === seg; });
+      return hit ? hit.say : seg;
+    }).join('');
+  }
+
   function showToast(msg){
     els.toast.textContent = msg;
     els.toast.classList.add('show');
@@ -238,7 +252,7 @@
     var nextBtn = document.getElementById('btnNext');
     if(prevBtn) prevBtn.addEventListener('click', function(){ state.index--; renderCard(); });
     if(nextBtn) nextBtn.addEventListener('click', function(){ state.index++; renderCard(); });
-    document.getElementById('speakOriginal').addEventListener('click', function(){ speakText(item.original); });
+    document.getElementById('speakOriginal').addEventListener('click', function(){ speakText(buildSpeechText(item.original, item.reading)); });
     document.getElementById('speakTranslation').addEventListener('click', function(){ speakText(item.translation); });
     var pinyinBtn = document.getElementById('btnPinyin');
     function refreshPinyinBtn(){ pinyinBtn.textContent = showPinyin ? '🔤 拼音：开' : '🔤 拼音：关'; }
