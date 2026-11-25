@@ -1332,8 +1332,8 @@
 (function(){
   'use strict';
 
-  var APP_VERSION = 'v2.2';
-  var APP_DATE = '2026-11-24';
+  var APP_VERSION = 'v2.3';
+  var APP_DATE = '2026-11-25';
 
   var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_bwUO6RQBa1qiurFdMbNX3A_nTtHTMEt';
@@ -2866,15 +2866,23 @@
   sbBtn.addEventListener('click',function(){ soundOn=!soundOn; syncSound(); if(soundOn)ensureAudio(); });
 
   // ==================== 成语学习跳转 ====================
+  function openSubPage(path){
+    // 先等抽奖结果存到云端再跳走，避免防抖保存被页面卸载打断；
+    // 网络无响应时最迟 2.5 秒也照常跳转，不让点击卡住
+    var done = false;
+    var go = function(){ if(done) return; done = true; clearTimeout(timer); window.location.href = path; };
+    var timer = setTimeout(go, 2500);
+    saveCloud().then(go, go);
+  }
   document.getElementById('idiomBtn').addEventListener('click', function(){
     // 跳转到 idioms.html，附带当前登录邮箱，方便新页面校验 session
-    window.location.href = 'idioms.html';
+    openSubPage('idioms.html');
   });
   document.getElementById('classicBtn').addEventListener('click', function(){
-    window.location.href = 'classic.html';
+    openSubPage('classic.html');
   });
   document.getElementById('gameBtn').addEventListener('click', function(){
-    window.location.href = 'games.html';
+    openSubPage('games.html');
   });
 
   // ==================== VIP 后台 ====================
@@ -3577,18 +3585,21 @@
   window.addEventListener('resize',function(){ setupCanvas(); buildWheel(-1); draw(angle); });
   function restoreHomeView(){
     if(!user || isVip) return;
+    var ptsBox = document.getElementById('ptsBox');
     saveMainView('main');
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('vipWrap').style.display = 'none';
     document.getElementById('mainWrap').style.display = 'block';
     refreshPointsDisplay();
+    document.getElementById('todayDate').textContent = todayDisplay();
+    refreshNameDisplay();
     renderHist(); updateStatus(); updateExchangeBtn();
+    if(ptsBox){ ptsBox.classList.remove('pop'); void ptsBox.offsetWidth; ptsBox.classList.add('pop'); }
     setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
   }
   window.addEventListener('pageshow', function(event){
     if(event.persisted) restoreHomeView();
   });
-  window.addEventListener('webview-back', restoreHomeView);
 
   var sessionLoadToken = 0;
   var onlineSessionId = '';
