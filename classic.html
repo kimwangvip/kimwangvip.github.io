@@ -252,7 +252,10 @@
     var nextBtn = document.getElementById('btnNext');
     if(prevBtn) prevBtn.addEventListener('click', function(){ state.index--; renderCard(); });
     if(nextBtn) nextBtn.addEventListener('click', function(){ state.index++; renderCard(); });
-    document.getElementById('speakOriginal').addEventListener('click', function(){ speakText(buildSpeechText(item.original, item.reading)); });
+    document.getElementById('speakOriginal').addEventListener('click', function(){
+      var titleSpeech = buildSpeechText(item.title, item.reading);
+      speakText(titleSpeech + '。' + buildSpeechText(item.original, item.reading));
+    });
     document.getElementById('speakTranslation').addEventListener('click', function(){ speakText(item.translation); });
     var pinyinBtn = document.getElementById('btnPinyin');
     function refreshPinyinBtn(){ pinyinBtn.textContent = showPinyin ? '🔤 拼音：开' : '🔤 拼音：关'; }
