@@ -3575,17 +3575,20 @@
   });
 
   window.addEventListener('resize',function(){ setupCanvas(); buildWheel(-1); draw(angle); });
+  function restoreHomeView(){
+    if(!user || isVip) return;
+    saveMainView('main');
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('vipWrap').style.display = 'none';
+    document.getElementById('mainWrap').style.display = 'block';
+    refreshPointsDisplay();
+    renderHist(); updateStatus(); updateExchangeBtn();
+    setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
+  }
   window.addEventListener('pageshow', function(event){
-    if(event.persisted && user && !isVip){
-      saveMainView('main');
-      document.getElementById('authScreen').style.display = 'none';
-      document.getElementById('vipWrap').style.display = 'none';
-      document.getElementById('mainWrap').style.display = 'block';
-      refreshPointsDisplay();
-      renderHist(); updateStatus(); updateExchangeBtn();
-      setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
-    }
+    if(event.persisted) restoreHomeView();
   });
+  window.addEventListener('webview-back', restoreHomeView);
 
   var sessionLoadToken = 0;
   var onlineSessionId = '';
