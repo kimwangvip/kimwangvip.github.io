@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  var APP_VERSION = 'v2.16';
+  var APP_VERSION = 'v2.17';
   var APP_DATE = '2026-11-25';
 
   var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
