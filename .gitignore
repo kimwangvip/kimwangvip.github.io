@@ -1,0 +1,6 @@
+# 本地保留、不进入公开仓库
+idiom.json
+import.js
+node_modules/
+package-lock.json
+package.json
