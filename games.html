@@ -5,35 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>小游戏乐园 · 宝贝攒分啦</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%237c5cff'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle fill='%23fff' font-family='sans-serif' font-weight='bold'%3E玩%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/common.css?v=2.10">
 <style>
 :root{
   --bg1:#eee7ff; --bg2:#fff8ee; --ink:#3d2d58; --ink2:#75678f;
   --purple:#7c5cff; --purple2:#9d86ff; --orange:#ff9f1a; --green:#51cf66;
   --pink:#ff8787; --paper:#fffdf8; --line:#eadff6; --shadow:0 14px 34px rgba(94,67,154,.16);
 }
-*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-button, input{ min-height:40px; }
-@media (max-width:600px){ button, input{ min-height:44px; } }
-html,body{margin:0; padding:0; overflow-x:hidden;}
 body{
-  min-height:100vh;
   background:radial-gradient(120% 90% at 50% -10%, #e2d4ff 0%, transparent 60%),
     linear-gradient(180deg, var(--bg1) 0%, #fbf2f6 48%, var(--bg2) 100%);
   color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',system-ui,sans-serif;
   padding-bottom:44px;
 }
-.deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
-.deco .blob{position:absolute; border-radius:50%; filter:blur(42px); opacity:.45;}
-.deco .b1{width:260px; height:260px; background:#d8c8ff; top:-70px; left:-90px;}
-.deco .b2{width:300px; height:300px; background:#ffd8a8; bottom:-100px; right:-100px;}
-.deco .b3{width:200px; height:200px; background:#b2f2bb; top:38%; right:-60px;}
-.wrap{position:relative; z-index:1; max-width:860px; margin:0 auto; padding:22px 16px 30px;}
-.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:18px;}
+.deco .blob{filter:blur(42px); opacity:.45;}
+.deco .b1{background:#d8c8ff; top:-70px; left:-90px;}
+.deco .b2{width:300px; background:#ffd8a8;}
+.deco .b3{background:#b2f2bb; top:38%;}
+.wrap{max-width:860px; padding:22px 16px 30px;}
+.topbar{margin-bottom:18px;}
 .back-link{color:var(--purple); text-decoration:none; font-size:15px; background:#fff; border:1px solid var(--line); border-radius:20px; padding:8px 14px; box-shadow:0 3px 10px rgba(90,60,30,.08);}
 h1{margin:0; font-size:34px; letter-spacing:1px;}
 h1 .tw{color:var(--purple2);}
-.subtitle{font-size:15px; color:var(--ink2); margin:6px 0 22px;}
+.subtitle{color:var(--ink2);}
 .game-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px;}
 .game-card{background:var(--paper); border:2px solid #fff; border-radius:28px; padding:24px; box-shadow:var(--shadow); cursor:pointer; text-align:left; font-family:inherit; color:inherit; transition:transform .15s, box-shadow .15s; position:relative; overflow:hidden;}
 .game-card:hover{transform:translateY(-4px); box-shadow:0 18px 42px rgba(94,67,154,.22);}

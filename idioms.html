@@ -5,19 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>成语学习 · 每日一成语</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffd43b'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='%235b4636' font-family='sans-serif' font-weight='bold'%3E成%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/common.css?v=2.10">
 <style>
   :root{
     --bg1:#c8ecff; --bg2:#fff7e6;
     --ink:#5b4636; --ink2:#8a7a66;
     --accent:#ff9f1a; --accent2:#ffd166;
     --cream:#fff8e7; --line:#e8dcc8;
+    --spinner:#ffd166;
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  button, input{ min-height:40px; }
-  @media (max-width:600px){ button, input{ min-height:44px; } }
-  html,body{margin:0; padding:0; overflow-x: hidden;}
   body{
-    min-height:100vh;
     background:
       radial-gradient(120% 90% at 50% -10%, #d9f3ff 0%, transparent 60%),
       linear-gradient(180deg, var(--bg1) 0%, #e9f7ff 45%, var(--bg2) 100%);
@@ -25,20 +22,19 @@
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
     padding-bottom:40px;
   }
-  .deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
-  .deco .blob{position:absolute; border-radius:50%; filter:blur(40px); opacity:.5;}
-  .deco .b1{width:260px; height:260px; background:#ffe08a; top:-60px; left:-80px;}
-  .deco .b2{width:320px; height:320px; background:#a9e6c0; bottom:-100px; right:-100px;}
-  .deco .b3{width:200px; height:200px; background:#bcdcff; top:40%; right:-60px;}
+  .deco .blob{opacity:.5;}
+  .deco .b1{background:#ffe08a;}
+  .deco .b2{background:#a9e6c0;}
+  .deco .b3{background:#bcdcff;}
 
-  .wrap{position:relative; z-index:1; max-width:720px; margin:0 auto; padding:24px 16px 40px; text-align:center;}
+  .wrap{max-width:720px; text-align:center;}
 
   h1.title{
     font-size:40px; margin:0 0 4px; color:#fff; letter-spacing:2px; font-weight: 800;
     text-shadow:0 3px 0 rgba(0,0,0,.10), 0 6px 14px rgba(255,140,80,.30);
   }
   h1.title .tw{color:var(--accent2);}
-  .subtitle{font-size:15px; color:var(--ink2); margin-bottom:22px;}
+  .subtitle{color:var(--ink2); margin-bottom:22px;}
 
   /* 搜索栏 */
   .searchbar{
@@ -247,17 +243,6 @@
     word-break: break-word;
   }
 
-  /* 加载/空状态 */
-  .loading, .empty{
-    padding:40px 20px; color:#b0a08d; font-size:16px;
-  }
-  .loading::before{
-    content:''; display:inline-block; width:18px; height:18px;
-    border:3px solid #ffd166; border-top-color:transparent; border-radius:50%;
-    animation:spin .8s linear infinite; margin-right:10px; vertical-align:-3px;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-
   /* 分页 */
   .pager{
     display: flex; justify-content: center; align-items: center; gap: 12px;
@@ -271,15 +256,6 @@
   .pager button:not(:disabled):hover{ border-color: var(--accent); color: var(--accent); }
   .pager button:disabled{ opacity: .4; cursor: not-allowed; }
   .pager span{ font-size: 14px; color: var(--ink2); font-weight: 500; }
-
-  /* Toast */
-  .toast{
-    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:rgba(60,40,20,.92); color:#fff; font-size:15px;
-    border-radius:24px; padding:12px 24px; opacity:0; transition:all .3s;
-    z-index:100; pointer-events:none;
-  }
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
   /* 手机端专项优化 */
   @media (max-width: 600px){
@@ -387,6 +363,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/common.js?v=2.10"></script>
 <script>
 (function(){
   'use strict';
@@ -414,13 +391,6 @@
     clearLen: document.getElementById('clearLen')
   };
 
-  function escapeHtml(s){
-    if(s == null) return '';
-    return String(s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-
   function wordLen(w){
     if(!w) return 0;
     var s = String(w).replace(/[^\u4e00-\u9fa5]/g, '');
@@ -433,13 +403,6 @@
     return q.eq('word_len', parseInt(len, 10));
   }
 
-  function showToast(msg){
-    els.toast.textContent = msg;
-    els.toast.classList.add('show');
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(function(){ els.toast.classList.remove('show'); }, 2000);
-  }
-
   function setLoading(html){ els.main.innerHTML = '<div class="loading">' + html + '</div>'; }
   function setEmpty(msg){ els.main.innerHTML = '<div class="empty">' + msg + '</div>'; }
   function setLoggedOut(){ els.main.innerHTML = '<div class="empty" style="line-height:2;">请先登录后再学习成语<br><a href="index.html" style="color:#ff9f1a;text-decoration:underline;">去登录</a></div>'; }
@@ -447,19 +410,6 @@
   // ========================
   // 🎵 纯原生朗读功能（去声调 + 强制中文）
   // ========================
-  var speech = window.speechSynthesis;
-  var availableVoices = [];
-  
-  function loadVoices() {
-    if (speech) availableVoices = speech.getVoices();
-  }
-  if (speech) {
-    loadVoices();
-    if (speech.onvoiceschanged !== undefined) {
-      speech.onvoiceschanged = loadVoices;
-    }
-  }
-
   // 清除拼音的声调，防止被当成英文乱读
   function removeTones(pinyin) {
     return pinyin.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -473,41 +423,10 @@
     var phrasePinyin = phrase && phrase.pinyin ? phrase.pinyin : '';
 
     // 成语条目本身带语境拼音；读成语时把“汉字+正确拼音”一起交给 TTS，减少多音字读错
-    if (window.AndroidTTS && typeof window.AndroidTTS.speak === 'function') {
-      var androidText = isPinyin ? speakContent : ((phrase && phrase.word ? phrase.word : text) + '，' + phrasePinyin);
-      window.AndroidTTS.speak(androidText);
-      return;
-    }
+    var androidText = isPinyin ? speakContent : ((phrase && phrase.word ? phrase.word : text) + '，' + phrasePinyin);
+    if (androidTTS(androidText)) return;
 
-    if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
-      showToast('当前设备不支持语音朗读');
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    var msg = new SpeechSynthesisUtterance(speakContent);
-    msg.lang = 'zh-CN'; // 强制中文
-    msg.rate = 0.85;
-    msg.pitch = 1.0;
-
-    if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
-
-    // 优先寻找高质量中文引擎（如苹果的 Ting-Ting，安卓的 Google 或 Xiaoxiao）
-    var bestVoice = availableVoices.find(function(v) {
-      return v.lang === 'zh-CN' && (v.name.indexOf('Ting') > -1 || v.name.indexOf('Google') > -1 || v.name.indexOf('Xiaoxiao') > -1 || v.name.indexOf('Yunxi') > -1);
-    });
-
-    // 退而求其次，找任何标记为 zh 开头的引擎
-    if (!bestVoice) {
-      bestVoice = availableVoices.find(function(v) { return v.lang.indexOf('zh') === 0; });
-    }
-
-    if (bestVoice) msg.voice = bestVoice;
-
-    setTimeout(function() {
-      window.speechSynthesis.speak(msg);
-    }, 100);
+    webSpeak(speakContent, 0.85);
   }
 
   function buildQuery(){

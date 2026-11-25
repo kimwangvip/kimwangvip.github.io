@@ -1,0 +1,37 @@
+/* ============================================================
+ * 公共基础样式 common.css
+ * 仅放跨页通用的重置、布局骨架与通用反馈组件；
+ * 各页主题色、卡片/按钮配色在页面 <style> 中覆盖。
+ * ============================================================ */
+
+/* 重置 */
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+button, input{min-height:40px;}
+@media (max-width:600px){ button, input{min-height:44px;} }
+html,body{margin:0; padding:0;}
+body{min-height:100vh; overflow-x:hidden;}
+
+/* 背景装饰光斑：结构/位置公共，颜色由各页 .b1/.b2/.b3 覆盖 */
+.deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+.deco .blob{position:absolute; border-radius:50%; filter:blur(40px);}
+.deco .b1{width:260px; height:260px; top:-60px; left:-80px;}
+.deco .b2{width:320px; height:320px; bottom:-100px; right:-100px;}
+.deco .b3{width:200px; height:200px; top:40%; right:-60px;}
+
+/* 页面骨架 */
+.wrap{position:relative; z-index:1; margin:0 auto; padding:24px 16px 40px;}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.subtitle{font-size:15px; margin:6px 0 22px;}
+
+/* 轻提示 Toast */
+.toast{position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:rgba(60,40,20,.92); color:#fff; font-size:15px; border-radius:24px;
+  padding:12px 24px; opacity:0; transition:all .3s; z-index:100; pointer-events:none;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* 加载 / 空状态；转圈颜色可用 --spinner 覆盖 */
+.loading, .empty{padding:40px 20px; color:#b0a08d; font-size:16px; text-align:center;}
+.loading::before{content:''; display:inline-block; width:18px; height:18px;
+  border:3px solid var(--spinner,#d99a45); border-top-color:transparent; border-radius:50%;
+  animation:spin .8s linear infinite; margin-right:10px; vertical-align:-3px;}
+@keyframes spin{to{transform:rotate(360deg);}}

@@ -5,36 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>国学学习 · 孝经</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%238d5a2b'/%3E%3Ctext x='32' y='43' font-size='30' text-anchor='middle' fill='%23fff' font-family='sans-serif' font-weight='bold'%3E孝%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/common.css?v=2.10">
 <style>
   :root{
     --bg1:#f6ead7; --bg2:#fff9ec; --ink:#4b3524; --ink2:#8a735d;
     --accent:#a86a2f; --accent2:#d99a45; --cream:#fff6e5; --line:#ead9bf;
     --paper:#fffdf8; --green:#6b8f5a;
   }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  button, input{ min-height:40px; }
-  @media (max-width:600px){ button, input{ min-height:44px; } }
-  html,body{margin:0; padding:0; overflow-x:hidden;}
   body{
-    min-height:100vh;
     background:radial-gradient(120% 90% at 50% -10%, #f2ddb7 0%, transparent 60%),
       linear-gradient(180deg, var(--bg1) 0%, #fbf2df 45%, var(--bg2) 100%);
     color:var(--ink);
     font-family:-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
     padding-bottom:40px;
   }
-  .deco{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
-  .deco .blob{position:absolute; border-radius:50%; filter:blur(40px); opacity:.45;}
-  .deco .b1{width:260px; height:260px; background:#e8c98d; top:-60px; left:-80px;}
-  .deco .b2{width:320px; height:320px; background:#c7d8b4; bottom:-100px; right:-100px;}
-  .deco .b3{width:200px; height:200px; background:#e6b777; top:40%; right:-60px;}
+  .deco .blob{opacity:.45;}
+  .deco .b1{background:#e8c98d;}
+  .deco .b2{background:#c7d8b4;}
+  .deco .b3{background:#e6b777;}
 
-  .wrap{position:relative; z-index:1; max-width:760px; margin:0 auto; padding:24px 16px 40px;}
-  .topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .wrap{max-width:760px;}
+  .topbar{margin-bottom:10px;}
   .back-link{color:var(--accent); text-decoration:none; font-size:15px; background:#fff; border:1px solid var(--line); border-radius:20px; padding:8px 14px; box-shadow:0 3px 10px rgba(90,60,30,.08);}
   h1.title{font-size:38px; margin:0; color:#fff; letter-spacing:2px; font-weight:800; text-shadow:0 3px 0 rgba(0,0,0,.12), 0 6px 14px rgba(168,106,47,.28);}
   h1.title .tw{color:var(--accent2);}
-  .subtitle{font-size:15px; color:var(--ink2); margin:6px 0 22px;}
+  .subtitle{color:var(--ink2);}
 
   .searchbar{display:flex; gap:8px; align-items:center; max-width:560px; margin:0 auto 14px; background:#fff; border-radius:16px; padding:8px 8px 8px 18px; box-shadow:0 8px 22px rgba(90,60,30,.12); border:2px solid #fff;}
   .searchbar input{flex:1; font-family:inherit; font-size:17px; color:var(--ink); border:none; outline:none; background:transparent; padding:8px 0;}
@@ -86,11 +81,6 @@
   .result-item .p{font-size:13px; color:var(--accent);}
   .result-item .e{font-size:13.5px; color:var(--ink2); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
   .result-info{font-size:14px; color:var(--ink2); text-align:center; margin-bottom:14px;}
-  .loading, .empty{padding:40px 20px; color:#b0a08d; font-size:16px; text-align:center;}
-  .loading::before{content:''; display:inline-block; width:18px; height:18px; border:3px solid #d99a45; border-top-color:transparent; border-radius:50%; animation:spin .8s linear infinite; margin-right:10px; vertical-align:-3px;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .toast{position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(60,40,20,.92); color:#fff; font-size:15px; border-radius:24px; padding:12px 24px; opacity:0; transition:all .3s; z-index:100; pointer-events:none;}
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
   @media (max-width:600px){
     h1.title{font-size:30px;}
@@ -124,6 +114,7 @@
 
 <div class="toast" id="toast"></div>
 <script src="src/xiaojing-data.js"></script>
+<script src="assets/js/common.js?v=2.10"></script>
 <script>
 (function(){
   'use strict';
@@ -140,15 +131,6 @@
     randomBtn: document.getElementById('randomBtn'),
     toast: document.getElementById('toast')
   };
-
-  function escapeHtml(s){
-    if(s == null) return '';
-    return String(s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-
-  function escapeRe(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
   // 原文按手工注音标注生成 ruby 拼音；未标注的字正常显示汉字
   function renderOriginal(text, reading){
@@ -176,13 +158,6 @@
       var hit = items.find(function(it){ return it.w === seg; });
       return hit ? hit.say : seg;
     }).join('');
-  }
-
-  function showToast(msg){
-    els.toast.textContent = msg;
-    els.toast.classList.add('show');
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(function(){ els.toast.classList.remove('show'); }, 2000);
   }
 
   function renderNav(activeId){
@@ -271,24 +246,8 @@
 
   function speakText(text){
     if(!text) return;
-    // 优先使用 App 内置原生 TTS 桥梁；安卓 WebView 的 speechSynthesis 经常不可用
-    if(window.AndroidTTS && typeof window.AndroidTTS.speak === 'function'){
-      window.AndroidTTS.speak(text);
-      return;
-    }
-    if(!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined'){
-      showToast('当前设备不支持语音朗读');
-      return;
-    }
-    window.speechSynthesis.cancel();
-    var msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'zh-CN';
-    msg.rate = 0.82;
-    msg.pitch = 1;
-    var voices = window.speechSynthesis.getVoices();
-    var zh = voices.find(function(v){ return v.lang && v.lang.indexOf('zh') === 0; });
-    if(zh) msg.voice = zh;
-    setTimeout(function(){ window.speechSynthesis.speak(msg); }, 100);
+    if(androidTTS(text)) return;
+    webSpeak(text, 0.82);
   }
 
   function doSearch(){
