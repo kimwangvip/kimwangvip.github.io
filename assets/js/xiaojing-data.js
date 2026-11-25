@@ -255,7 +255,7 @@ window.XIAOJING_DATA = [
     reading: [
       { w: '恺悌', p: 'kǎi tì', say: '凯替' },
       { w: '悌', p: 'tì', say: '替' },
-      { w: '孰', p: 'shú', say: '熟' }
+      { w: '孰', p: 'shú', say: '赎' }
     ],
     notes: [
       { word: '家至', meaning: '挨家挨户到达。' },
@@ -292,7 +292,7 @@ window.XIAOJING_DATA = [
       { w: '诤', p: 'zhèng', say: '正' },
       { w: '令名', p: 'lìng míng' },
       { w: '若夫', p: 'ruò fú', say: '若扶' },
-      { w: '与', p: 'yú', say: '予' },
+      { w: '与', p: 'yú', say: '余' },
       { w: '曾子', p: 'Zēng zǐ', say: '增子' }
     ],
     notes: [
