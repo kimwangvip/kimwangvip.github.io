@@ -14,7 +14,8 @@ window.XIAOJING_DATA = [
       { w: '参', p: 'Shēn', say: '身' },
       { w: '夫', p: 'Fú', say: '扶' },
       { w: '语汝', p: 'yù rǔ', say: '遇汝' },
-      { w: '聿修厥德', p: 'yù xiū jué dé', say: '玉修决德' }
+      { w: '聿修厥德', p: 'yù xiū jué dé', say: '玉修决德' },
+      { w: '行', p: 'xíng', say: '形' }
     ],
     notes: [
       { word: '避席', meaning: '离开坐席，表示恭敬。' },
@@ -53,7 +54,9 @@ window.XIAOJING_DATA = [
     reading: [
       { w: '社稷', p: 'shè jì' },
       { w: '履', p: 'lǚ', say: '旅' },
-      { w: '兢兢', p: 'jīng jīng', say: '精精' }
+      { w: '兢兢', p: 'jīng jīng', say: '精精' },
+      { w: '长', p: 'cháng', say: '常' },
+      { w: '薄', p: 'bó', say: '博' }
     ],
     notes: [
       { word: '制节谨度', meaning: '节制节约，谨慎遵守法度。' },
@@ -71,7 +74,9 @@ window.XIAOJING_DATA = [
     summary: '做官者要在服饰、言语、行为上都遵守正道，不给家族和祖先带来羞辱。',
     reading: [
       { w: '宗庙', p: 'zōng miào' },
-      { w: '夙夜匪懈', p: 'sù yè fěi xiè' }
+      { w: '夙夜匪懈', p: 'sù yè fěi xiè' },
+      { w: '行', p: 'xíng', say: '形' },
+      { w: '恶', p: 'wù', say: '悟' }
     ],
     notes: [
       { word: '法服', meaning: '按礼法规定的服饰。' },
@@ -126,7 +131,10 @@ window.XIAOJING_DATA = [
       { w: '行', p: 'xíng', say: '形' },
       { w: '好恶', p: 'hào wù', say: '浩悟' },
       { w: '赫赫', p: 'hè hè', say: '贺贺' },
-      { w: '瞻', p: 'zhān', say: '沾' }
+      { w: '瞻', p: 'zhān', say: '沾' },
+      { w: '夫', p: 'Fú', say: '扶' },
+      { w: '乐', p: 'yuè', say: '月' },
+      { w: '曾子', p: 'Zēng zǐ', say: '增子' }
     ],
     notes: [
       { word: '经', meaning: '常道、常法。' },
@@ -146,7 +154,9 @@ window.XIAOJING_DATA = [
     reading: [
       { w: '鳏寡', p: 'guān guǎ', say: '关寡' },
       { w: '臣妾', p: 'chén qiè' },
-      { w: '觉', p: 'jiào', say: '叫' }
+      { w: '觉', p: 'jiào', say: '叫' },
+      { w: '行', p: 'xíng', say: '形' },
+      { w: '夫', p: 'Fú', say: '扶' }
     ],
     notes: [
       { word: '鳏寡', meaning: '老而无妻、老而无夫，泛指孤苦无依的人。' },
@@ -167,7 +177,10 @@ window.XIAOJING_DATA = [
       { w: '明堂', p: 'míng táng' },
       { w: '膝下', p: 'xī xià' },
       { w: '悖', p: 'bèi', say: '贝' },
-      { w: '忒', p: 'tè', say: '特' }
+      { w: '忒', p: 'tè', say: '特' },
+      { w: '行', p: 'xíng', say: '形' },
+      { w: '夫', p: 'Fú', say: '扶' },
+      { w: '曾子', p: 'Zēng zǐ', say: '增子' }
     ],
     notes: [
       { word: '严父', meaning: '尊敬父亲。严，敬重。' },
@@ -241,6 +254,7 @@ window.XIAOJING_DATA = [
     summary: '把对父母兄长的尊敬推广出去，就是对他人长辈和上级的尊重。',
     reading: [
       { w: '恺悌', p: 'kǎi tì', say: '凯替' },
+      { w: '悌', p: 'tì', say: '替' },
       { w: '孰', p: 'shú', say: '熟' }
     ],
     notes: [
@@ -257,7 +271,9 @@ window.XIAOJING_DATA = [
     translation: '孔子说：“君子侍奉父母能孝，所以对君主的忠心可以从孝心转化而来；侍奉兄长能悌，所以对长辈的顺从可以从悌心转化而来；在家能料理家务，所以治理才能可以用于做官。因此在家内品行成就了，名声也会显扬于后世。”',
     summary: '在家孝顺、友爱、会持家，出去做事才有责任心和管理能力。',
     reading: [
-      { w: '长', p: 'zhǎng', say: '掌' }
+      { w: '长', p: 'zhǎng', say: '掌' },
+      { w: '行', p: 'xíng', say: '形' },
+      { w: '悌', p: 'tì', say: '替' }
     ],
     notes: [
       { word: '移', meaning: '转移、推及。' },
@@ -275,7 +291,9 @@ window.XIAOJING_DATA = [
     reading: [
       { w: '诤', p: 'zhèng', say: '正' },
       { w: '令名', p: 'lìng míng' },
-      { w: '夫', p: 'fú', say: '扶' }
+      { w: '若夫', p: 'ruò fú', say: '若扶' },
+      { w: '与', p: 'yú', say: '予' },
+      { w: '曾子', p: 'Zēng zǐ', say: '增子' }
     ],
     notes: [
       { word: '诤臣', meaning: '敢于直言劝谏的臣子。' },
@@ -293,7 +311,9 @@ window.XIAOJING_DATA = [
     reading: [
       { w: '彰', p: 'zhāng' },
       { w: '著', p: 'zhù', say: '注' },
-      { w: '悌', p: 'tì' }
+      { w: '悌', p: 'tì', say: '替' },
+      { w: '行', p: 'xíng', say: '形' },
+      { w: '长', p: 'zhǎng', say: '掌' }
     ],
     notes: [
       { word: '事天明', meaning: '祭祀上天而明晓天道。' },
