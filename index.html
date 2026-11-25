@@ -1332,7 +1332,7 @@
 (function(){
   'use strict';
 
-  var APP_VERSION = 'v2.3';
+  var APP_VERSION = 'v2.4';
   var APP_DATE = '2026-11-25';
 
   var SUPABASE_URL = 'https://oykyjwiwukidpchbbnnf.supabase.co';
@@ -3583,19 +3583,24 @@
   });
 
   window.addEventListener('resize',function(){ setupCanvas(); buildWheel(-1); draw(angle); });
-  function restoreHomeView(){
-    if(!user || isVip) return;
-    var ptsBox = document.getElementById('ptsBox');
-    saveMainView('main');
-    document.getElementById('authScreen').style.display = 'none';
-    document.getElementById('vipWrap').style.display = 'none';
-    document.getElementById('mainWrap').style.display = 'block';
+  function renderHomeUI(){
     refreshPointsDisplay();
     document.getElementById('todayDate').textContent = todayDisplay();
     refreshNameDisplay();
     renderHist(); updateStatus(); updateExchangeBtn();
+    var ptsBox = document.getElementById('ptsBox');
     if(ptsBox){ ptsBox.classList.remove('pop'); void ptsBox.offsetWidth; ptsBox.classList.add('pop'); }
     setTimeout(function(){ setupCanvas(); buildWheel(-1); draw(angle); }, 60);
+  }
+  function restoreHomeView(){
+    if(!user || isVip) return;
+    saveMainView('main');
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('vipWrap').style.display = 'none';
+    document.getElementById('mainWrap').style.display = 'block';
+    renderHomeUI();
+    // 返回首页时静默从云端校正一次，避免内存快照停留在跳转前的旧状态
+    Promise.all([loadProfile(), loadCloud()]).then(renderHomeUI, renderHomeUI);
   }
   window.addEventListener('pageshow', function(event){
     if(event.persisted) restoreHomeView();
